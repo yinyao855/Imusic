@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-u5lte1#t7ctyyyms-dqw%xj2d^3k2$$r#8a_#y4a0f*(l9&jr6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["182.92.100.66",'127.0.0.1']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'user.apps.UserConfig',
 ]
 
@@ -48,9 +49,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'imusic.urls'
+
+CORS_ORIGIN_ALLOW_ALL = True
+# 允许域名加入白名单
+# CORS_ORIGIN_WHITELIST = (
+#     'http//:localhost:8000',
+# )
 
 TEMPLATES = [
     {
@@ -75,18 +83,18 @@ WSGI_APPLICATION = 'imusic.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'imusic',
-        'USER': 'imusic',
-        'PASSWORD': '4cbxa4PDGFCh4Dhh',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'imusic',
+    #     'USER': 'imusic',
+    #     'PASSWORD': '4cbxa4PDGFCh4Dhh',
+    #     'HOST': '127.0.0.1',
+    #     'PORT': '3306',
+    # }
 }
 
 
