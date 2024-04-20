@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import User
-from imusic.settings import BASE_DIR
+from imusic.settings import BASE_DIR, STATIC_URL
 
 
 # Create your views here.
@@ -21,7 +21,7 @@ def user_register(request):
         # 判断用户是否已经存在
         user = User.objects.filter(username=username)
         if user:
-            return HttpResponse('用户名已存在')
+            return JsonResponse({'success': 0, 'message': '用户名已存在'})
         # 创建用户
         user = User(username=username, email=email,
                     password=password, avatar=avatar, bio=bio)
@@ -40,7 +40,6 @@ def user_login(request):
         # 判断用户是否存在
         user = User.objects.filter(username=username, password=password).first()
         if user:
-            # avatar_dir = os.path.join(BASE_DIR, '/avatars/')
             avatar_url = ''
             if user.avatar:
                 print(user.avatar.url)
@@ -70,11 +69,16 @@ def get_user_info(request, username):
         # 判断用户是否存在
         user = User.objects.filter(username=username).first()
         if user:
+            avatar_url = ''
+            if user.avatar:
+                print(user.avatar.url)
+                avatar_dir = os.path.join(BASE_DIR, user.avatar.url)
+                avatar_url = request.build_absolute_uri(avatar_dir)
             data = {
                 'username': user.username,
                 'email': user.email,
                 'bio': user.bio if user.bio else '',
-                'avatar': user.avatar.url if user.avatar else '',
+                'avatar': avatar_url,
                 'role': user.role,
                 'registration_date': user.registration_date
             }
@@ -117,3 +121,24 @@ def delete_user(request, username):
         return JsonResponse({'success': 0, 'message': '用户不存在'})
 
     return JsonResponse({'success': 0, 'message': '用户删除失败，数据或请求方式错误'})
+
+
+# 获取所有用户信息，测试用
+@csrf_exempt
+def get_all_users(request):
+    if request.method == 'GET':
+        users = User.objects.all()
+        data = []
+        for user in users:
+            user_data = {
+                'username': user.username,
+                'email': user.email,
+                'bio': user.bio if user.bio else '',
+                'avatar': user.avatar.url if user.avatar else '',
+                'role': user.role,
+                'registration_date': user.registration_date
+            }
+            data.append(user_data)
+        return JsonResponse({'success': 1, 'message': '获取所有用户信息成功', 'data': data})
+
+    return JsonResponse({'success': 0, 'message': '获取所有用户信息失败，数据或请求方式错误'})
