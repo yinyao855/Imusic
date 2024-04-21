@@ -5,6 +5,7 @@ from user.models import User
 
 
 class SongList(models.Model):
+    objects = None
     id = models.AutoField(primary_key=True, verbose_name="歌单ID")
     title = models.CharField(max_length=200, verbose_name="歌单名称")
     cover = models.FileField(upload_to='covers/', verbose_name="封面图")
@@ -20,7 +21,7 @@ class SongList(models.Model):
     created_date = models.DateTimeField(auto_now_add=True, verbose_name="创建日期")  # 自动设置创建时间
 
     def __str__(self):
-        return self.name
+        return self.title
 
     class Meta:
         verbose_name = "歌单"

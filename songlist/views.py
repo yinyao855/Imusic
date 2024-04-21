@@ -4,9 +4,9 @@ from django.http import JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from .models import Song, SongList
-from .models import User
-
+from ..song.models import Song
+from ..user.models import User
+from .models import SongList
 
 
 @csrf_exempt
