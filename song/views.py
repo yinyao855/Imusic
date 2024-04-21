@@ -1,14 +1,13 @@
 import json
 
 from django.http import HttpResponse, JsonResponse, Http404
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .models import Song
-from imusic.settings import BASE_DIR
+from user.models import User
 import os
-
+from django.conf import settings
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -20,7 +19,7 @@ def song_upload(request):
         audio_file = request.FILES.get('audio')
         lyric_file = request.FILES.get('lyric')
 
-        required_fields = ['title', 'singer', 'minutes', 'seconds', 'uploader']
+        required_fields = ['title', 'singer', 'uploader']
         required_files = [cover_file, audio_file]  # lyric_file可选
         for field in required_fields:
             if not data.get(field):
@@ -29,6 +28,7 @@ def song_upload(request):
             if file is None:
                 return JsonResponse({'success': False, 'message': '缺少文件'}, status=400)
 
+        user = User.objects.get(user_id=int(data['uploader']))
         song = Song(
             title=data['title'],
             singer=data['singer'],
@@ -36,14 +36,12 @@ def song_upload(request):
             introduction=data.get('introduction', ''),
             audio=audio_file,
             lyric=lyric_file,
-            minutes=int(data['minutes']),
-            seconds=int(data['seconds']),
             tag_theme=data.get('tag_theme', ''),
             tag_scene=data.get('tag_scene', ''),
             tag_mood=data.get('tag_mood', ''),
             tag_style=data.get('tag_style', ''),
             tag_language=data.get('tag_language', ''),
-            uploader_id=int(data['uploader']),
+            uploader=user,
             like=int(data.get('like', 0))
         )
         song.save()
@@ -100,19 +98,22 @@ def get_song_info(request, songID):
         except Song.DoesNotExist:
             raise Http404("歌曲不存在")
 
+        audio_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.audio.url))
+        cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.cover.url)) if song.cover else None
+        lyric_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.lyric.url)) if song.lyric else None
         song_info = {
+            'id': song.id,
             'title': song.title,
             'singer': song.singer,
-            'cover': song.cover.url if song.cover else None,
-            'introduction': song.introduction,
-            'audio': song.audio.url,
-            'lyric': song.lyric.url if song.lyric else None,
-            'duration': f"{song.minutes}分{song.seconds}秒",
-            'tag_theme': song.tag_theme,
-            'tag_scene': song.tag_scene,
-            'tag_mood': song.tag_mood,
-            'tag_style': song.tag_style,
-            'tag_language': song.tag_language,
+            'cover': cover_url,
+            'introduction': song.introduction if song.introduction else None,
+            'audio': audio_url,
+            'lyric': lyric_url,
+            'tag_theme': song.tag_theme if song.tag_theme else None,
+            'tag_scene': song.tag_scene if song.tag_scene else None,
+            'tag_mood': song.tag_mood if song.tag_mood else None,
+            'tag_style': song.tag_style if song.tag_style else None,
+            'tag_language': song.tag_language if song.tag_language else None,
             'uploader': song.uploader.username,
             'like': song.like,
             'upload_date': song.upload_date.strftime('%Y-%m-%d %H:%M:%S')
@@ -132,13 +133,11 @@ def update_song_info(request, songID):
         return JsonResponse({'success': False, 'message': '歌曲未找到'}, status=404)
 
     try:
-        data = json.loads(request.body)
+        data = request.POST
 
         song.title = data.get('title', song.title)
         song.singer = data.get('singer', song.singer)
         song.introduction = data.get('introduction', song.introduction)
-        song.minutes = data.get('minutes', song.minutes)
-        song.seconds = data.get('seconds', song.seconds)
         song.tag_theme = data.get('tag_theme', song.tag_theme)
         song.tag_scene = data.get('tag_scene', song.tag_scene)
         song.tag_mood = data.get('tag_mood', song.tag_mood)
@@ -183,19 +182,22 @@ def get_all_songs(request):
         songs = Song.objects.all()
         data = []
         for song in songs:
+            cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.cover.url)) if song.cover else None
+            audio_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.audio.url))
+            lyric_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.lyric.url)) if song.lyric else None
             song_data = {
+                'id': song.id,
                 'title': song.title,
                 'singer': song.singer,
-                'cover': song.cover.url if song.cover else '',
-                'introduction': song.introduction if song.introduction else '',
-                'audio': song.audio.url,
-                'lyric': song.lyric.url if song.lyric else '',
-                'duration': f"{song.minutes}分{song.seconds}秒",
-                'tag_theme': song.tag_theme if song.tag_theme else '',
-                'tag_scene': song.tag_scene if song.tag_scene else '',
-                'tag_mood': song.tag_mood if song.tag_mood else '',
-                'tag_style': song.tag_style if song.tag_style else '',
-                'tag_language': song.tag_language if song.tag_language else '',
+                'cover': cover_url,
+                'introduction': song.introduction if song.introduction else None,
+                'audio': audio_url,
+                'lyric': lyric_url,
+                'tag_theme': song.tag_theme if song.tag_theme else None,
+                'tag_scene': song.tag_scene if song.tag_scene else None,
+                'tag_mood': song.tag_mood if song.tag_mood else None,
+                'tag_style': song.tag_style if song.tag_style else None,
+                'tag_language': song.tag_language if song.tag_language else None,
                 'uploader': song.uploader.username,
                 'like': song.like,
                 'upload_date': song.upload_date.strftime('%Y-%m-%d %H:%M:%S')

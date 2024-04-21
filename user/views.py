@@ -40,7 +40,7 @@ def user_login(request):
         # 判断用户是否存在
         user = User.objects.filter(username=username, password=password).first()
         if user:
-            avatar_url = ''
+            avatar_url = None
             if user.avatar:
                 # print(user.avatar.url)
                 avatar_dir = os.path.join(settings.BASE_DIR, user.avatar.url)
@@ -49,7 +49,7 @@ def user_login(request):
                 'user_id': user.user_id,
                 'username': user.username,
                 'email': user.email,
-                'bio': user.bio if user.bio else '',
+                'bio': user.bio if user.bio else None,
                 'avatar': avatar_url,
                 'role': user.role,
                 'registration_date': user.registration_date
@@ -66,7 +66,7 @@ def get_user_info(request, username):
     if request.method == 'GET':
         user = User.objects.filter(username=username).first()
         if user:
-            avatar_url = ''
+            avatar_url = None
             if user.avatar:
                 # print(user.avatar.url)
                 avatar_dir = os.path.join(settings.BASE_DIR, user.avatar.url)
@@ -74,7 +74,7 @@ def get_user_info(request, username):
             data = {
                 'username': user.username,
                 'email': user.email,
-                'bio': user.bio if user.bio else '',
+                'bio': user.bio if user.bio else None,
                 'avatar': avatar_url,
                 'role': user.role,
                 'registration_date': user.registration_date
@@ -109,7 +109,7 @@ def update_user_info(request, username):
 # 删除用户，测试用
 @csrf_exempt
 def delete_user(request, username):
-    if request.method == 'POST':
+    if request.method == 'DELETE':
         # 判断用户是否存在
         user = User.objects.filter(username=username).first()
         if user:
@@ -127,11 +127,12 @@ def get_all_users(request):
         users = User.objects.all()
         data = []
         for user in users:
+            avatar_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, user.avatar.url)) if user.avatar else None
             user_data = {
                 'username': user.username,
                 'email': user.email,
-                'bio': user.bio if user.bio else '',
-                'avatar': user.avatar.url if user.avatar else '',
+                'bio': user.bio if user.bio else None,
+                'avatar': avatar_url,
                 'role': user.role,
                 'registration_date': user.registration_date
             }
