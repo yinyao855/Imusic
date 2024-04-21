@@ -1,4 +1,5 @@
 import json
+import os.path
 
 from django.http import JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
@@ -7,20 +8,21 @@ from django.views.decorators.http import require_http_methods
 from ..song.models import Song
 from ..user.models import User
 from .models import SongList
+from django.conf import settings
 
 
 @csrf_exempt
 def songlist_create(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
+            data = request.POST
             # 获取创建者/所有者
-            owner = User.objects.get(id=data['owner'])
+            owner = User.objects.get(user_id=data['owner'])
             # 创建新的歌单实例
             new_songlist = SongList(
                 name=data['title'],
                 introduction=data.get('introduction', ''),
-                cover=request.FILES.get('cover'),
+                cover=request.FILES.get('cover', None),
                 tag_theme=data.get('tag_theme', ''),
                 tag_scene=data.get('tag_scene', ''),
                 tag_mood=data.get('tag_mood', ''),
@@ -57,23 +59,28 @@ def get_songlist_info(request, songlistID):
         # 获取包含的歌曲信息
         songs_data = []
         for song in songlist.songs.all():
+            cover_url = request.build_absolute_uri(
+                os.path.join(settings.MEDIA_URL, song.cover.url)) if song.cover else None
             songs_data.append({
                 'id': song.id,
                 'title': song.title,
                 'singer': song.singer,
-                'cover': song.cover.url if song.cover else None
+                'cover': cover_url
             })
 
+        cover_url = request.build_absolute_uri(
+            os.path.join(settings.MEDIA_URL, songlist.cover.url)) if songlist.cover else None
         songlist_info = {
+            'id': songlist.id,
             'title': songlist.name,
-            'cover': songlist.cover.url if songlist.cover else None,
-            'introduction': songlist.introduction,
+            'cover': cover_url,
+            'introduction': songlist.introduction if songlist.introduction else None,
             'songs': songs_data,
-            'tag_theme': songlist.tag_theme,
-            'tag_scene': songlist.tag_scene,
-            'tag_mood': songlist.tag_mood,
-            'tag_style': songlist.tag_style,
-            'tag_language': songlist.tag_language,
+            'tag_theme': songlist.tag_theme if songlist.tag_theme else None,
+            'tag_scene': songlist.tag_scene if songlist.tag_scene else None,
+            'tag_mood': songlist.tag_mood if songlist.tag_mood else None,
+            'tag_style': songlist.tag_style if songlist.tag_style else None,
+            'tag_language': songlist.tag_language if songlist.tag_language else None,
             'owner': songlist.owner.username,
             'create_date': songlist.created_date.strftime('%Y-%m-%d %H:%M:%S'),
             'like': songlist.like
@@ -93,7 +100,7 @@ def update_songlist_info(request, songlistID):
         return JsonResponse({'success': False, 'message': '未找到对应歌单'}, status=404)
 
     try:
-        data = json.loads(request.body)
+        data = request.POST
 
         # 更新基本信息
         songlist.name = data.get('title', songlist.name)
@@ -146,25 +153,28 @@ def get_all_songlists(request):
         songlists = SongList.objects.all()
         data = []
         for songlist in songlists:
+            cover_url = request.build_absolute_uri(
+                os.path.join(settings.MEDIA_URL, songlist.cover.url)) if songlist.cover else ''
             songs_data = [
                 {
                     'id': song.id,
                     'title': song.title,
                     'singer': song.singer,
-                    'cover': song.cover.url if song.cover else ''
+                    'cover': cover_url
                 } for song in songlist.songs.all()
             ]
 
             songlist_data = {
+                'id': songlist.id,
                 'title': songlist.name,
-                'cover': songlist.cover.url if songlist.cover else '',
-                'introduction': songlist.introduction if songlist.introduction else '',
+                'cover': songlist.cover.url if songlist.cover else None,
+                'introduction': songlist.introduction if songlist.introduction else None,
                 'songs': songs_data,
-                'tag_theme': songlist.tag_theme if songlist.tag_theme else '',
-                'tag_scene': songlist.tag_scene if songlist.tag_scene else '',
-                'tag_mood': songlist.tag_mood if songlist.tag_mood else '',
-                'tag_style': songlist.tag_style if songlist.tag_style else '',
-                'tag_language': songlist.tag_language if songlist.tag_language else '',
+                'tag_theme': songlist.tag_theme if songlist.tag_theme else None,
+                'tag_scene': songlist.tag_scene if songlist.tag_scene else None,
+                'tag_mood': songlist.tag_mood if songlist.tag_mood else None,
+                'tag_style': songlist.tag_style if songlist.tag_style else None,
+                'tag_language': songlist.tag_language if songlist.tag_language else None,
                 'owner': songlist.owner.username,
                 'create_date': songlist.created_date.strftime('%Y-%m-%d %H:%M:%S'),
                 'like': songlist.like
