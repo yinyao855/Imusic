@@ -80,18 +80,18 @@ WSGI_APPLICATION = 'imusic.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
     # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'imusic',
-    #     'USER': 'imusic',
-    #     'PASSWORD': '4cbxa4PDGFCh4Dhh',
-    #     'HOST': '127.0.0.1',
-    #     'PORT': '3306',
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'imusic',
+        'USER': 'imusic',
+        'PASSWORD': '4cbxa4PDGFCh4Dhh',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+    }
 }
 
 # Password validation
@@ -121,7 +121,9 @@ TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_L10N = True
+
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
