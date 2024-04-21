@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'user.apps.UserConfig',
+    'song.apps.SongConfig',
+    'songlist.apps.SonglistConfig',
 ]
 
 MIDDLEWARE = [

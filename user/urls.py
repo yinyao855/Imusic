@@ -8,4 +8,5 @@ urlpatterns = [
     path('update/<str:username>', views.update_user_info, name='update'),
     path('delete/<str:username>', views.delete_user, name='delete'),
     path('alldata', views.get_all_users, name='all_info'),
+
 ]
