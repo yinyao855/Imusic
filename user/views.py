@@ -72,6 +72,7 @@ def get_user_info(request, username):
                 avatar_dir = os.path.join(settings.BASE_DIR, user.avatar.url)
                 avatar_url = request.build_absolute_uri(avatar_dir)
             data = {
+                'user_id': user.user_id,
                 'username': user.username,
                 'email': user.email,
                 'bio': user.bio if user.bio else None,
@@ -129,6 +130,7 @@ def get_all_users(request):
         for user in users:
             avatar_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, user.avatar.url)) if user.avatar else None
             user_data = {
+                'user_id': user.user_id,
                 'username': user.username,
                 'email': user.email,
                 'bio': user.bio if user.bio else None,
