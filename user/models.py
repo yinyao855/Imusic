@@ -1,5 +1,5 @@
 from django.db import models
-# from imusic.settings import STATIC_URL,MEDIA_URL
+
 
 # Create your models here.
 class User(models.Model):
