@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import User
-from imusic.settings import BASE_DIR
+from django.conf import settings
 
 
 # Create your views here.
@@ -42,8 +42,8 @@ def user_login(request):
         if user:
             avatar_url = ''
             if user.avatar:
-                print(user.avatar.url)
-                avatar_dir = os.path.join(BASE_DIR, user.avatar.url)
+                # print(user.avatar.url)
+                avatar_dir = os.path.join(settings.BASE_DIR, user.avatar.url)
                 avatar_url = request.build_absolute_uri(avatar_dir)
             data = {
                 'user_id': user.user_id,
@@ -64,15 +64,12 @@ def user_login(request):
 @csrf_exempt
 def get_user_info(request, username):
     if request.method == 'GET':
-        # 获取用户提交的数据
-        # user_id = request.GET.get('user_id')
-        # 判断用户是否存在
         user = User.objects.filter(username=username).first()
         if user:
             avatar_url = ''
             if user.avatar:
-                print(user.avatar.url)
-                avatar_dir = os.path.join(BASE_DIR, user.avatar.url)
+                # print(user.avatar.url)
+                avatar_dir = os.path.join(settings.BASE_DIR, user.avatar.url)
                 avatar_url = request.build_absolute_uri(avatar_dir)
             data = {
                 'username': user.username,
@@ -142,3 +139,35 @@ def get_all_users(request):
         return JsonResponse({'success': 1, 'message': '获取所有用户信息成功', 'data': data})
 
     return JsonResponse({'success': 0, 'message': '获取所有用户信息失败，数据或请求方式错误'})
+
+
+# 更改用户权限
+@csrf_exempt
+def change_user_role(request):
+    with open('authorized_key', 'r') as f:
+        authorized_key = f.read().strip()
+    print(authorized_key)
+    if request.method == 'POST':
+        # 获取用户提交的数据，都是用户名
+        cur_user = request.POST.get('cur_user')
+        dir_user = request.POST.get('dir_user')
+        role = request.POST.get('role')
+        key = request.POST.get('key')
+        flag = 0
+        user = User.objects.filter(username=cur_user).first()
+        if key == authorized_key:
+            flag = 1
+        if user and user.role == 'admin':
+            flag = 1
+        if not flag:
+            return JsonResponse({'success': 0, 'message': '用户权限修改失败，权限不足'})
+        user = User.objects.filter(username=dir_user).first()
+        if not user:
+            return JsonResponse({'success': 0, 'message': '用户不存在'})
+        if role not in ['admin', 'user']:
+            return JsonResponse({'success': 0, 'message': '用户权限修改失败，权限错误'})
+        user.role = role
+        user.save()
+        return JsonResponse({'success': 1, 'message': '用户权限修改成功'})
+
+    return JsonResponse({'success': 0, 'message': '用户权限修改失败，数据或请求方式错误'})
