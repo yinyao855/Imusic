@@ -1,5 +1,7 @@
 import json
 
+from django.core.exceptions import ValidationError
+from mutagen.mp3 import MP3
 from django.http import HttpResponse, JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -8,6 +10,9 @@ from .models import Song
 from user.models import User
 import os
 from django.conf import settings
+
+from django.db import transaction
+
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -28,28 +33,51 @@ def song_upload(request):
             if file is None:
                 return JsonResponse({'success': False, 'message': '缺少文件'}, status=400)
 
-        user = User.objects.get(user_id=int(data['uploader']))
-        song = Song(
-            title=data['title'],
-            singer=data['singer'],
-            cover=cover_file,
-            introduction=data.get('introduction', ''),
-            audio=audio_file,
-            lyric=lyric_file,
-            tag_theme=data.get('tag_theme', ''),
-            tag_scene=data.get('tag_scene', ''),
-            tag_mood=data.get('tag_mood', ''),
-            tag_style=data.get('tag_style', ''),
-            tag_language=data.get('tag_language', ''),
-            uploader=user,
-            like=int(data.get('like', 0))
-        )
-        song.save()
+        # 检查用户是否已经上传了相同的歌曲
+        if Song.objects.filter(title=data['title'], singer=data['singer'],
+                               uploader__username=data['uploader']).exists():
+            return JsonResponse({'success': False, 'message': '您已经上传过这首歌曲了'}, status=400)
 
-        return JsonResponse({'success': True, 'message': '歌曲上传成功'})
+        # 检查音频文件类型
+        if audio_file.content_type != 'audio/mpeg':
+            return JsonResponse({'success': False, 'message': '音频文件格式必须为MP3'}, status=400)
+
+        # 检查文件大小
+        max_file_size = getattr(settings, "MAX_FILE_SIZE", 10 * 1024 * 1024)  # 默认为10MB
+        if audio_file.size > max_file_size or cover_file.size > max_file_size:
+            return JsonResponse({'success': False, 'message': '文件大小超过限制'}, status=400)
+
+        # 发生了任何异常，整个数据库操作将会被回滚，保证了操作的原子性
+        with transaction.atomic():
+            user = User.objects.get(username=data['uploader'])
+            duration = MP3(audio_file).info.length
+            duration = str(duration)[:10]
+            song = Song(
+                title=data['title'],
+                singer=data['singer'],
+                cover=cover_file,
+                introduction=data.get('introduction', ''),
+                audio=audio_file,
+                duration=duration,
+                lyric=lyric_file,
+                tag_theme=data.get('tag_theme', ''),
+                tag_scene=data.get('tag_scene', ''),
+                tag_mood=data.get('tag_mood', ''),
+                tag_style=data.get('tag_style', ''),
+                tag_language=data.get('tag_language', ''),
+                uploader=user,
+                like=int(data.get('like', 0))
+            )
+            song.save()
+
+        return JsonResponse({'success': True, 'message': '歌曲上传成功'}, status=201)
+
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '上传者不存在'}, status=400)
 
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
 
 # url version
 
@@ -90,42 +118,22 @@ def song_upload(request):
 #     except Exception as e:
 #         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
-
-def get_song_info(request, songID):
-    if request.method == 'GET':
-        try:
-            song = Song.objects.get(id=songID)
-        except Song.DoesNotExist:
-            raise Http404("歌曲不存在")
-
-        audio_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.audio.url))
-        cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.cover.url)) if song.cover else None
-        lyric_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.lyric.url)) if song.lyric else None
-        song_info = {
-            'id': song.id,
-            'title': song.title,
-            'singer': song.singer,
-            'cover': cover_url,
-            'introduction': song.introduction if song.introduction else None,
-            'audio': audio_url,
-            'lyric': lyric_url,
-            'tag_theme': song.tag_theme if song.tag_theme else None,
-            'tag_scene': song.tag_scene if song.tag_scene else None,
-            'tag_mood': song.tag_mood if song.tag_mood else None,
-            'tag_style': song.tag_style if song.tag_style else None,
-            'tag_language': song.tag_language if song.tag_language else None,
-            'uploader': song.uploader.username,
-            'like': song.like,
-            'upload_date': song.upload_date.strftime('%Y-%m-%d %H:%M:%S')
-        }
-
-        return JsonResponse(song_info)
-    else:
-        return JsonResponse({'error': '只允许GET请求'}, status=405)
-
-
 @csrf_exempt
-@require_http_methods(["PUT"])
+@require_http_methods(["GET"])
+def get_song_info(request, songID):
+    try:
+        song = Song.objects.get(id=songID)
+    except Song.DoesNotExist as e:
+        return JsonResponse({'success': True, 'message': str(e)}, status=404)
+
+    song_info = song.to_dict(request)
+
+    return JsonResponse({'success': False, 'message': '获取歌曲信息成功', 'data': song_info}, status=200)
+
+
+# 更新歌曲信息
+@csrf_exempt
+@require_http_methods(["POST"])
 def update_song_info(request, songID):
     try:
         song = Song.objects.get(id=songID)
@@ -135,31 +143,43 @@ def update_song_info(request, songID):
     try:
         data = request.POST
 
-        song.title = data.get('title', song.title)
-        song.singer = data.get('singer', song.singer)
-        song.introduction = data.get('introduction', song.introduction)
-        song.tag_theme = data.get('tag_theme', song.tag_theme)
-        song.tag_scene = data.get('tag_scene', song.tag_scene)
-        song.tag_mood = data.get('tag_mood', song.tag_mood)
-        song.tag_style = data.get('tag_style', song.tag_style)
-        song.tag_language = data.get('tag_language', song.tag_language)
+        # 更新歌曲信息
+        update_fields = ['title', 'singer', 'introduction', 'tag_theme', 'tag_scene', 'tag_mood', 'tag_style',
+                         'tag_language']
+        for field in update_fields:
+            setattr(song, field, data.get(field, getattr(song, field)))
 
-        # 对于文件字段（封面图、音频文件、歌词文件），需要特别处理
-        if 'cover' in request.FILES:
-            song.cover = request.FILES['cover']
+        # 更新文件字段
+        file_fields = {'cover': 'cover', 'audio': 'audio', 'lyric': 'lyric'}
+        for field_name, field_attr in file_fields.items():
+            if field_name in request.FILES:
+                # 删除原有文件
+                if getattr(song, field_attr):
+                    file_path = os.path.join(settings.MEDIA_ROOT, str(getattr(song, field_attr)))
+                    try:
+                        os.remove(file_path)
+                    except FileNotFoundError:
+                        pass  # 文件不存在，继续执行后续代码
+                setattr(song, field_attr, request.FILES[field_name])
+
+        # 更新音频文件时更新 duration 字段
         if 'audio' in request.FILES:
-            song.audio = request.FILES['audio']
-        if 'lyric' in request.FILES:
-            song.lyric = request.FILES['lyric']
+            audio_duration = MP3(song.audio).info.length
+            audio_duration = str(audio_duration)[:10]
+            song.duration = audio_duration
 
-        song.save()
+        with transaction.atomic():
+            song.full_clean()  # 执行完整性验证
+            song.save()
 
-        return JsonResponse({'success': True, 'message': '更新成功'})
+        return JsonResponse({'success': True, 'message': '更新成功'}, status=200)
+    except ValidationError as e:
+        return JsonResponse({'success': False, 'message': e.message_dict}, status=400)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
-# 删除歌曲
+# 删除歌曲，目前是测试阶段
 @csrf_exempt
 @require_http_methods(["DELETE"])
 def delete_song(request, songID):
@@ -177,33 +197,12 @@ def delete_song(request, songID):
 
 # 获取所有歌曲信息
 @csrf_exempt
+@require_http_methods(["GET"])
 def get_all_songs(request):
-    if request.method == 'GET':
-        songs = Song.objects.all()
-        data = []
-        for song in songs:
-            cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.cover.url)) if song.cover else None
-            audio_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.audio.url))
-            lyric_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, song.lyric.url)) if song.lyric else None
-            song_data = {
-                'id': song.id,
-                'title': song.title,
-                'singer': song.singer,
-                'cover': cover_url,
-                'introduction': song.introduction if song.introduction else None,
-                'audio': audio_url,
-                'lyric': lyric_url,
-                'tag_theme': song.tag_theme if song.tag_theme else None,
-                'tag_scene': song.tag_scene if song.tag_scene else None,
-                'tag_mood': song.tag_mood if song.tag_mood else None,
-                'tag_style': song.tag_style if song.tag_style else None,
-                'tag_language': song.tag_language if song.tag_language else None,
-                'uploader': song.uploader.username,
-                'like': song.like,
-                'upload_date': song.upload_date.strftime('%Y-%m-%d %H:%M:%S')
-            }
-            data.append(song_data)
-        return JsonResponse({'success': 1, 'message': '获取所有歌曲信息成功', 'data': data})
-
-    return JsonResponse({'success': 0, 'message': '只允许GET请求'})
+    songs = Song.objects.all()
+    data = []
+    for song in songs:
+        song_data = song.to_dict(request)
+        data.append(song_data)
+    return JsonResponse({'success': True, 'message': '获取所有歌曲信息成功', 'data': data}, status=200)
 

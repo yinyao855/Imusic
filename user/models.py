@@ -1,4 +1,6 @@
 from django.db import models
+import os
+from django.conf import settings
 
 
 # Create your models here.
@@ -20,3 +22,16 @@ class User(models.Model):
 
     def __str__(self):
         return self.username
+
+    def to_dict(self, request=None):
+        avatar_url = request.build_absolute_uri(
+            os.path.join(settings.MEDIA_URL, self.avatar.url)) if self.avatar else None
+        return {
+            'user_id': self.user_id,
+            'username': self.username,
+            'email': self.email,
+            'bio': self.bio if self.bio else None,
+            'avatar': avatar_url,
+            'role': self.role,
+            'registration_date': self.registration_date.strftime('%Y-%m-%d %H:%M:%S')
+        }
