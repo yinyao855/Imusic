@@ -1,5 +1,4 @@
-import json
-
+# Description: 歌曲相关视图函数
 from django.core.exceptions import ValidationError
 from mutagen.mp3 import MP3
 from django.http import HttpResponse, JsonResponse, Http404
@@ -10,7 +9,7 @@ from .models import Song
 from user.models import User
 import os
 from django.conf import settings
-
+from django.db.models import Q
 from django.db import transaction
 
 
@@ -124,11 +123,43 @@ def get_song_info(request, songID):
     try:
         song = Song.objects.get(id=songID)
     except Song.DoesNotExist as e:
-        return JsonResponse({'success': True, 'message': str(e)}, status=404)
+        return JsonResponse({'success': False, 'message': str(e)}, status=404)
 
     song_info = song.to_dict(request)
 
-    return JsonResponse({'success': False, 'message': '获取歌曲信息成功', 'data': song_info}, status=200)
+    return JsonResponse({'success': True, 'message': '获取歌曲信息成功', 'data': song_info}, status=200)
+
+
+# 条件查询
+@csrf_exempt
+@require_http_methods(["GET"])
+def query_songs(request):
+    try:
+        # 获取用户提供的查询参数
+        query_params = {}
+        for key in request.GET:
+            value = request.GET.get(key)
+            if value:
+                query_params[key] = value
+
+        # 如果没有提供任何搜索关键字，则返回错误消息
+        if not query_params:
+            return JsonResponse({'success': False, 'message': '缺少搜索关键字'}, status=400)
+
+        # 构建查询条件
+        query = Q()
+        for key, value in query_params.items():
+            query &= Q(**{f"{key}__contains": value})
+
+        # 根据查询条件过滤歌曲
+        songs = Song.objects.filter(query)
+
+        # 将查询结果转换为字典格式
+        data = [song.to_dict(request) for song in songs]
+
+        return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 # 更新歌曲信息
@@ -189,13 +220,32 @@ def delete_song(request, songID):
         return JsonResponse({'success': False, 'message': '歌曲未找到'}, status=404)
 
     try:
+        # 需要删除歌曲对应的封面、音频和歌词文件
+        if song.cover:
+            cover_path = os.path.join(settings.MEDIA_ROOT, str(song.cover))
+            try:
+                os.remove(cover_path)
+            except FileNotFoundError:
+                pass
+        if song.audio:
+            audio_path = os.path.join(settings.MEDIA_ROOT, str(song.audio))
+            try:
+                os.remove(audio_path)
+            except FileNotFoundError:
+                pass
+        if song.lyric:
+            lyric_path = os.path.join(settings.MEDIA_ROOT, str(song.lyric))
+            try:
+                os.remove(lyric_path)
+            except FileNotFoundError:
+                pass
         song.delete()
-        return JsonResponse({'success': True, 'message': '删除成功'})
+        return JsonResponse({'success': True, 'message': '删除成功'}, status=200)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
-# 获取所有歌曲信息
+# 获取所有歌曲信息, 用于测试
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_all_songs(request):

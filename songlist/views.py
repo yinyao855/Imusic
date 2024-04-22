@@ -12,41 +12,38 @@ from django.conf import settings
 
 
 @csrf_exempt
+@require_http_methods(["POST"])
 def songlist_create(request):
-    if request.method == 'POST':
-        try:
-            data = request.POST
-            # 获取创建者/所有者
-            owner = User.objects.get(user_id=data['owner'])
-            # 创建新的歌单实例
-            new_songlist = SongList(
-                name=data['title'],
-                introduction=data.get('introduction', ''),
-                cover=request.FILES.get('cover', None),
-                tag_theme=data.get('tag_theme', ''),
-                tag_scene=data.get('tag_scene', ''),
-                tag_mood=data.get('tag_mood', ''),
-                tag_style=data.get('tag_style', ''),
-                tag_language=data.get('tag_language', ''),
-                owner=owner
-            )
-            new_songlist.save()
+    try:
+        data = request.POST
+        # 获取创建者/所有者
+        owner = User.objects.get(user_id=data['owner'])
+        # 创建新的歌单实例
+        new_songlist = SongList(
+            title=data['title'],
+            introduction=data.get('introduction', ''),
+            cover=request.FILES.get('cover', None),
+            tag_theme=data.get('tag_theme', ''),
+            tag_scene=data.get('tag_scene', ''),
+            tag_mood=data.get('tag_mood', ''),
+            tag_style=data.get('tag_style', ''),
+            tag_language=data.get('tag_language', ''),
+            owner=owner
+        )
+        new_songlist.save()
 
-            # 添加歌曲到歌单
-            song_ids = data.get('songs', [])
-            for song_id in song_ids:
-                song = Song.objects.get(id=song_id)
-                new_songlist.songs.add(song)
+        # 添加歌曲到歌单
+        song_ids = data.get('songs', [])
+        for song_id in song_ids:
+            song = Song.objects.get(id=song_id)
+            new_songlist.songs.add(song)
 
-            return JsonResponse({'success': True, 'message': '歌单创建成功'})
+        return JsonResponse({'success': True, 'message': '歌单创建成功'})
 
-        except Song.DoesNotExist:
-            return JsonResponse({'success': False, 'message': '某些歌曲未上传，请先上传对应歌曲'}, status=404)
-        except Exception as e:
-            return JsonResponse({'success': False, 'message': str(e)}, status=500)
-
-    else:
-        return JsonResponse({'success': False, 'message': '只允许POST请求'}, status=405)
+    except Song.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '某些歌曲未上传，请先上传对应歌曲'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 def get_songlist_info(request, songlistID):

@@ -27,7 +27,7 @@ def user_register(request):
         if not request.POST.get(field):
             return JsonResponse({'success': False, 'message': f'缺少字段：{field}'}, status=400)
     # 判断用户是否已经存在
-    user = User.objects.filter(username=username)
+    user = User.objects.filter(username=username).first()
     if user:
         return JsonResponse({'success': False, 'message': '用户名已存在'}, status=400)
     # 创建用户
@@ -71,7 +71,7 @@ def get_user_info(request, username):
 def update_user_info(request, username):
     # 判断用户是否存在
     try:
-        user = User.objects.get(username=username).first()
+        user = User.objects.filter(username=username).first()
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
 
@@ -111,6 +111,13 @@ def delete_user(request, username):
     # 判断用户是否存在
     user = User.objects.filter(username=username).first()
     if user:
+        # 需要删除用户的头像文件
+        if user.avatar:
+            file_path = os.path.join(settings.MEDIA_ROOT, str(user.avatar))
+            try:
+                os.remove(file_path)
+            except FileNotFoundError:
+                pass
         user.delete()
         return JsonResponse({'success': True, 'message': '用户删除成功'}, status=200)
     return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
@@ -157,3 +164,19 @@ def change_user_role(request):
     user.role = role
     user.save()
     return JsonResponse({'success': False, 'message': '用户权限修改成功'}, status=200)
+
+
+# 修改密码
+@csrf_exempt
+@require_http_methods(["POST"])
+def change_password(request):
+    # 获取用户提交的数据
+    username = request.POST.get('username')
+    new_password = request.POST.get('new_password')
+    # 判断用户是否存在
+    user = User.objects.filter(username=username).first()
+    if user:
+        user.password = new_password
+        user.save()
+        return JsonResponse({'success': True, 'message': '密码修改成功'}, status=200)
+    return JsonResponse({'success': False, 'message': '用户名不存在'}, status=400)
