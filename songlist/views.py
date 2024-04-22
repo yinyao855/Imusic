@@ -5,8 +5,8 @@ from django.http import JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from ..song.models import Song
-from ..user.models import User
+from song.models import Song
+from user.models import User
 from .models import SongList
 from django.conf import settings
 
@@ -16,13 +16,22 @@ from django.conf import settings
 def songlist_create(request):
     try:
         data = request.POST
+        required_fields = ['title', 'owner']
+        for field in required_fields:
+            if not data.get(field):
+                return JsonResponse({'success': False, 'message': f'缺少字段：{field}'}, status=400)
+
+        cover_file = request.FILES.get('cover')
+        if cover_file is None:
+            return JsonResponse({'success': False, 'message': '缺少封面图'}, status=400)
+
         # 获取创建者/所有者
-        owner = User.objects.get(user_id=data['owner'])
+        owner = User.objects.get(username=data['owner'])
         # 创建新的歌单实例
         new_songlist = SongList(
             title=data['title'],
             introduction=data.get('introduction', ''),
-            cover=request.FILES.get('cover', None),
+            cover=cover_file,
             tag_theme=data.get('tag_theme', ''),
             tag_scene=data.get('tag_scene', ''),
             tag_mood=data.get('tag_mood', ''),
@@ -32,64 +41,74 @@ def songlist_create(request):
         )
         new_songlist.save()
 
-        # 添加歌曲到歌单
-        song_ids = data.get('songs', [])
-        for song_id in song_ids:
-            song = Song.objects.get(id=song_id)
-            new_songlist.songs.add(song)
+        return JsonResponse({'success': True, 'message': '歌单创建成功'}, status=201)
 
-        return JsonResponse({'success': True, 'message': '歌单创建成功'})
-
-    except Song.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '某些歌曲未上传，请先上传对应歌曲'}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '所有者不存在'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
+@csrf_exempt
+@require_http_methods(["GET"])
 def get_songlist_info(request, songlistID):
-    if request.method == 'GET':
-        try:
-            songlist = SongList.objects.get(id=songlistID)
-        except SongList.DoesNotExist:
-            # 如果歌单不存在，则返回404错误
-            raise Http404("歌单不存在")
-        # 获取包含的歌曲信息
-        songs_data = []
-        for song in songlist.songs.all():
-            cover_url = request.build_absolute_uri(
-                os.path.join(settings.MEDIA_URL, song.cover.url)) if song.cover else None
-            songs_data.append({
-                'id': song.id,
-                'title': song.title,
-                'singer': song.singer,
-                'cover': cover_url
-            })
+    try:
+        songlist = SongList.objects.get(id=songlistID)
+    except SongList.DoesNotExist:
+        # 如果歌单不存在，则返回404错误
+        return JsonResponse({'success': False, 'message': '未找到对应歌单'}, status=404)
+    # 获取包含的歌曲信息
+    songlist_info = songlist.to_dict(request)
 
-        cover_url = request.build_absolute_uri(
-            os.path.join(settings.MEDIA_URL, songlist.cover.url)) if songlist.cover else None
-        songlist_info = {
-            'id': songlist.id,
-            'title': songlist.name,
-            'cover': cover_url,
-            'introduction': songlist.introduction if songlist.introduction else None,
-            'songs': songs_data,
-            'tag_theme': songlist.tag_theme if songlist.tag_theme else None,
-            'tag_scene': songlist.tag_scene if songlist.tag_scene else None,
-            'tag_mood': songlist.tag_mood if songlist.tag_mood else None,
-            'tag_style': songlist.tag_style if songlist.tag_style else None,
-            'tag_language': songlist.tag_language if songlist.tag_language else None,
-            'owner': songlist.owner.username,
-            'create_date': songlist.created_date.strftime('%Y-%m-%d %H:%M:%S'),
-            'like': songlist.like
-        }
+    return JsonResponse({'success': True, 'message': '获取歌单成功', 'data': songlist_info}, status=200)
 
-        return JsonResponse(songlist_info)
-    else:
-        return JsonResponse({'error': '只允许GET请求'}, status=405)
+
+# 向歌单添加歌曲
+@csrf_exempt
+@require_http_methods(["POST"])
+def songlist_add(request):
+    try:
+        data = request.POST
+        songlist_id = data.get('songlist_id')
+        song_id = data.get('song_id')
+        song = Song.objects.get(id=song_id)
+        songlist = SongList.objects.get(id=songlist_id)
+        songlist.add_song(song)
+
+        return JsonResponse({'success': True, 'message': '添加歌曲成功'}, status=200)
+
+    except Song.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '某些歌曲未上传，请先上传对应歌曲'}, status=404)
+    except SongList.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '歌单不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+# 从歌单中删除歌曲
+@csrf_exempt
+@require_http_methods(["POST"])
+def songlist_remove(request):
+    try:
+        data = request.POST
+        songlist_id = data.get('songlist_id')
+        song_id = data.get('song_id')
+        song = Song.objects.get(id=song_id)
+        songlist = SongList.objects.get(id=songlist_id)
+        songlist.remove_song(song)
+
+        return JsonResponse({'success': True, 'message': '删除歌曲成功'}, status=200)
+
+    except Song.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '某些歌曲未上传，请先上传对应歌曲'}, status=404)
+    except SongList.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '歌单不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 @csrf_exempt
-@require_http_methods(["PUT"])
+@require_http_methods(["POST"])
 def update_songlist_info(request, songlistID):
     try:
         songlist = SongList.objects.get(id=songlistID)
@@ -100,7 +119,7 @@ def update_songlist_info(request, songlistID):
         data = request.POST
 
         # 更新基本信息
-        songlist.name = data.get('title', songlist.name)
+        songlist.title = data.get('title', songlist.title)
         songlist.introduction = data.get('introduction', songlist.introduction)
         songlist.tag_theme = data.get('tag_theme', songlist.tag_theme)
         songlist.tag_scene = data.get('tag_scene', songlist.tag_scene)
@@ -109,21 +128,19 @@ def update_songlist_info(request, songlistID):
         songlist.tag_language = data.get('tag_language', songlist.tag_language)
         # 如果有更新封面的要求，那么就更新
         if 'cover' in request.FILES:
+            # 先删除旧有封面
+            if songlist.cover:
+                cover_path = os.path.join(settings.MEDIA_URL, str(songlist.cover))
+                try:
+                    os.remove(cover_path)
+                except FileNotFoundError as e:
+                    print(e)
+                    pass
             songlist.cover = request.FILES['cover']
 
-        # 更新包含的歌曲
-        if 'songs' in data:
-            songlist.songs.clear()  # 清除旧关联
-            song_ids = data['songs']
-            for song_id in song_ids:
-                song = Song.objects.get(id=song_id)
-                songlist.songs.add(song)
-
         songlist.save()
+        return JsonResponse({'success': True, 'message': '更新歌单成功'}, status=200)
 
-        return JsonResponse({'success': True, 'message': '更新成功'})
-    except Song.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '存在歌曲未找到'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
@@ -134,8 +151,13 @@ def delete_songlist(request, songlistID):
     try:
         # 尝试找到并删除指定的歌单
         songlist = SongList.objects.get(id=songlistID)
+        # 删除歌单对应的封面图
+        if songlist.cover:
+            cover_path = os.path.join(settings.MEDIA_ROOT, str(songlist.cover.url))
+            if os.path.exists(cover_path):
+                os.remove(cover_path)
         songlist.delete()
-        return JsonResponse({'success': True, 'message': '删除歌单成功'})
+        return JsonResponse({'success': True, 'message': '删除歌单成功'}, status=200)
     except SongList.DoesNotExist:
         # 如果歌单不存在，返回一个404错误
         return JsonResponse({'success': False, 'message': '歌单不存在'}, status=404)
@@ -145,39 +167,11 @@ def delete_songlist(request, songlistID):
 
 
 @csrf_exempt
+@require_http_methods(["GET"])
 def get_all_songlists(request):
-    if request.method == 'GET':
-        songlists = SongList.objects.all()
-        data = []
-        for songlist in songlists:
-            cover_url = request.build_absolute_uri(
-                os.path.join(settings.MEDIA_URL, songlist.cover.url)) if songlist.cover else ''
-            songs_data = [
-                {
-                    'id': song.id,
-                    'title': song.title,
-                    'singer': song.singer,
-                    'cover': cover_url
-                } for song in songlist.songs.all()
-            ]
+    songlists = SongList.objects.all()
+    data = []
+    for songlist in songlists:
+        data.append(songlist.to_dict(request))
 
-            songlist_data = {
-                'id': songlist.id,
-                'title': songlist.name,
-                'cover': songlist.cover.url if songlist.cover else None,
-                'introduction': songlist.introduction if songlist.introduction else None,
-                'songs': songs_data,
-                'tag_theme': songlist.tag_theme if songlist.tag_theme else None,
-                'tag_scene': songlist.tag_scene if songlist.tag_scene else None,
-                'tag_mood': songlist.tag_mood if songlist.tag_mood else None,
-                'tag_style': songlist.tag_style if songlist.tag_style else None,
-                'tag_language': songlist.tag_language if songlist.tag_language else None,
-                'owner': songlist.owner.username,
-                'create_date': songlist.created_date.strftime('%Y-%m-%d %H:%M:%S'),
-                'like': songlist.like
-            }
-            data.append(songlist_data)
-
-        return JsonResponse({'success': True, 'message': '获取成功', 'data': data})
-    else:
-        return JsonResponse({'success': False, 'message': '只允许GET请求'}, status=405)
+    return JsonResponse({'success': True, 'message': '获取成功', 'data': data}, status=200)
