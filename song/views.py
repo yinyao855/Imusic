@@ -42,8 +42,9 @@ def song_upload(request):
             return JsonResponse({'success': False, 'message': '音频文件格式必须为MP3'}, status=400)
 
         # 检查文件大小
-        max_file_size = getattr(settings, "MAX_FILE_SIZE", 20 * 1024 * 1024)  # 默认为20MB
-        if audio_file.size > max_file_size or cover_file.size > max_file_size:
+        max_file_size = getattr(settings, "MAX_FILE_SIZE", 25 * 1024 * 1024)  # 默认为25MB
+        max_file_size_2 = getattr(settings, "MAX_FILE_SIZE_2", 10 * 1024 * 1024)  # 默认为10MB
+        if audio_file.size > max_file_size or cover_file.size > max_file_size_2:
             return JsonResponse({'success': False, 'message': '文件大小超过限制'}, status=400)
 
         # 发生了任何异常，整个数据库操作将会被回滚，保证了操作的原子性
