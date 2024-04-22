@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'song.apps.SongConfig',
     'songlist.apps.SonglistConfig',
+    'recommend.apps.RecommendConfig',
 ]
 
 MIDDLEWARE = [

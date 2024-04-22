@@ -14,7 +14,7 @@ class SongList(models.Model):
     title = models.CharField(max_length=200, verbose_name="歌单名称")
     cover = models.FileField(upload_to='covers/', verbose_name="封面图")
     introduction = models.TextField(blank=True, null=True, verbose_name="介绍")
-    songs = models.ManyToManyField(Song, verbose_name="包含的歌曲", null=True)  # ManyToManyField 关联到Song模型
+    songs = models.ManyToManyField(Song, verbose_name="包含的歌曲")  # ManyToManyField 关联到Song模型
     tag_theme = models.CharField(max_length=100, blank=True, null=True, choices=THEME_CHOICES, verbose_name="主题标签")
     tag_scene = models.CharField(max_length=100, blank=True, null=True, choices=SCENE_CHOICES, verbose_name="场景标签")
     tag_mood = models.CharField(max_length=100, blank=True, null=True, choices=MOOD_CHOICES, verbose_name="心情标签")
