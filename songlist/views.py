@@ -130,11 +130,10 @@ def update_songlist_info(request, songlistID):
         if 'cover' in request.FILES:
             # 先删除旧有封面
             if songlist.cover:
-                cover_path = os.path.join(settings.MEDIA_URL, str(songlist.cover))
+                cover_path = os.path.join(settings.MEDIA_ROOT, str(songlist.cover))
                 try:
                     os.remove(cover_path)
-                except FileNotFoundError as e:
-                    print(e)
+                except FileNotFoundError:
                     pass
             songlist.cover = request.FILES['cover']
 
@@ -153,9 +152,11 @@ def delete_songlist(request, songlistID):
         songlist = SongList.objects.get(id=songlistID)
         # 删除歌单对应的封面图
         if songlist.cover:
-            cover_path = os.path.join(settings.MEDIA_ROOT, str(songlist.cover.url))
-            if os.path.exists(cover_path):
+            cover_path = os.path.join(settings.MEDIA_ROOT, str(songlist.cover))
+            try:
                 os.remove(cover_path)
+            except FileNotFoundError:
+                pass
         songlist.delete()
         return JsonResponse({'success': True, 'message': '删除歌单成功'}, status=200)
     except SongList.DoesNotExist:

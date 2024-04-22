@@ -24,6 +24,7 @@ class Song(models.Model):
     uploader = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="上传者")
     like = models.IntegerField(default=0, verbose_name="喜欢人数")
     upload_date = models.DateTimeField(auto_now_add=True, verbose_name="上传时间")
+    gradient = models.TextField(blank=True, null=True, verbose_name="背景渐变色")
 
     def __str__(self):
         return self.title
@@ -42,6 +43,7 @@ class Song(models.Model):
             'title': self.title,
             'singer': self.singer,
             'cover': cover_url,
+            'gradient': self.gradient if self.gradient else None,
             'introduction': self.introduction if self.introduction else None,
             'audio': audio_url,
             'duration': self.duration if self.duration else None,
