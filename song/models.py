@@ -40,7 +40,7 @@ class Song(models.Model):
         lyric_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.lyric.url)) if self.lyric else None
 
         if not self.gradient:
-            img_path = os.path.join(settings.MEDIA_ROOT, self.cover.url)
+            img_path = os.path.join(settings.MEDIA_ROOT, str(self.cover))
             self.gradient = css_generate(img_path)
 
         return {

@@ -34,7 +34,7 @@ class SongList(models.Model):
         verbose_name_plural = "歌单"
 
     def to_dict(self, request=None):
-        cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL,self.cover.url)) if self.cover else None
+        cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
         songs_data = [song.to_dict(request) for song in self.songs.all()]
         songlist_info = {
             'id': self.id,
