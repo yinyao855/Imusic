@@ -150,7 +150,7 @@ def query_songs(request):
         # 构建查询条件
         query = Q()
         for key, value in query_params.items():
-            query &= Q(**{f"{key}__contains": value})
+            query &= Q(**{f"{key}__icontains": value})
 
         # 根据查询条件过滤歌曲
         songs = Song.objects.filter(query)
