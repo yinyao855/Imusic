@@ -163,6 +163,29 @@ def query_songs(request):
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
+# 通用查询，查询含有关键字的歌曲，用于搜索框
+@csrf_exempt
+@require_http_methods(["GET"])
+def search_songs(request):
+    try:
+        keyword = request.GET.get('keyword', '')
+        if not keyword:
+            return JsonResponse({'success': False, 'message': '缺少搜索关键字'}, status=400)
+
+        # 根据关键字查询歌曲
+        songs = Song.objects.filter(Q(title__contains=keyword) | Q(singer__contains=keyword) |
+                                    Q(tag_theme__contains=keyword) | Q(tag_scene__contains=keyword) |
+                                    Q(tag_mood__contains=keyword) | Q(tag_style__contains=keyword) |
+                                    Q(tag_language__contains=keyword))
+
+        # 将查询结果转换为字典格式
+        data = [song.to_dict(request) for song in songs]
+
+        return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
 # 更新歌曲信息
 @csrf_exempt
 @require_http_methods(["POST"])
