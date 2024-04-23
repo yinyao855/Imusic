@@ -2,6 +2,7 @@ from django.db import models
 from imusic.constant import *
 from user.models import User
 from django.conf import settings
+from .utils import css_generate
 import os
 
 
@@ -37,6 +38,10 @@ class Song(models.Model):
         cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
         audio_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.audio.url)) if self.audio else None
         lyric_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.lyric.url)) if self.lyric else None
+
+        if not self.gradient:
+            img_path = os.path.join(settings.MEDIA_ROOT, self.cover.url)
+            self.gradient = css_generate(img_path)
 
         return {
             'id': self.id,
