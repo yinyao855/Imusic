@@ -25,6 +25,12 @@ def songlist_create(request):
         if cover_file is None:
             return JsonResponse({'success': False, 'message': '缺少封面图'}, status=400)
 
+        # 检查该歌单是否已经存在，大小写不敏感
+        existing_songlist = SongList.objects.filter(title__iexact=data['title'],
+                                                    owner__username__iexact=data['owner'])
+        if existing_songlist.exists():
+            return JsonResponse({'success': False, 'message': '歌单已存在'}, status=400)
+
         # 获取创建者/所有者
         owner = User.objects.get(username=data['owner'])
         # 创建新的歌单实例

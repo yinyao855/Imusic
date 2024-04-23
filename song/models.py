@@ -1,9 +1,11 @@
+import os
+
+from django.conf import settings
 from django.db import models
 from imusic.constant import *
 from user.models import User
-from django.conf import settings
+
 from .utils import css_generate
-import os
 
 
 class Song(models.Model):
@@ -39,9 +41,11 @@ class Song(models.Model):
         audio_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.audio.url)) if self.audio else None
         lyric_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.lyric.url)) if self.lyric else None
 
+        # 这个地方会严重拖慢相应速度，可用作后期提高响应速度的备选方案(手动狗头)
         if not self.gradient:
             img_path = os.path.join(settings.MEDIA_ROOT, str(self.cover))
             self.gradient = css_generate(img_path)
+            self.save()
 
         return {
             'id': self.id,

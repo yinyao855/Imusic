@@ -12,6 +12,8 @@ from django.conf import settings
 from django.db.models import Q
 from django.db import transaction
 
+from .utils import css_generate
+
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -68,6 +70,11 @@ def song_upload(request):
                 uploader=user,
                 like=int(data.get('like', 0))
             )
+            song.save()
+
+            # 计算渐变色
+            img_path = os.path.join(settings.MEDIA_ROOT, str(song.cover))
+            song.gradient = css_generate(img_path)
             song.save()
 
         return JsonResponse({'success': True, 'message': '歌曲上传成功'}, status=201)
@@ -217,14 +224,21 @@ def update_song_info(request, songID):
                         pass  # 文件不存在，继续执行后续代码
                 setattr(song, field_attr, request.FILES[field_name])
 
-        # 更新音频文件时更新 duration 字段
-        if 'audio' in request.FILES:
-            audio_duration = MP3(song.audio).info.length
-            audio_duration = str(audio_duration)[:10]
-            song.duration = audio_duration
-
         with transaction.atomic():
             song.full_clean()  # 执行完整性验证
+            song.save()
+
+            # 更新音频文件时更新 duration 字段
+            if 'audio' in request.FILES:
+                audio_duration = MP3(song.audio).info.length
+                audio_duration = str(audio_duration)[:10]
+                song.duration = audio_duration
+
+            # 重新计算渐变色
+            if 'cover' in request.FILES:
+                img_path = os.path.join(settings.MEDIA_ROOT, str(song.cover))
+                song.gradient = css_generate(img_path)
+
             song.save()
 
         return JsonResponse({'success': True, 'message': '更新成功'}, status=200)
