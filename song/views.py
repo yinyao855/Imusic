@@ -172,11 +172,11 @@ def search_songs(request):
         if not keyword:
             return JsonResponse({'success': False, 'message': '缺少搜索关键字'}, status=400)
 
-        # 根据关键字查询歌曲
-        songs = Song.objects.filter(Q(title__contains=keyword) | Q(singer__contains=keyword) |
-                                    Q(tag_theme__contains=keyword) | Q(tag_scene__contains=keyword) |
-                                    Q(tag_mood__contains=keyword) | Q(tag_style__contains=keyword) |
-                                    Q(tag_language__contains=keyword))
+        # 根据关键字查询歌曲，不区分大小写
+        songs = Song.objects.filter(Q(title__icontains=keyword) | Q(singer__icontains=keyword) |
+                                    Q(tag_theme__icontains=keyword) | Q(tag_scene__icontains=keyword) |
+                                    Q(tag_mood__icontains=keyword) | Q(tag_style__icontains=keyword) |
+                                    Q(tag_language__icontains=keyword))
 
         # 将查询结果转换为字典格式
         data = [song.to_dict(request) for song in songs]
