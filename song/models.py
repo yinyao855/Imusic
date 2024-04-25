@@ -42,6 +42,7 @@ class Song(models.Model):
         lyric_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.lyric.url)) if self.lyric else None
 
         # 这个地方会严重拖慢相应速度，可用作后期提高响应速度的备选方案(手动狗头)
+        # 乐
         if not self.gradient:
             img_path = os.path.join(settings.MEDIA_ROOT, str(self.cover))
             self.gradient = css_generate(img_path)

@@ -182,3 +182,24 @@ def get_all_songlists(request):
         data.append(songlist.to_dict(request))
 
     return JsonResponse({'success': True, 'message': '获取成功', 'data': data}, status=200)
+
+
+@require_http_methods(["GET"])
+def get_init_songlists(request):
+    # 前10个like数最多的歌单
+    top_songlists = SongList.objects.order_by('-like')[:10]
+
+    songlists_data = []
+    for songlist in top_songlists:
+        songlist_data = {
+            'cover': request.build_absolute_uri(os.path.join(settings.MEDIA_URL, songlist.cover.url))
+                if songlist.cover else None,
+            'creator': songlist.owner.username,
+            'name': songlist.title,
+        }
+        songlists_data.append(songlist_data)
+
+    return JsonResponse({
+        'success': True,
+        'songlists': songlists_data
+    })

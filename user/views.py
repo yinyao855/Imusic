@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .models import User
+from songlist.models import SongList
 from django.conf import settings
 from django.db import transaction
 
@@ -180,3 +181,37 @@ def change_password(request):
         user.save()
         return JsonResponse({'success': True, 'message': '密码修改成功'}, status=200)
     return JsonResponse({'success': False, 'message': '用户名不存在'}, status=400)
+
+
+@require_http_methods(["GET"])
+def get_user_songlists(request):
+    user_id = request.GET.get('userid')
+    if not user_id:
+        return JsonResponse({'success': False, 'message': '缺少用户ID'}, status=400)
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+
+    # 获取该用户的所有歌单
+    user_songlists = SongList.objects.filter(owner=user)
+
+    songlists_data = []
+    for songlist in user_songlists:
+        # 获取歌单中的所有歌曲
+        songs_data = [{
+            'songname': song.title,
+            'songid': song.id,
+            'singerid': song.singer.id if song.singer else None
+        } for song in songlist.songs.all()]
+
+        songlists_data.append({
+            'songlist_name': songlist.title,
+            'songs': songs_data
+        })
+
+    return JsonResponse({
+        'success': True,
+        'songlist': songlists_data
+    })
