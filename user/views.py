@@ -2,11 +2,11 @@ import os
 
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from .models import User
+from .models import User, Recent
 from songlist.models import SongList
 from django.conf import settings
 from django.db import transaction
@@ -214,4 +214,27 @@ def get_user_songlists(request):
     return JsonResponse({
         'success': True,
         'songlist': songlists_data
+    })
+
+
+@require_http_methods(["GET"])
+def get_recent(request):
+    user_id = request.GET.get('userid')
+    if not user_id:
+        return JsonResponse({'success': False, 'error': '未接收到用户ID'})
+
+    user = get_object_or_404(User, user_id=user_id)
+
+    # 查询最近10首播放
+    recent_plays = Recent.objects.filter(user=user).order_by('-last_play')[:10].select_related('song')
+
+    song_list = [{
+        'song_title': recent.song.title,
+        'song_id': recent.song.id,
+        'singer_name': recent.song.singer
+    } for recent in recent_plays]
+
+    return JsonResponse({
+        'success': True,
+        'songs': song_list
     })

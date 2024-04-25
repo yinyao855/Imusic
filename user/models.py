@@ -2,6 +2,8 @@ from django.db import models
 import os
 from django.conf import settings
 
+from song.models import Song
+
 
 # Create your models here.
 class User(models.Model):
@@ -35,3 +37,13 @@ class User(models.Model):
             'role': self.role,
             'registration_date': self.registration_date.strftime('%Y-%m-%d %H:%M:%S')
         }
+
+
+class Recent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    last_play = models.DateTimeField(auto_now_add=True, verbose_name="最后一次播放时间")
+
+    class Meta:
+        unique_together = (('user', 'song'),)  # 设置复合主键
+

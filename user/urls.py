@@ -10,5 +10,8 @@ urlpatterns = [
     path('alldata', views.get_all_users, name='all_info'),
     path('change-role', views.change_user_role, name='change_role'),
     path('change-pwd', views.change_password, name='change_pwd'),
+    # 下面是得到用户创建的所有歌单
     path('songlist', views.get_user_songlists, name='get_user_songlists'),
+    # 下面是得到用户最近播放的歌曲列表
+    path('recent', views.get_recent, name='get_recent'),
 ]
