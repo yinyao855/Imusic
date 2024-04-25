@@ -1,14 +1,13 @@
-import json
 import os.path
 
-from django.http import JsonResponse, Http404
+from django.conf import settings
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from song.models import Song
 from user.models import User
 from .models import SongList
-from django.conf import settings
 
 
 @csrf_exempt

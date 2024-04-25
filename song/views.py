@@ -294,3 +294,27 @@ def get_all_songs(request):
         data.append(song_data)
     return JsonResponse({'success': True, 'message': '获取所有歌曲信息成功', 'data': data}, status=200)
 
+
+# 用户喜欢歌曲
+@csrf_exempt
+@require_http_methods(["POST"])
+def like_song(request):
+    try:
+        song_id = request.POST.get('song_id')
+        song = Song.objects.get(id=song_id)
+    except Song.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '歌曲未找到'}, status=404)
+
+    try:
+        status = request.POST.get('status', 'like')
+        if status == 'true':
+            song.like += 1
+            song.save()
+            return JsonResponse({'success': True, 'message': '喜欢成功'}, status=200)
+        elif status == 'false':
+            if song.like > 0:
+                song.like -= 1
+            song.save()
+            return JsonResponse({'success': True, 'message': '取消喜欢成功'}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
