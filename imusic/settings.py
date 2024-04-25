@@ -94,7 +94,16 @@ DATABASES = {
         'PASSWORD': '4cbxa4PDGFCh4Dhh',
         'HOST': '127.0.0.1',
         'PORT': '3306',
-    }
+    },
+    # 测试配置
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'imusic',
+    #     'USER': 'imusic',
+    #     'PASSWORD': '4cbxa4PDGFCh4Dhh',
+    #     'HOST': '182.92.100.66',
+    #     'PORT': '3306',
+    # }
 }
 
 # Password validation

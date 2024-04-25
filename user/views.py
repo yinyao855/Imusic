@@ -203,7 +203,7 @@ def get_user_songlists(request):
         songs_data = [{
             'songname': song.title,
             'songid': song.id,
-            'singerid': song.singer.id if song.singer else None
+            'singername': song.singer if song.singer else None
         } for song in songlist.songs.all()]
 
         songlists_data.append({
