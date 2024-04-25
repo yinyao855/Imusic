@@ -2,8 +2,6 @@ from django.db import models
 import os
 from django.conf import settings
 
-from song.models import Song
-
 
 # Create your models here.
 class User(models.Model):
@@ -41,7 +39,7 @@ class User(models.Model):
 
 class Recent(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    song = models.ForeignKey('song.Song', on_delete=models.CASCADE)
     last_play = models.DateTimeField(auto_now_add=True, verbose_name="最后一次播放时间")
 
     class Meta:
