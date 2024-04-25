@@ -185,12 +185,12 @@ def change_password(request):
 
 @require_http_methods(["GET"])
 def get_user_songlists(request):
-    user_id = request.GET.get('userid')
-    if not user_id:
-        return JsonResponse({'success': False, 'message': '缺少用户ID'}, status=400)
+    username = request.GET.get('username')
+    if not username:
+        return JsonResponse({'success': False, 'message': '缺少用户姓名'}, status=400)
 
     try:
-        user = User.objects.get(id=user_id)
+        user = User.objects.get(username=username)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
 
@@ -219,11 +219,11 @@ def get_user_songlists(request):
 
 @require_http_methods(["GET"])
 def get_recent(request):
-    user_id = request.GET.get('userid')
-    if not user_id:
-        return JsonResponse({'success': False, 'error': '未接收到用户ID'})
+    username = request.GET.get('username')
+    if not username:
+        return JsonResponse({'success': False, 'error': '未接收到用户姓名'})
 
-    user = get_object_or_404(User, user_id=user_id)
+    user = get_object_or_404(User, username=username)
 
     # 查询最近10首播放
     recent_plays = Recent.objects.filter(user=user).order_by('-last_play')[:10].select_related('song')
