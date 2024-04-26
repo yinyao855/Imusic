@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# 忽略迁移文件
+migrations/
+
 # 忽略Django生成的临时文件
 *.log
 *.pot
