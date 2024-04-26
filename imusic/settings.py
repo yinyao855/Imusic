@@ -151,3 +151,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 邮箱验证相关设置
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.163.com'
+# EMAIL_PORT = 587
+EMAIL_HOST_USER = 'yinyao5312021@163.com'
+EMAIL_HOST_PASSWORD = 'VBMXPLDLUGTNSVKX'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# EMAIL_FROM = 'imuisc团队'

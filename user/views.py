@@ -10,6 +10,8 @@ from django.views.decorators.http import require_http_methods
 from songlist.models import SongList
 from .models import User
 
+from .utils import sendMessage, validate_verification_code
+
 
 # Create your views here.
 @csrf_exempt
@@ -21,15 +23,23 @@ def user_register(request):
     password = request.POST.get('password')
     avatar = request.FILES.get('avatar')
     bio = request.POST.get('bio')
+    verification_code = request.POST.get('verification_code')
 
-    required_fields = ['username', 'password']
+    required_fields = ['username', 'password', 'verification_code']
     for field in required_fields:
         if not request.POST.get(field):
             return JsonResponse({'success': False, 'message': f'缺少字段：{field}'}, status=400)
+
     # 判断用户是否已经存在
     user = User.objects.filter(username=username).first()
     if user:
         return JsonResponse({'success': False, 'message': '用户名已存在'}, status=400)
+
+    # 判断验证码是否正确
+    res = validate_verification_code(request, verification_code)
+    if not res:
+        return JsonResponse({'success': False, 'message': '验证码错误或已失效'}, status=400)
+
     # 创建用户
     with transaction.atomic():
         user = User(username=username, email=email,
@@ -198,3 +208,19 @@ def get_user_songlists(request):
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+# 发送验证码
+@csrf_exempt
+@require_http_methods(["POST"])
+def send_code(request):
+    # 获取用户提交的数据
+    email = request.POST.get('email')
+    if not email:
+        return JsonResponse({'success': False, 'message': '缺少邮箱'}, status=400)
+    # 发送验证码
+    verification_code = sendMessage(email)
+    # 将验证码存入session，设置10分钟有效
+    request.session['verification_code'] = verification_code
+    request.session.set_expiry(600)
+    return JsonResponse({'success': True, 'message': '验证码发送成功'}, status=200)

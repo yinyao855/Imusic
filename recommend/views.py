@@ -12,10 +12,11 @@ from song.models import Song
 @csrf_exempt
 @require_http_methods(['GET'])
 def get_recent_songs(request):
+    num = request.GET.get('num', 15)
     songs = Song.objects.all().order_by('-upload_date')
-    # 如果歌曲数量大于15，则只返回最近的15首歌曲
-    if len(songs) > 15:
-        songs = songs[:15]
+    # 默认返回最近上传的15首歌曲
+    if num:
+        songs = songs[:int(num)]
     songs_list = []
     for song in songs:
         songs_list.append(song.to_dict(request))

@@ -12,4 +12,6 @@ urlpatterns = [
     path('change-pwd', views.change_password, name='change_pwd'),
     # 下面是得到用户创建的所有歌单
     path('songlists', views.get_user_songlists, name='get_user_songlists'),
+    # 发送验证码
+    path('send-code', views.send_code, name='send_code'),
 ]
