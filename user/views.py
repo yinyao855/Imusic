@@ -224,6 +224,7 @@ def send_code(request):
         # 将验证码存入session，设置10分钟有效
         request.session['verification_code'] = verification_code
         request.session.set_expiry(600)
-        return JsonResponse({'success': True, 'message': '验证码发送成功', 'key': verification_code}, status=200)
+        sessionId = request.session.session_key
+        return JsonResponse({'success': True, 'message': '验证码发送成功', 'sessionId': sessionId}, status=200)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
