@@ -1,15 +1,14 @@
 import os
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.db import transaction
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from .models import User, Recent
 from songlist.models import SongList
-from django.conf import settings
-from django.db import transaction
+from .models import User
 
 
 # Create your views here.
@@ -185,56 +184,17 @@ def change_password(request):
 
 @require_http_methods(["GET"])
 def get_user_songlists(request):
-    username = request.GET.get('username')
-    if not username:
-        return JsonResponse({'success': False, 'message': '缺少用户姓名'}, status=400)
-
     try:
+        username = request.GET.get('username')
+        if not username:
+            return JsonResponse({'success': False, 'message': '缺少用户姓名'}, status=400)
         user = User.objects.get(username=username)
+        # 获取该用户的所有歌单
+        user_songlists = SongList.objects.filter(owner=user)
+        songlists_data = [songlist.to_dict(request) for songlist in user_songlists]
+        return JsonResponse({'success': True, 'message': '获取用户歌单成功', 'data': songlists_data}, status=200)
+
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
-
-    # 获取该用户的所有歌单
-    user_songlists = SongList.objects.filter(owner=user)
-
-    songlists_data = []
-    for songlist in user_songlists:
-        # 获取歌单中的所有歌曲
-        songs_data = [{
-            'songname': song.title,
-            'songid': song.id,
-            'singername': song.singer if song.singer else None
-        } for song in songlist.songs.all()]
-
-        songlists_data.append({
-            'songlist_name': songlist.title,
-            'songs': songs_data
-        })
-
-    return JsonResponse({
-        'success': True,
-        'songlist': songlists_data
-    })
-
-
-@require_http_methods(["GET"])
-def get_recent(request):
-    username = request.GET.get('username')
-    if not username:
-        return JsonResponse({'success': False, 'error': '未接收到用户姓名'})
-
-    user = get_object_or_404(User, username=username)
-
-    # 查询最近10首播放
-    recent_plays = Recent.objects.filter(user=user).order_by('-last_play')[:10].select_related('song')
-
-    song_list = [{
-        'song_title': recent.song.title,
-        'song_id': recent.song.id,
-        'singer_name': recent.song.singer
-    } for recent in recent_plays]
-
-    return JsonResponse({
-        'success': True,
-        'songs': song_list
-    })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)

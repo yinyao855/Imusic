@@ -25,4 +25,5 @@ urlpatterns = [
                   path('songs/', include('song.urls')),
                   path('songlists/', include('songlist.urls')),
                   path('recommend/', include('recommend.urls')),
+                  path('feature/', include('feature.urls')),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
