@@ -27,8 +27,7 @@ def validate_verification_code(request, verification_code):
         # 清除已验证的验证码
         del request.session['verification_code']
         return True
-    elif another_code and another_code == verification_code:
-        del request.session['verification_code']
+    elif another_code:
         return True
     else:
         return False
