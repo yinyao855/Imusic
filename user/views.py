@@ -214,13 +214,16 @@ def get_user_songlists(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def send_code(request):
-    # 获取用户提交的数据
-    email = request.POST.get('email')
-    if not email:
-        return JsonResponse({'success': False, 'message': '缺少邮箱'}, status=400)
-    # 发送验证码
-    verification_code = sendMessage(email)
-    # 将验证码存入session，设置10分钟有效
-    request.session['verification_code'] = verification_code
-    request.session.set_expiry(600)
-    return JsonResponse({'success': True, 'message': '验证码发送成功'}, status=200)
+    try:
+        # 获取用户提交的数据
+        email = request.POST.get('email')
+        if not email:
+            return JsonResponse({'success': False, 'message': '缺少邮箱'}, status=400)
+        # 发送验证码
+        verification_code = sendMessage(email)
+        # 将验证码存入session，设置10分钟有效
+        request.session['verification_code'] = verification_code
+        request.session.set_expiry(600)
+        return JsonResponse({'success': True, 'message': '验证码发送成功'}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
