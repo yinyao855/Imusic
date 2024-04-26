@@ -24,9 +24,12 @@ def get_recent(request):
         # 查询最近10首播放
         recent_plays = Recent.objects.filter(user=user).order_by('-last_play')[:10]
 
-        print(recent_plays.count())
+        # print(recent_plays.count())
 
-        song_list = [recent.to_dict(request) for recent in recent_plays]
+        # song_list = [recent.to_dict(request) for recent in recent_plays]
+        song_list = {
+            'songs': [recent.song.to_dict(request) for recent in recent_plays],
+        }
 
         return JsonResponse({'success': True, 'message': '查询最近播放歌曲成功', 'data': song_list}, status=200)
     except Exception as e:
