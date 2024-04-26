@@ -56,7 +56,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'imusic.urls'
 
+# CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOW_ORIGINS = ['http://localhost:5173']
 # 允许域名加入白名单
 # CORS_ORIGIN_WHITELIST = (
 #     'http//:localhost:8000',
@@ -84,19 +86,19 @@ WSGI_APPLICATION = 'imusic.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'imusic',
-        'USER': 'imusic',
-        'PASSWORD': '4cbxa4PDGFCh4Dhh',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-    },
-    # 测试配置
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'imusic',
+    #     'USER': 'imusic',
+    #     'PASSWORD': '4cbxa4PDGFCh4Dhh',
+    #     'HOST': '127.0.0.1',
+    #     'PORT': '3306',
+    # },
+    #测试配置
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'imusic',
@@ -154,9 +156,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 邮箱验证相关设置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = False  # 发送的模式
+EMAIL_USE_SSL = True  # 加密模式
 EMAIL_HOST = 'smtp.163.com'
-# EMAIL_PORT = 587
+EMAIL_PORT = 587
 EMAIL_HOST_USER = 'yinyao5312021@163.com'
 EMAIL_HOST_PASSWORD = 'VBMXPLDLUGTNSVKX'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

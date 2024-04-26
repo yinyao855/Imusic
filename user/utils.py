@@ -21,10 +21,13 @@ def sendMessage(email):  # 发送邮件并返回验证码
 def validate_verification_code(request, verification_code):
     # 从 session 中获取保存的验证码
     session_verification_code = request.session.get('verification_code')
-
+    another_code = request.POST.get("key")
     # 判断验证码是否正确
     if session_verification_code and session_verification_code == verification_code:
         # 清除已验证的验证码
+        del request.session['verification_code']
+        return True
+    elif another_code and another_code == verification_code:
         del request.session['verification_code']
         return True
     else:
