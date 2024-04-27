@@ -49,7 +49,9 @@ class SongList(models.Model):
             'tag_language': self.tag_language if self.tag_language else None,
             'owner': self.owner.username,
             'create_date': self.created_date.strftime('%Y-%m-%d %H:%M:%S'),
-            'like': self.like
+            'like': self.like,
+            'user_like': False,
+            'user_favor': False,
         }
 
         return songlist_info

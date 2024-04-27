@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -44,13 +45,11 @@ def liked_songs_add(request):
         if created:
             song.like += 1
             song.save()
-            flag = True
             message = '歌曲已添加到喜爱列表'
         else:
-            flag = False
             message = '歌曲已在喜爱列表中'
 
-        return JsonResponse({'success': flag, 'message': message})
+        return JsonResponse({'success': True, 'message': message}, status=201)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
     except Song.DoesNotExist:

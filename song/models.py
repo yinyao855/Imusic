@@ -65,5 +65,7 @@ class Song(models.Model):
             'tag_language': self.tag_language if self.tag_language else None,
             'uploader': self.uploader.username,
             'like': self.like,
-            'upload_date': self.upload_date.strftime('%Y-%m-%d %H:%M:%S')
+            'upload_date': self.upload_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'user_like': False,
+            'user_favor': False,
         }
