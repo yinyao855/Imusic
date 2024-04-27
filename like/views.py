@@ -45,7 +45,7 @@ def liked_songs_add(request):
             song.like += 1
             song.save()
             flag = True
-            message = f'此时歌曲喜欢数为{song.like}'
+            message = '歌曲已添加到喜爱列表'
         else:
             flag = False
             message = '歌曲已在喜爱列表中'
@@ -71,7 +71,6 @@ def liked_songs_delete(request):
 
         user = User.objects.get(username=username)
         song = Song.objects.get(id=song_id)
-
         liked_song = LikedSong.objects.get(user=user, song=song)
         if liked_song:
             liked_song.delete()
@@ -103,13 +102,12 @@ def liked_songlists_add(request):
 
         user = User.objects.get(username=username)
         songlist = SongList.objects.get(id=songlist_id)
-
-        liked_songlists, created = LikedSongList.objects.get_or_create(user=user, songlist=songlist)
+        liked_songlist, created = LikedSongList.objects.get_or_create(user=user, songlist=songlist)
         if created:
             songlist.like += 1
             songlist.save()
             flag = True
-            message = f'此时歌单喜欢数为{songlist.like}'
+            message = '歌单已添加到喜爱列表'
         else:
             flag = False
             message = '歌单已在喜爱列表中'
