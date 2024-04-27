@@ -79,10 +79,9 @@ def get_user_info(request, username):
 @csrf_exempt
 @require_http_methods(["POST"])
 def update_user_info(request, username):
+    user = User.objects.filter(username=username).first()
     # 判断用户是否存在
-    try:
-        user = User.objects.filter(username=username).first()
-    except User.DoesNotExist:
+    if not user:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
 
     try:
