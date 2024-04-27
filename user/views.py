@@ -30,15 +30,15 @@ def user_register(request):
         if not request.POST.get(field):
             return JsonResponse({'success': False, 'message': f'缺少字段：{field}'}, status=400)
 
-    # 判断用户是否已经存在
-    user = User.objects.filter(username=username).first()
-    if user:
-        return JsonResponse({'success': False, 'message': '用户名已存在'}, status=400)
-
     # 判断验证码是否正确
     res = validate_verification_code(request, verification_code)
     if not res:
         return JsonResponse({'success': False, 'message': '验证码错误或已失效'}, status=400)
+
+    # 判断用户是否已经存在
+    user = User.objects.filter(username=username).first()
+    if user:
+        return JsonResponse({'success': False, 'message': '用户名已存在'}, status=400)
 
     # 创建用户
     with transaction.atomic():
