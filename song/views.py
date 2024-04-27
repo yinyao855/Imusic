@@ -18,6 +18,8 @@ from .utils import css_generate
 @csrf_exempt
 @require_http_methods(["POST"])
 def song_upload(request):
+    # 和注册用户的问题类似，最好不要等用户填完所有信息后才发现某项错误
+    # 而是没完成一项就实时提示
     try:
         data = request.POST
 
@@ -46,8 +48,10 @@ def song_upload(request):
         # 检查文件大小
         max_file_size = getattr(settings, "MAX_FILE_SIZE", 25 * 1024 * 1024)  # 默认为25MB
         max_file_size_2 = getattr(settings, "MAX_FILE_SIZE_2", 10 * 1024 * 1024)  # 默认为10MB
-        if audio_file.size > max_file_size or cover_file.size > max_file_size_2:
-            return JsonResponse({'success': False, 'message': '文件大小超过限制'}, status=400)
+        if audio_file.size > max_file_size:
+            return JsonResponse({'success': False, 'message': '音频文件大小超过限制(25MB)'}, status=400)
+        if cover_file.size > max_file_size_2:
+            return JsonResponse({'success': False, 'message': '封面图片大小超过限制(10MB)'}, status=400)
 
         # 发生了任何异常，整个数据库操作将会被回滚，保证了操作的原子性
         with transaction.atomic():
