@@ -1,10 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
+from user.models import User
 from song.models import Song
 from songlist.models import SongList
 
 
 class LikedSong(models.Model):
+    objects = None
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
 
@@ -13,6 +14,7 @@ class LikedSong(models.Model):
 
 
 class LikedSongList(models.Model):
+    objects = None
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     songlist = models.ForeignKey(SongList, on_delete=models.CASCADE)
 

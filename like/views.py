@@ -129,7 +129,7 @@ def liked_songlists_get(request):
 
         user = User.objects.get(username=username)
         liked_songlists = LikedSongList.objects.filter(user=user)
-        songlists_data = [songlist.to_dict(request) for songlist in liked_songlists]
+        songlists_data = [songlist.songlist.to_dict(request) for songlist in liked_songlists]
         return JsonResponse({'success': True, 'songlists': songlists_data})
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
