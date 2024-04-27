@@ -88,6 +88,9 @@ def update_user_info(request, username):
         data = request.POST
 
         update_fields = ['email', 'bio']
+        # bio和avatar在注册时都是可选的，那么更新信息时应该可以把它们置空
+        # 缺陷，更新信息时无法删除原有的bio，即置bio为空
+        # 一个解决方法是，在更新信息时，前端自动填充用户原有的信息
         for field in update_fields:
             if data.get(field):
                 setattr(user, field, data[field])
