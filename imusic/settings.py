@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'songlist.apps.SonglistConfig',
     'recommend.apps.RecommendConfig',
     'feature.apps.FeatureConfig',
+    'like.apps.LikeConfig',
 ]
 
 MIDDLEWARE = [
@@ -98,7 +99,7 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': '3306',
     },
-    #测试配置
+    # 测试配置
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'imusic',
