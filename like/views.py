@@ -20,7 +20,7 @@ def liked_songs_get(request):
         user = User.objects.get(username=username)
         liked_songs = LikedSong.objects.filter(user=user)
         songs_data = [song.song.to_dict(request) for song in liked_songs]
-        return JsonResponse({'success': True, 'songs': songs_data})
+        return JsonResponse({'success': True, 'songs': songs_data}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
 
@@ -75,9 +75,9 @@ def liked_songs_delete(request):
             liked_song.delete()
             song.like -= 1
             song.save()
-            return JsonResponse({'success': True, 'message': '歌曲已从喜爱列表中移除'})
+            return JsonResponse({'success': True, 'message': '歌曲已从喜爱列表中移除'}, status=200)
         else:
-            return JsonResponse({'success': False, 'message': '歌曲不在喜爱列表中'}, status=404)
+            return JsonResponse({'success': True, 'message': '歌曲不在喜爱列表中'}, status=200)
 
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
@@ -105,13 +105,11 @@ def liked_songlists_add(request):
         if created:
             songlist.like += 1
             songlist.save()
-            flag = True
             message = '歌单已添加到喜爱列表'
         else:
-            flag = False
             message = '歌单已在喜爱列表中'
 
-        return JsonResponse({'success': flag, 'message': message})
+        return JsonResponse({'success': True, 'message': message}, status=201)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
     except SongList.DoesNotExist:
@@ -129,7 +127,7 @@ def liked_songlists_get(request):
         user = User.objects.get(username=username)
         liked_songlists = LikedSongList.objects.filter(user=user)
         songlists_data = [songlist.songlist.to_dict(request) for songlist in liked_songlists]
-        return JsonResponse({'success': True, 'songlists': songlists_data})
+        return JsonResponse({'success': True, 'songlists': songlists_data}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
 
@@ -154,9 +152,9 @@ def liked_songlists_delete(request):
             liked_songlist.delete()
             songlist.like -= 1
             songlist.save()
-            return JsonResponse({'success': True, 'message': '歌单已从喜爱列表中移除'})
+            return JsonResponse({'success': True, 'message': '歌单已从喜爱列表中移除'}, status=200)
         else:
-            return JsonResponse({'success': False, 'message': '歌单不在喜爱列表中'}, status=404)
+            return JsonResponse({'success': True, 'message': '歌单不在喜爱列表中'}, status=200)
 
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
