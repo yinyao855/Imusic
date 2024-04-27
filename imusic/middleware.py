@@ -4,6 +4,22 @@ from django.conf import settings
 from django.http import JsonResponse
 import jwt
 
+exclude_path = [
+    # 用户表
+    '/user/login/',
+    '/user/register/',
+    '/user/send-code/',
+    '/user/alldata/',
+    # 歌单表
+    '/songlist/alldata/',
+    '/songlist/initdata/',
+    '/songlist/info/',
+    # 歌曲表
+    '/song/alldata/',
+    # 推荐表
+    '/recommend/latest/',
+]
+
 
 class JWTMiddleware:
     def __init__(self, get_response):
