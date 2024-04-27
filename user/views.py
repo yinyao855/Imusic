@@ -13,7 +13,7 @@ from django.utils.decorators import method_decorator
 from songlist.models import SongList
 from .models import User
 
-from .utils import sendMessage, validate_verification_code
+from .utils import send_message, validate_verification_code
 from imusic.middleware import JWTMiddleware
 
 
@@ -73,7 +73,16 @@ def user_login(request):
     user = User.objects.filter(username=username, password=password).first()
     if user:
         data = user.to_dict(request)
-        return JsonResponse({'success': True, 'message': '登录成功', 'data': data}, status=200)
+        # 生成token
+        expire_time = datetime.datetime.now() + datetime.timedelta(hours=3)
+        payload = {
+            'user_id': user.user_id,
+            'username': user.username,
+            'role': user.role,
+            'exp': expire_time
+        }
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+        return JsonResponse({'success': True, 'message': '登录成功', 'data': data, 'token': token}, status=200)
     return JsonResponse({'success': False, 'message': '用户名或密码错误'}, status=400)
 
 
@@ -235,7 +244,7 @@ def send_code(request):
         if not email:
             return JsonResponse({'success': False, 'message': '缺少邮箱'}, status=400)
         # 发送验证码
-        verification_code = sendMessage(email)
+        verification_code = send_message(email)
         print(verification_code)
         # 将验证码写入token，过期时间为10分钟
         expire_time = datetime.datetime.now() + datetime.timedelta(minutes=10)

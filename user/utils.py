@@ -1,7 +1,7 @@
 from django.core.mail import send_mail
 
 
-def sendMessage(email):  # 发送邮件并返回验证码
+def send_message(email):  # 发送邮件并返回验证码
     # 生成验证码
     import random
     str1 = '0123456789'
@@ -12,9 +12,8 @@ def sendMessage(email):  # 发送邮件并返回验证码
     # send_mail的参数分别是  邮件标题，邮件内容，发件箱(settings.py中设置过的那个)，收件箱列表(可以发送给多个人),失败静默(若发送失败，报错提示我们)
     pre_message = "欢迎加入imusic!\n"
     message = pre_message + "您的验证码是" + rand_str + "，10分钟内有效，请尽快填写"
-    emailBox = []
-    emailBox.append(email)
-    send_mail('imusic开发团队', message, from_email='yinyao5312021@163.com', recipient_list=emailBox, fail_silently=False)
+    email_box = [email]
+    send_mail('imusic开发团队', message, from_email='yinyao5312021@163.com', recipient_list=email_box, fail_silently=False)
     return rand_str
 
 
