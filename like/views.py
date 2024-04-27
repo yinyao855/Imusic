@@ -1,5 +1,4 @@
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -15,14 +14,17 @@ def liked_songs_get(request):
     try:
         username = request.GET.get('username')
         if not username:
-            return JsonResponse({'success': False, 'message': '未获取到用户名'}, status=400)
+            return JsonResponse({'success': False, 'message': '未获取到用户名',
+                                 'data': None, 'token': None}, status=400)
 
         user = User.objects.get(username=username)
         liked_songs = LikedSong.objects.filter(user=user)
         songs_data = [song.song.to_dict(request) for song in liked_songs]
-        return JsonResponse({'success': True, 'songs': songs_data}, status=200)
+        return JsonResponse({'success': True, 'message': '获取用户喜欢歌曲成功',
+                             'data': songs_data, 'token': None}, status=200)
     except User.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '用户不存在',
+                             'data': None, 'token': None}, status=404)
 
 
 @csrf_exempt
@@ -31,11 +33,13 @@ def liked_songs_add(request):
     try:
         song_id = request.POST.get('song_id')
         if not song_id:
-            return JsonResponse({'success': False, 'message': '未获取到歌曲id'}, status=400)
+            return JsonResponse({'success': False, 'message': '未获取到歌曲id',
+                                 'data': None, 'token': None}, status=400)
 
         username = request.POST.get('username')
         if not username:
-            return JsonResponse({'success': False, 'message': '未获取到用户名'}, status=400)
+            return JsonResponse({'success': False, 'message': '未获取到用户名',
+                                 'data': None, 'token': None}, status=400)
 
         user = User.objects.get(username=username)
         song = Song.objects.get(id=song_id)
@@ -49,11 +53,14 @@ def liked_songs_add(request):
         else:
             message = '歌曲已在喜爱列表中'
 
-        return JsonResponse({'success': True, 'message': message}, status=201)
+        return JsonResponse({'success': True, 'message': message,
+                             'data': None, 'token': None}, status=201)
     except User.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '用户不存在',
+                             'data': None, 'token': None}, status=404)
     except Song.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '歌曲不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '歌曲不存在',
+                             'data': None, 'token': None}, status=404)
 
 
 @csrf_exempt
@@ -62,11 +69,13 @@ def liked_songs_delete(request):
     try:
         song_id = request.POST.get('song_id')
         if not song_id:
-            return JsonResponse({'success': False, 'message': '未获取到歌曲id'}, status=400)
+            return JsonResponse({'success': False, 'message': '未获取到歌曲id',
+                                 'data': None, 'token': None}, status=400)
 
         username = request.POST.get('username')
         if not username:
-            return JsonResponse({'success': False, 'message': '未获取到用户名'}, status=400)
+            return JsonResponse({'success': False, 'message': '未获取到用户名',
+                                 'data': None, 'token': None}, status=400)
 
         user = User.objects.get(username=username)
         song = Song.objects.get(id=song_id)
@@ -75,16 +84,21 @@ def liked_songs_delete(request):
             liked_song.delete()
             song.like -= 1
             song.save()
-            return JsonResponse({'success': True, 'message': '歌曲已从喜爱列表中移除'}, status=200)
+            return JsonResponse({'success': True, 'message': '歌曲已从喜爱列表中移除',
+                                 'data': None, 'token': None}, status=200)
         else:
-            return JsonResponse({'success': True, 'message': '歌曲不在喜爱列表中'}, status=200)
+            return JsonResponse({'success': True, 'message': '歌曲不在喜爱列表中',
+                                 'data': None, 'token': None}, status=200)
 
     except User.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '用户不存在',
+                             'data': None, 'token': None}, status=404)
     except Song.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '歌曲不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '歌曲不存在',
+                             'data': None, 'token': None}, status=404)
     except LikedSong.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '喜爱歌曲列表不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '喜爱歌曲列表不存在',
+                             'data': None, 'token': None}, status=404)
 
 
 @csrf_exempt
@@ -93,11 +107,13 @@ def liked_songlists_add(request):
     try:
         songlist_id = request.POST.get('songlist_id')
         if not songlist_id:
-            return JsonResponse({'success': False, 'message': '未获取到歌单id'}, status=400)
+            return JsonResponse({'success': False, 'message': '未获取到歌单id',
+                                 'data': None, 'token': None}, status=400)
 
         username = request.POST.get('username')
         if not username:
-            return JsonResponse({'success': False, 'message': '未获取到用户名'}, status=400)
+            return JsonResponse({'success': False, 'message': '未获取到用户名',
+                                 'data': None, 'token': None}, status=400)
 
         user = User.objects.get(username=username)
         songlist = SongList.objects.get(id=songlist_id)
@@ -109,11 +125,14 @@ def liked_songlists_add(request):
         else:
             message = '歌单已在喜爱列表中'
 
-        return JsonResponse({'success': True, 'message': message}, status=201)
+        return JsonResponse({'success': True, 'message': message,
+                             'data': None, 'token': None}, status=201)
     except User.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '用户不存在',
+                             'data': None, 'token': None}, status=404)
     except SongList.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '歌单不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '歌单不存在',
+                             'data': None, 'token': None}, status=404)
 
 
 @csrf_exempt
@@ -122,14 +141,17 @@ def liked_songlists_get(request):
     try:
         username = request.GET.get('username')
         if not username:
-            return JsonResponse({'success': False, 'message': '未获取到用户名'}, status=400)
+            return JsonResponse({'success': False, 'message': '未获取到用户名',
+                                 'data': None, 'token': None}, status=400)
 
         user = User.objects.get(username=username)
         liked_songlists = LikedSongList.objects.filter(user=user)
         songlists_data = [songlist.songlist.to_dict(request) for songlist in liked_songlists]
-        return JsonResponse({'success': True, 'songlists': songlists_data}, status=200)
+        return JsonResponse({'success': True, 'message': '获取用户喜欢歌单成功',
+                             'data': songlists_data, 'token': None}, status=200)
     except User.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '用户不存在',
+                             'data': None, 'token': None}, status=404)
 
 
 @csrf_exempt
@@ -138,11 +160,13 @@ def liked_songlists_delete(request):
     try:
         songlist_id = request.POST.get('songlist_id')
         if not songlist_id:
-            return JsonResponse({'success': False, 'message': '未获取到歌单id'}, status=400)
+            return JsonResponse({'success': False, 'message': '未获取到歌单id',
+                                 'data': None, 'token': None}, status=400)
 
         username = request.POST.get('username')
         if not username:
-            return JsonResponse({'success': False, 'message': '未获取到用户名'}, status=400)
+            return JsonResponse({'success': False, 'message': '未获取到用户名',
+                                 'data': None, 'token': None}, status=400)
 
         user = User.objects.get(username=username)
         songlist = SongList.objects.get(id=songlist_id)
@@ -152,13 +176,18 @@ def liked_songlists_delete(request):
             liked_songlist.delete()
             songlist.like -= 1
             songlist.save()
-            return JsonResponse({'success': True, 'message': '歌单已从喜爱列表中移除'}, status=200)
+            return JsonResponse({'success': True, 'message': '歌单已从喜爱列表中移除',
+                                 'data': None, 'token': None}, status=200)
         else:
-            return JsonResponse({'success': True, 'message': '歌单不在喜爱列表中'}, status=200)
+            return JsonResponse({'success': True, 'message': '歌单不在喜爱列表中',
+                                 'data': None, 'token': None}, status=200)
 
     except User.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '用户不存在',
+                             'data': None, 'token': None}, status=404)
     except SongList.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '歌单不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '歌单不存在',
+                             'data': None, 'token': None}, status=404)
     except LikedSongList.DoesNotExist:
-        return JsonResponse({'success': False, 'message': '喜爱歌单列表不存在'}, status=404)
+        return JsonResponse({'success': False, 'message': '喜爱歌单列表不存在',
+                             'data': None, 'token': None}, status=404)
