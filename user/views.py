@@ -1,22 +1,32 @@
 import os
+import datetime
 
+import jwt
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.utils.decorators import method_decorator
 
 from songlist.models import SongList
 from .models import User
 
 from .utils import sendMessage, validate_verification_code
+from imusic.middleware import JWTMiddleware
 
 
 # Create your views here.
 @csrf_exempt
 @require_http_methods(["POST"])
+# @method_decorator(JWTMiddleware, name='dispatch')
 def user_register(request):
+    # 手动调用中间件
+    middleware = JWTMiddleware(lambda x: x)
+    response = middleware(request)
+    if isinstance(response, JsonResponse):
+        return response  # 如果中间件返回了 JsonResponse（例如，错误消息），则直接返回
     # 获取用户提交的数据
     username = request.POST.get('username')
     email = request.POST.get('email')
@@ -221,10 +231,12 @@ def send_code(request):
             return JsonResponse({'success': False, 'message': '缺少邮箱'}, status=400)
         # 发送验证码
         verification_code = sendMessage(email)
-        # 将验证码存入session，设置10分钟有效
-        request.session['verification_code'] = verification_code
-        request.session.set_expiry(600)
-        sessionId = request.session.session_key
-        return JsonResponse({'success': True, 'message': '验证码发送成功', 'sessionId': sessionId}, status=200)
+        print(verification_code)
+        # 将验证码写入token，过期时间为10分钟
+        expire_time = datetime.datetime.now() + datetime.timedelta(minutes=10)
+        payload = {'verification_code': verification_code, 'exp': expire_time}
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+        return JsonResponse({'success': True, 'message': '验证码发送成功', 'token': token}, status=200)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)

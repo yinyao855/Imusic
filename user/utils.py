@@ -1,4 +1,3 @@
-from django.contrib.sessions.models import Session
 from django.core.mail import send_mail
 
 
@@ -19,40 +18,12 @@ def sendMessage(email):  # 发送邮件并返回验证码
     return rand_str
 
 
-from datetime import datetime
-
-
 def validate_verification_code(request, verification_code):
-    sessionId = request.POST.get("sessionId")
-    if not sessionId:
-        return False
-
-    # 解密获取会话数据
-    try:
-        session = Session.objects.get(session_key=sessionId)
-        session_data = session.get_decoded()
-    except Session.DoesNotExist:
-        return False
-
-    # 获取验证码和过期时间
-    session_verification_code = session_data.get("verification_code", None)
-    expire_date = session.expire_date
-
+    # 从 token 中获取保存的验证码
+    token_verification_code = request.token_verification_code
+    print(token_verification_code)
     # 判断验证码是否正确
-    if session_verification_code and session_verification_code == verification_code:
-        # 判断验证码是否过期
-        if expire_date:
-            current_time = datetime.now()
-            if current_time <= expire_date:
-                # 清除已验证的验证码
-                del request.session['verification_code']
-                return True
-            else:
-                # 验证码已过期
-                return False
-        else:
-            # 没有过期时间，无法判断是否过期
-            return False
+    if token_verification_code and token_verification_code == verification_code:
+        return True
     else:
         return False
-
