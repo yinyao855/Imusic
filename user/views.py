@@ -40,6 +40,9 @@ def user_register(request):
         if not request.POST.get(field):
             return JsonResponse({'success': False, 'message': f'缺少字段：{field}'}, status=400)
 
+    # 现在是输入一大堆信息（包括查看邮箱，获取验证码），提交之后才能知道用户名是否已存在
+    # 或许可以当用户输入用户名时就检测是否存在
+    
     # 判断用户是否已经存在
     user = User.objects.filter(username=username).first()
     if user:
@@ -89,16 +92,18 @@ def get_user_info(request, username):
 @csrf_exempt
 @require_http_methods(["POST"])
 def update_user_info(request, username):
+    user = User.objects.filter(username=username).first()
     # 判断用户是否存在
-    try:
-        user = User.objects.filter(username=username).first()
-    except User.DoesNotExist:
+    if not user:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
 
     try:
         data = request.POST
 
         update_fields = ['email', 'bio']
+        # bio和avatar在注册时都是可选的，那么更新信息时应该可以把它们置空
+        # 缺陷，更新信息时无法删除原有的bio，即置bio为空
+        # 一个解决方法是，在更新信息时，前端自动填充用户原有的信息
         for field in update_fields:
             if data.get(field):
                 setattr(user, field, data[field])
@@ -208,12 +213,12 @@ def get_user_songlists(request):
         username = request.GET.get('username')
         if not username:
             return JsonResponse({'success': False, 'message': '缺少用户姓名'}, status=400)
+        # 如果用户不存在，get会抛出异常
         user = User.objects.get(username=username)
         # 获取该用户的所有歌单
         user_songlists = SongList.objects.filter(owner=user)
         songlists_data = [songlist.to_dict(request) for songlist in user_songlists]
         return JsonResponse({'success': True, 'message': '获取用户歌单成功', 'data': songlists_data}, status=200)
-
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
     except Exception as e:
