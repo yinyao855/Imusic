@@ -23,10 +23,10 @@ from imusic.middleware import JWTMiddleware
 # @method_decorator(JWTMiddleware, name='dispatch')
 def user_register(request):
     # 手动调用中间件
-    middleware = JWTMiddleware(lambda x: x)
-    response = middleware(request)
-    if isinstance(response, JsonResponse):
-        return response  # 如果中间件返回了 JsonResponse（例如，错误消息），则直接返回
+    # middleware = JWTMiddleware(lambda x: x)
+    # response = middleware(request)
+    # if isinstance(response, JsonResponse):
+    #     return response  # 如果中间件返回了 JsonResponse（例如，错误消息），则直接返回
     # 获取用户提交的数据
     username = request.POST.get('username')
     email = request.POST.get('email')

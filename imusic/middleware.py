@@ -6,18 +6,20 @@ import jwt
 
 exclude_path = [
     # 用户表
-    '/user/login/',
-    '/user/register/',
-    '/user/send-code/',
-    '/user/alldata/',
+    '/users/login',
+    # '/users/register',
+    '/users/send-code',
+    '/users/alldata',
     # 歌单表
-    '/songlist/alldata/',
-    '/songlist/initdata/',
-    '/songlist/info/',
+    '/songlists/alldata',
+    '/songlists/initdata',
+    '/songlists/info',
     # 歌曲表
-    '/song/alldata/',
+    '/songs/alldata',
+    '/songs/info',
+    '/songs/search',
     # 推荐表
-    '/recommend/latest/',
+    '/recommend/latest',
 ]
 
 
@@ -26,9 +28,13 @@ class JWTMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # 检查请求路径是否在排除列表中
+        if any(request.path.startswith(path) for path in exclude_path):
+            return self.get_response(request)
+
         # 检查请求头中是否包含Authorization字段
         if 'Authorization' not in request.headers:
-            return JsonResponse({'error': 'Authorization header missing'}, status=401)
+            return JsonResponse({'success': False, 'message': 'Authorization header missing'}, status=401)
 
         # 获取token
         auth_header = request.headers['Authorization']
@@ -40,12 +46,13 @@ class JWTMiddleware:
             # 将解码后的payload存储到request中以便后续视图函数使用
             request.username = decoded_payload.get('username', None)
             request.token_verification_code = decoded_payload.get('verification_code', None)
+            request.role = decoded_payload.get('role', None)
             # print("Username:", request.username)
             # print("Token Verification Code:", request.token_verification_code)
         except jwt.ExpiredSignatureError:
-            return JsonResponse({'error': 'Token expired'}, status=401)
+            return JsonResponse({'success': False, 'message': 'Token expired'}, status=401)
         except jwt.InvalidTokenError:
-            return JsonResponse({'error': 'Invalid token'}, status=401)
+            return JsonResponse({'success': False, 'message': 'Invalid token'}, status=401)
 
         response = self.get_response(request)
         return response
