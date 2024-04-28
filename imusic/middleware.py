@@ -5,6 +5,8 @@ from django.http import JsonResponse
 import jwt
 
 exclude_path = [
+    # 静态资源
+    '/media',
     # 用户表
     '/users/login',
     # '/users/register',
