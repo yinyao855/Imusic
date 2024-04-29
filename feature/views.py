@@ -41,7 +41,7 @@ def get_recent(request):
 @require_http_methods(["POST"])
 def add_recent(request):
     try:
-        username = request.POST.get('username')
+        username = request.username
         song_id = request.POST.get('song_id')
         if not username or not song_id:
             return JsonResponse({'success': False, 'message': '未接收到用户姓名或歌曲id'})

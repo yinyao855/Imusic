@@ -205,7 +205,7 @@ def change_user_role(request):
 @require_http_methods(["POST"])
 def change_password(request):
     # 获取用户提交的数据
-    username = request.POST.get('username')
+    username = request.username
     new_password = request.POST.get('new_password')
     # 判断用户是否存在
     user = User.objects.filter(username=username).first()

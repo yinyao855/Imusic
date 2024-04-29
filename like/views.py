@@ -36,7 +36,7 @@ def liked_songs_add(request):
             return JsonResponse({'success': False, 'message': '未获取到歌曲id',
                                  'data': None, 'token': None}, status=400)
 
-        username = request.POST.get('username')
+        username = request.username
         if not username:
             return JsonResponse({'success': False, 'message': '未获取到用户名',
                                  'data': None, 'token': None}, status=400)
@@ -72,7 +72,7 @@ def liked_songs_delete(request):
             return JsonResponse({'success': False, 'message': '未获取到歌曲id',
                                  'data': None, 'token': None}, status=400)
 
-        username = request.POST.get('username')
+        username = request.username
         if not username:
             return JsonResponse({'success': False, 'message': '未获取到用户名',
                                  'data': None, 'token': None}, status=400)
@@ -110,7 +110,7 @@ def liked_songlists_add(request):
             return JsonResponse({'success': False, 'message': '未获取到歌单id',
                                  'data': None, 'token': None}, status=400)
 
-        username = request.POST.get('username')
+        username = request.username
         if not username:
             return JsonResponse({'success': False, 'message': '未获取到用户名',
                                  'data': None, 'token': None}, status=400)
@@ -163,7 +163,7 @@ def liked_songlists_delete(request):
             return JsonResponse({'success': False, 'message': '未获取到歌单id',
                                  'data': None, 'token': None}, status=400)
 
-        username = request.POST.get('username')
+        username = request.username
         if not username:
             return JsonResponse({'success': False, 'message': '未获取到用户名',
                                  'data': None, 'token': None}, status=400)
