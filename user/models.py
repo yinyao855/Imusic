@@ -5,6 +5,7 @@ from django.conf import settings
 
 # Create your models here.
 class User(models.Model):
+    DoesNotExist = None
     objects = None
     user_id = models.AutoField(primary_key=True, verbose_name="用户ID")
     username = models.CharField(max_length=50, unique=True, verbose_name="用户名")

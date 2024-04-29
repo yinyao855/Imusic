@@ -5,6 +5,7 @@ from songlist.models import SongList
 
 
 class LikedSong(models.Model):
+    DoesNotExist = None
     objects = None
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
@@ -14,6 +15,7 @@ class LikedSong(models.Model):
 
 
 class LikedSongList(models.Model):
+    DoesNotExist = None
     objects = None
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     songlist = models.ForeignKey(SongList, on_delete=models.CASCADE)

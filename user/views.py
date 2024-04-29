@@ -1,5 +1,5 @@
-import os
 import datetime
+import os
 
 import jwt
 from django.conf import settings
@@ -8,13 +8,10 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.utils.decorators import method_decorator
 
 from songlist.models import SongList
 from .models import User
-
 from .utils import send_message, validate_verification_code
-from imusic.middleware import JWTMiddleware
 
 
 # Create your views here.
@@ -108,6 +105,9 @@ def update_user_info(request, username):
 
     try:
         data = request.POST
+
+        if request.role != 'admin' and request.username != username:
+            return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
         update_fields = ['email', 'bio']
         # bio和avatar在注册时都是可选的，那么更新信息时应该可以把它们置空
@@ -245,7 +245,6 @@ def send_code(request):
             return JsonResponse({'success': False, 'message': '缺少邮箱'}, status=400)
         # 发送验证码
         verification_code = send_message(email)
-        print(verification_code)
         # 将验证码写入token，过期时间为10分钟
         expire_time = datetime.datetime.now() + datetime.timedelta(minutes=10)
         payload = {'verification_code': verification_code, 'exp': expire_time}

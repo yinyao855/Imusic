@@ -9,5 +9,4 @@ urlpatterns = [
     path('alldata', views.get_all_songs, name='all_info'),
     path('query', views.query_songs, name='query'),
     path('search', views.search_songs, name='search'),
-    # path('like', views.like_song, name='like'),
 ]

@@ -9,6 +9,7 @@ from .utils import css_generate
 
 
 class Song(models.Model):
+    DoesNotExist = None
     objects = None
     id = models.AutoField(primary_key=True, verbose_name="歌曲ID")
     title = models.CharField(max_length=200, verbose_name="标题")

@@ -1,7 +1,6 @@
-from django.utils import timezone
-
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -15,7 +14,8 @@ from user.models import User
 @require_http_methods(["GET"])
 def get_recent(request):
     try:
-        username = request.GET.get('username')
+        # username = request.GET.get('username')
+        username = request.username
         if not username:
             return JsonResponse({'success': False, 'message': '未接收到用户姓名'})
 
@@ -23,8 +23,6 @@ def get_recent(request):
 
         # 查询最近10首播放
         recent_plays = Recent.objects.filter(user=user).order_by('-last_play')[:10]
-
-        # print(recent_plays.count())
 
         # song_list = [recent.to_dict(request) for recent in recent_plays]
         song_list = {
@@ -63,12 +61,13 @@ def add_recent(request):
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
-# 删除最近播放
+# 删除最近播放，测试阶段
 @csrf_exempt
 @require_http_methods(["DELETE"])
 def delete_recent(request):
     try:
-        username = request.GET.get('username')
+        # username = request.GET.get('username')
+        username = request.username
         song_id = request.GET.get('song_id')
         if not username or not song_id:
             return JsonResponse({'success': False, 'message': '未接收到用户姓名或歌曲id'})
