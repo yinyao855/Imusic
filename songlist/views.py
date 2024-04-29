@@ -75,13 +75,14 @@ def songlist_add(request):
     try:
         data = request.POST
         songlist_id = data.get('songlist_id')
+        songlist = SongList.objects.get(id=songlist_id)
+
+        if request.role != 'admin' and request.username != songlist.owner.username:
+            return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
+
         song_id = data.get('song_id')
         song = Song.objects.get(id=song_id)
-        songlist = SongList.objects.get(id=songlist_id)
         songlist.add_song(song)
-
-        if data.get('role') != 'admin' and data.get('username') != songlist.owner__username:
-            return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
         return JsonResponse({'success': True, 'message': '添加歌曲成功'}, status=200)
 
@@ -100,13 +101,14 @@ def songlist_remove(request):
     try:
         data = request.POST
         songlist_id = data.get('songlist_id')
+        songlist = SongList.objects.get(id=songlist_id)
+
+        if request.role != 'admin' and request.username != songlist.owner.username:
+            return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
+
         song_id = data.get('song_id')
         song = Song.objects.get(id=song_id)
-        songlist = SongList.objects.get(id=songlist_id)
         songlist.remove_song(song)
-
-        if data.get('role') != 'admin' and data.get('username') != songlist.owner__username:
-            return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
         return JsonResponse({'success': True, 'message': '删除歌曲成功'}, status=200)
 
@@ -129,7 +131,7 @@ def update_songlist_info(request, songlistID):
     try:
         data = request.POST
 
-        if data.get('role') != 'admin' and data.get('username') != songlist.owner__username:
+        if request.role != 'admin' and request.username != songlist.owner.username:
             return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
         # 更新基本信息
@@ -166,7 +168,7 @@ def delete_songlist(request, songlistID):
         # 尝试找到并删除指定的歌单
         songlist = SongList.objects.get(id=songlistID)
 
-        if data.get('role') != 'admin' and data.get('username') != songlist.owner__username:
+        if request.role != 'admin' and request.username != songlist.owner.username:
             return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
         # 删除歌单对应的封面图

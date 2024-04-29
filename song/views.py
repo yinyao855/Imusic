@@ -208,7 +208,8 @@ def update_song_info(request, songID):
 
     try:
         data = request.POST
-        if data.get('role') != 'admin' and data.get('username') != song.uploader__username:
+
+        if request.role != 'admin' and request.username != song.uploader.username:
             return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
         # 更新歌曲信息
@@ -263,7 +264,7 @@ def delete_song(request, songID):
     except Song.DoesNotExist:
         return JsonResponse({'success': False, 'message': '歌曲未找到'}, status=404)
 
-    if data.get('role') != 'admin' and data.get('username') != song.uploader__username:
+    if request.role != 'admin' and request.username != song.uploader.username:
         return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
     try:
