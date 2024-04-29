@@ -208,6 +208,8 @@ def update_song_info(request, songID):
 
     try:
         data = request.POST
+        if data.get('role') != 'admin' and data.get('username') != song.uploader__username:
+            return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
         # 更新歌曲信息
         update_fields = ['title', 'singer', 'introduction', 'tag_theme', 'tag_scene', 'tag_mood', 'tag_style',
@@ -260,6 +262,9 @@ def delete_song(request, songID):
         song = Song.objects.get(id=songID)
     except Song.DoesNotExist:
         return JsonResponse({'success': False, 'message': '歌曲未找到'}, status=404)
+
+    if data.get('role') != 'admin' and data.get('username') != song.uploader__username:
+        return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
     try:
         # 需要删除歌曲对应的封面、音频和歌词文件

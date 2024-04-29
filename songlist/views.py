@@ -80,6 +80,9 @@ def songlist_add(request):
         songlist = SongList.objects.get(id=songlist_id)
         songlist.add_song(song)
 
+        if data.get('role') != 'admin' and data.get('username') != songlist.owner__username:
+            return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
+
         return JsonResponse({'success': True, 'message': '添加歌曲成功'}, status=200)
 
     except Song.DoesNotExist:
@@ -102,6 +105,9 @@ def songlist_remove(request):
         songlist = SongList.objects.get(id=songlist_id)
         songlist.remove_song(song)
 
+        if data.get('role') != 'admin' and data.get('username') != songlist.owner__username:
+            return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
+
         return JsonResponse({'success': True, 'message': '删除歌曲成功'}, status=200)
 
     except Song.DoesNotExist:
@@ -123,6 +129,9 @@ def update_songlist_info(request, songlistID):
     try:
         data = request.POST
 
+        if data.get('role') != 'admin' and data.get('username') != songlist.owner__username:
+            return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
+
         # 更新基本信息
         songlist.title = data.get('title', songlist.title)
         songlist.introduction = data.get('introduction', songlist.introduction)
@@ -131,6 +140,7 @@ def update_songlist_info(request, songlistID):
         songlist.tag_mood = data.get('tag_mood', songlist.tag_mood)
         songlist.tag_style = data.get('tag_style', songlist.tag_style)
         songlist.tag_language = data.get('tag_language', songlist.tag_language)
+
         # 如果有更新封面的要求，那么就更新
         if 'cover' in request.FILES:
             # 先删除旧有封面
@@ -155,6 +165,10 @@ def delete_songlist(request, songlistID):
     try:
         # 尝试找到并删除指定的歌单
         songlist = SongList.objects.get(id=songlistID)
+
+        if data.get('role') != 'admin' and data.get('username') != songlist.owner__username:
+            return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
+
         # 删除歌单对应的封面图
         if songlist.cover:
             cover_path = os.path.join(settings.MEDIA_ROOT, str(songlist.cover))
