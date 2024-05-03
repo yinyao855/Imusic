@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from song.models import Song
 from songlist.models import SongList
 from .models import User
 from .utils import send_message, validate_verification_code
@@ -228,6 +229,25 @@ def get_user_songlists(request):
         user_songlists = SongList.objects.filter(owner=user)
         songlists_data = [songlist.to_dict(request) for songlist in user_songlists]
         return JsonResponse({'success': True, 'message': '获取用户歌单成功', 'data': songlists_data}, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+# 获取用户上传的歌曲
+@require_http_methods(["GET"])
+def get_user_songs(request):
+    try:
+        username = request.GET.get('username')
+        if not username:
+            return JsonResponse({'success': False, 'message': '缺少用户姓名'}, status=400)
+        # 如果用户不存在，get会抛出异常
+        user = User.objects.get(username=username)
+        # 获取该用户的所有歌曲
+        user_songs = Song.objects.filter(uploader=user)
+        songs_data = [song.to_dict(request) for song in user_songs]
+        return JsonResponse({'success': True, 'message': '获取用户歌曲成功', 'data': songs_data}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
     except Exception as e:
