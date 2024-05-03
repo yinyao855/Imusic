@@ -21,6 +21,7 @@ exclude_path = [
     '/songs/alldata',
     '/songs/info',
     '/songs/search',
+    '/songs/query',
     # 推荐表
     '/recommend/latest',
 ]

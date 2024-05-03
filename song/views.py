@@ -1,17 +1,18 @@
 # Description: 歌曲相关视图函数
+import os
+
+import jieba
+from django.conf import settings
 from django.core.exceptions import ValidationError
-from mutagen.mp3 import MP3
-from django.http import HttpResponse, JsonResponse, Http404
+from django.db import transaction
+from django.db.models import Q
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from mutagen.mp3 import MP3
 
-from .models import Song
 from user.models import User
-import os
-from django.conf import settings
-from django.db.models import Q
-from django.db import transaction
-
+from .models import Song
 from .utils import css_generate
 
 
@@ -180,14 +181,37 @@ def query_songs(request):
 def search_songs(request):
     try:
         keyword = request.GET.get('keyword', '')
+
         if not keyword:
             return JsonResponse({'success': False, 'message': '缺少搜索关键字'}, status=400)
 
-        # 根据关键字查询歌曲，不区分大小写
-        songs = Song.objects.filter(Q(title__icontains=keyword) | Q(singer__icontains=keyword) |
-                                    Q(tag_theme__icontains=keyword) | Q(tag_scene__icontains=keyword) |
-                                    Q(tag_mood__icontains=keyword) | Q(tag_style__icontains=keyword) |
-                                    Q(tag_language__icontains=keyword))
+        # 使用jieba对关键词进行分词
+        keywords = list(set(jieba.cut_for_search(keyword)))
+        if ' ' in keywords:
+            keywords.remove(' ')
+
+        # print(keywords)
+        # 动态构建查询条件
+        query = Q()
+        for kw in keywords:
+            query |= (Q(title__icontains=kw) | Q(singer__icontains=kw))
+
+        fields = {
+            'tag_theme': 'tag_theme',
+            'tag_scene': 'tag_scene',
+            'tag_mood': 'tag_mood',
+            'tag_style': 'tag_style',
+            'tag_language': 'tag_language',
+            'uploader': 'uploader__username'
+        }
+        # 从请求参数中获取查询字段
+        for field, field_name in fields.items():
+            value = request.GET.get(field)
+            if value:
+                query &= Q(**{f"{field_name}__icontains": value})
+
+        # 查询歌曲
+        songs = Song.objects.filter(query)
 
         # 将查询结果转换为字典格式
         data = [song.to_dict(request) for song in songs]
