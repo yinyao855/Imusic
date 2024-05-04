@@ -42,6 +42,10 @@ INSTALLED_APPS = [
     'recommend.apps.RecommendConfig',
     'feature.apps.FeatureConfig',
     'like.apps.LikeConfig',
+    'follow.apps.FollowConfig',
+    'comment.apps.CommentConfig',
+    'complaint.apps.ComplaintConfig',
+    'message.apps.MessageConfig',
 ]
 
 MIDDLEWARE = [
