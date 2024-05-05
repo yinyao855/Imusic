@@ -88,6 +88,8 @@ def user_login(request):
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_user_info(request, username):
+    if request.role != 'admin' and request.username != username:
+        return JsonResponse({'success': False, 'message': '没有权限访问'}, status=403)
     user = User.objects.filter(username=username).first()
     if user:
         data = user.to_dict(request)
@@ -139,11 +141,14 @@ def update_user_info(request, username):
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
-# 删除用户，测试用
+# 删除用户，只有用户自己可以删除自己
 @csrf_exempt
 @require_http_methods(["DELETE"])
 def delete_user(request, username):
     # 判断用户是否存在
+    uname = request.username
+    if uname != username:
+        return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
     user = User.objects.filter(username=username).first()
     if user:
         # 需要删除用户的头像文件
@@ -179,7 +184,7 @@ def change_user_role(request):
     # print(authorized_key)
 
     # 获取用户提交的数据，都是用户名
-    cur_user = request.POST.get('cur_user')
+    cur_user = request.username
     dir_user = request.POST.get('dir_user')
     role = request.POST.get('role')
     key = request.POST.get('key')
