@@ -62,6 +62,8 @@ class SongList(models.Model):
             'id': self.id,
             'title': self.title,
             'cover': cover_url,
+            'owner': self.owner.username,
+            'create_date': self.created_date.strftime('%Y-%m-%d %H:%M:%S'),
             'like': self.like,
         }
 

@@ -25,7 +25,7 @@ def get_recent(request):
         # 查询最近10首播放
         recent_plays = Recent.objects.filter(user=user).order_by('-last_play')
 
-        if num != -1:
+        if int(num) != -1:
             recent_plays = recent_plays[:int(num)]
 
         # song_list = [recent.to_dict(request) for recent in recent_plays]
