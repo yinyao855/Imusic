@@ -56,6 +56,17 @@ class SongList(models.Model):
 
         return songlist_info
 
+    def to_sim_dict(self, request=None):
+        cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
+        songlist_info = {
+            'id': self.id,
+            'title': self.title,
+            'cover': cover_url,
+            'like': self.like,
+        }
+
+        return songlist_info
+
     # 添加歌曲到歌单
     def add_song(self, song):
         if not isinstance(song, Song):

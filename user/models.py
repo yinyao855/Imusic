@@ -36,3 +36,12 @@ class User(models.Model):
             'role': self.role,
             'registration_date': self.registration_date.strftime('%Y-%m-%d %H:%M:%S')
         }
+
+    def to_pub_dict(self, request=None):
+        avatar_url = request.build_absolute_uri(
+            os.path.join(settings.MEDIA_URL, self.avatar.url)) if self.avatar else None
+        return {
+            'username': self.username,
+            'bio': self.bio if self.bio else None,
+            'avatar': avatar_url
+        }

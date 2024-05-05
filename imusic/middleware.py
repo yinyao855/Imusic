@@ -9,7 +9,6 @@ exclude_path = [
     '/media',
     # 用户表
     '/users/login',
-    # '/users/register',
     '/users/send-code',
     '/users/alldata',
     '/users/info',
@@ -20,10 +19,11 @@ exclude_path = [
     # 歌曲表
     '/songs/alldata',
     '/songs/info',
-    '/songs/search',
     '/songs/query',
     # 推荐表
     '/recommend/latest',
+    # 搜索
+    '/search',
 ]
 
 

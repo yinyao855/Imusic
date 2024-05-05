@@ -1,7 +1,6 @@
 # Description: 歌曲相关视图函数
 import os
 
-import jieba
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -165,52 +164,6 @@ def query_songs(request):
             query &= Q(**{f"{key}__icontains": value})
 
         # 根据查询条件过滤歌曲
-        songs = Song.objects.filter(query)
-
-        # 将查询结果转换为字典格式
-        data = [song.to_dict(request) for song in songs]
-
-        return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
-    except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)}, status=500)
-
-
-# 通用查询，查询含有关键字的歌曲，用于搜索框
-@csrf_exempt
-@require_http_methods(["GET"])
-def search_songs(request):
-    try:
-        keyword = request.GET.get('keyword', '')
-
-        if not keyword:
-            return JsonResponse({'success': False, 'message': '缺少搜索关键字'}, status=400)
-
-        # 使用jieba对关键词进行分词
-        keywords = list(set(jieba.cut_for_search(keyword)))
-        if ' ' in keywords:
-            keywords.remove(' ')
-
-        # print(keywords)
-        # 动态构建查询条件
-        query = Q()
-        for kw in keywords:
-            query |= (Q(title__icontains=kw) | Q(singer__icontains=kw))
-
-        fields = {
-            'tag_theme': 'tag_theme',
-            'tag_scene': 'tag_scene',
-            'tag_mood': 'tag_mood',
-            'tag_style': 'tag_style',
-            'tag_language': 'tag_language',
-            'uploader': 'uploader__username'
-        }
-        # 从请求参数中获取查询字段
-        for field, field_name in fields.items():
-            value = request.GET.get(field)
-            if value:
-                query &= Q(**{f"{field_name}__icontains": value})
-
-        # 查询歌曲
         songs = Song.objects.filter(query)
 
         # 将查询结果转换为字典格式

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'comment.apps.CommentConfig',
     'complaint.apps.ComplaintConfig',
     'message.apps.MessageConfig',
+    'search.apps.SearchConfig',
 ]
 
 MIDDLEWARE = [

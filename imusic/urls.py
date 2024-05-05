@@ -27,4 +27,5 @@ urlpatterns = [
                   path('recommend/', include('recommend.urls')),
                   path('feature/', include('feature.urls')),
                   path('like/', include('like.urls')),
+                  path('search/', include('search.urls')),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

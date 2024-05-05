@@ -20,9 +20,13 @@ def get_recent(request):
             return JsonResponse({'success': False, 'message': '未接收到用户姓名'})
 
         user = get_object_or_404(User, username=username)
+        num = request.GET.get('num', 10)
 
         # 查询最近10首播放
-        recent_plays = Recent.objects.filter(user=user).order_by('-last_play')[:10]
+        recent_plays = Recent.objects.filter(user=user).order_by('-last_play')
+
+        if num != -1:
+            recent_plays = recent_plays[:int(num)]
 
         # song_list = [recent.to_dict(request) for recent in recent_plays]
         song_list = {
