@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -14,15 +15,17 @@ from .utils import generate_user_weekly_report
 @require_http_methods(["POST"])
 def send_message(request):
     try:
-        sender_id = request.username
-        receiver_id = request.POST.get('receiver_id')
+        sender_name = request.username
+        receiver_name = request.POST.get('receiver')
         content = request.POST.get('content')
 
-        sender = User.objects.get(user_id=sender_id)
-        receiver = User.objects.get(user_id=receiver_id)
+        sender = User.objects.get(username=sender_name)
+        receiver = User.objects.get(username=receiver_name)
 
-        message = Message(sender=sender, receiver=receiver, content=content, type='私信通知')
-        message.save()
+        with transaction.atomic():
+            message = Message(sender=sender, receiver=receiver, content=content, type=5)
+            message.full_clean()
+            message.save()
 
         return JsonResponse({'success': True, 'message': '消息发送成功'}, status=200)
     except User.DoesNotExist:
@@ -66,9 +69,10 @@ def read_message(request):
 @require_http_methods(["DELETE"])
 def delete_message(request):
     try:
-        message_id = request.POST.get('message_id')
+        message_id = request.GET.get('message_id')
+        # print(message_id)
         message = Message.objects.get(id=message_id)
-        if message.receiver.username != request.username:
+        if message.sender.username != request.username:
             return JsonResponse({'success': False, 'message': '无删除权限'}, status=403)
         message.delete()
         return JsonResponse({'success': True, 'message': '消息已删除'}, status=200)

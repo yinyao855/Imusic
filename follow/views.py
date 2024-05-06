@@ -26,8 +26,12 @@ def follow_unfollow(request):
                                    receiver=receiver,
                                    content=f'{sender_username}关注了你') \
                 .delete()
-            sender.following_count -= 1
-            receiver.follower_count -= 1
+            if sender.following_count > 0:
+                sender.following_count -= 1
+            sender.save()
+            if receiver.follower_count > 0:
+                receiver.follower_count -= 1
+            receiver.save()
             return JsonResponse({'success': True, 'message': '取消关注成功'}, status=200)
         else:
             # 加关注，发送关注信息
@@ -35,9 +39,13 @@ def follow_unfollow(request):
             Message.objects.create(sender=sender,
                                    receiver=receiver,
                                    content=f'{sender_username}关注了你',
-                                   type=5)
+                                   type=4)  # 4代表关注通知
             sender.following_count += 1
+            sender.save()
             receiver.follower_count += 1
+            receiver.save()
             return JsonResponse({'success': True, 'message': '加关注成功'}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '对象用户不存在'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
