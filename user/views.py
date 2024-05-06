@@ -203,7 +203,7 @@ def change_user_role(request):
         return JsonResponse({'success': False, 'message': '用户权限修改失败，权限错误'}, status=400)
     user.role = role
     user.save()
-    return JsonResponse({'success': False, 'message': '用户权限修改成功'}, status=200)
+    return JsonResponse({'success': True, 'message': '用户权限修改成功'}, status=200)
 
 
 # 修改密码
@@ -232,7 +232,7 @@ def get_user_songlists(request):
         user = User.objects.get(username=username)
         # 获取该用户的所有歌单
         user_songlists = SongList.objects.filter(owner=user)
-        songlists_data = [songlist.to_dict(request) for songlist in user_songlists]
+        songlists_data = [songlist.to_sim_dict(request) for songlist in user_songlists]
         return JsonResponse({'success': True, 'message': '获取用户歌单成功', 'data': songlists_data}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
