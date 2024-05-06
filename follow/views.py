@@ -24,7 +24,7 @@ def follow_unfollow(request):
             existing_follow.delete()
             Message.objects.filter(sender=sender,
                                    receiver=receiver,
-                                   content=f'{sender_username}关注了你')\
+                                   content=f'{sender_username}关注了你') \
                 .delete()
             sender.following_count -= 1
             receiver.follower_count -= 1
@@ -34,7 +34,8 @@ def follow_unfollow(request):
             Follow.objects.create(follower=sender, followed=receiver)
             Message.objects.create(sender=sender,
                                    receiver=receiver,
-                                   content=f'{sender_username}关注了你')
+                                   content=f'{sender_username}关注了你',
+                                   type=5)
             sender.following_count += 1
             receiver.follower_count += 1
             return JsonResponse({'success': True, 'message': '加关注成功'}, status=200)

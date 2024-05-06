@@ -11,7 +11,7 @@ class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='sender')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
     content = models.TextField(verbose_name="消息内容")
-    type = models.CharField(max_length=10, choices=NOTICE_TYPE_CHOICES, default='系统通知', verbose_name="消息类型")
+    type = models.IntegerField(choices=NOTICE_TYPE_CHOICES, default=1, verbose_name="消息类型")
     send_date = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
