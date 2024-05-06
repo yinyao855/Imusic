@@ -194,7 +194,7 @@ def get_all_songlists(request):
     songlists = SongList.objects.all()
     data = []
     for songlist in songlists:
-        data.append(songlist.to_dict(request))
+        data.append(songlist.to_sim_dict(request))
 
     return JsonResponse({'success': True, 'message': '获取成功', 'data': data}, status=200)
 
@@ -206,6 +206,6 @@ def get_init_songlists(request):
 
     songlists_data = []
     for songlist in top_songlists:
-        songlists_data.append(songlist.to_dict(request))
+        songlists_data.append(songlist.to_sim_dict(request))
 
     return JsonResponse({'success': True, 'message': '获取成功', 'data': songlists_data}, status=200)
