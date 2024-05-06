@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from follow.models import Follow
 from song.models import Song
 from songlist.models import SongList
 from .models import User
@@ -278,3 +279,39 @@ def send_code(request):
         return JsonResponse({'success': True, 'message': '验证码发送成功', 'token': token}, status=200)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_followings(request):
+    username = request.GET.get('username')
+    if not username:
+        return JsonResponse({'success': False, 'message': '缺少对象用户的姓名'}, status=400)
+
+    try:
+        user = User.objects.get(username=username)
+        followings = Follow.objects.filter(follower=user)
+        following_list = [follow.followed.to_dict(request) for follow in followings]
+        return JsonResponse({'success': True,
+                             'message': '获取成功',
+                             'data': following_list}, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '对象用户不存在'}, status=400)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_followers(request):
+    username = request.GET.get('username')
+    if not username:
+        return JsonResponse({'success': False, 'message': '缺少对象用户的姓名'}, status=400)
+
+    try:
+        user = User.objects.get(username=username)
+        followers = Follow.objects.filter(followed=user)
+        follower_list = [follow.follower.to_dict(request) for follow in followers]
+        return JsonResponse({'success': True,
+                             'message': '获取成功',
+                             'data': follower_list}, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '对象用户不存在'}, status=400)

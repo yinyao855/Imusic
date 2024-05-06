@@ -16,4 +16,8 @@ urlpatterns = [
     path('songs', views.get_user_songs, name='get_user_songs'),
     # 发送验证码
     path('send-code', views.send_code, name='send_code'),
+    # 获取关注列表
+    path('followings', views.get_followings, name='get_followings'),
+    # 获取关注者列表
+    path('followers', views.get_followers, name='get_followers'),
 ]
