@@ -20,6 +20,8 @@ class User(models.Model):
         ('admin', 'Admin'),
     )
     role = models.CharField(max_length=10, choices=role_choices, default='user', verbose_name="角色")
+    follower = models.IntegerField(default=0, verbose_name="关注ta的人")
+    following = models.IntegerField(default=0, verbose_name="ta关注的人")
 
     def __str__(self):
         return self.username
