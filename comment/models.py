@@ -11,3 +11,4 @@ class Comment(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     content = models.TextField()
     comment_date = models.DateTimeField(auto_now_add=True)
+    like = models.IntegerField(default=0, verbose_name="点赞人数")
