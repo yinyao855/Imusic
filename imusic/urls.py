@@ -28,4 +28,5 @@ urlpatterns = [
                   path('feature/', include('feature.urls')),
                   path('like/', include('like.urls')),
                   path('search/', include('search.urls')),
+                  path('follow/', include('follow.urls')),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
