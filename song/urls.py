@@ -8,4 +8,6 @@ urlpatterns = [
     path('delete/<str:songID>', views.delete_song, name='delete'),
     path('alldata', views.get_all_songs, name='all_info'),
     path('query', views.query_songs, name='query'),
+    # 获取歌曲评论
+    path('comments', views.get_comments, name='get_comments'),
 ]

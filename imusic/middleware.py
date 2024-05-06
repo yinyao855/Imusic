@@ -20,6 +20,7 @@ exclude_path = [
     '/songs/alldata',
     '/songs/info',
     '/songs/query',
+    '/songs/comments',
     # 推荐表
     '/recommend/latest',
     # 搜索

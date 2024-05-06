@@ -12,3 +12,13 @@ class Comment(models.Model):
     content = models.TextField()
     comment_date = models.DateTimeField(auto_now_add=True)
     like = models.IntegerField(default=0, verbose_name="点赞人数")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user': self.user.username,
+            'song': self.song.id,
+            'content': self.content,
+            'comment_date': self.comment_date.isoformat(),
+            'like': self.like
+        }

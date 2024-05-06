@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 from mutagen.mp3 import MP3
 
 from user.models import User
+from comment.models import Comment
 from .models import Song
 from .utils import css_generate
 
@@ -280,3 +281,19 @@ def get_all_songs(request):
         song_data = song.to_dict(request)
         data.append(song_data)
     return JsonResponse({'success': True, 'message': '获取所有歌曲信息成功', 'data': data}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_comments(request):
+    try:
+        songID = request.GET.get('songID')
+        comments = Comment.objects.filter(song__id=songID)
+        comments_data = [comment.to_dict() for comment in comments]
+        return JsonResponse({'success': True,
+                             'message': '获取评论成功',
+                             'data': comments_data}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
