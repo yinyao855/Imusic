@@ -30,4 +30,5 @@ urlpatterns = [
                   path('search/', include('search.urls')),
                   path('follow/', include('follow.urls')),
                   path('comments/', include('comment.urls')),
+                  path('messages/', include('message.urls')),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
