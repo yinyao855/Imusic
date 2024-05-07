@@ -21,68 +21,71 @@ from .utils import send_message, validate_verification_code
 @require_http_methods(["POST"])
 # @method_decorator(JWTMiddleware, name='dispatch')
 def user_register(request):
-    # 手动调用中间件
-    # middleware = JWTMiddleware(lambda x: x)
-    # response = middleware(request)
-    # if isinstance(response, JsonResponse):
-    #     return response  # 如果中间件返回了 JsonResponse（例如，错误消息），则直接返回
-    # 获取用户提交的数据
-    username = request.POST.get('username')
-    email = request.POST.get('email')
-    password = request.POST.get('password')
-    avatar = request.FILES.get('avatar')
-    bio = request.POST.get('bio')
-    verification_code = request.POST.get('verification_code')
+    try:
+        # 获取用户提交的数据
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        avatar = request.FILES.get('avatar')
+        bio = request.POST.get('bio')
+        verification_code = request.POST.get('verification_code')
 
-    required_fields = ['username', 'password', 'verification_code']
-    for field in required_fields:
-        if not request.POST.get(field):
-            return JsonResponse({'success': False, 'message': f'缺少字段：{field}'}, status=400)
+        required_fields = ['username', 'password', 'verification_code']
+        for field in required_fields:
+            if not request.POST.get(field):
+                return JsonResponse({'success': False, 'message': f'缺少字段：{field}'}, status=200)
 
-    # 现在是输入一大堆信息（包括查看邮箱，获取验证码），提交之后才能知道用户名是否已存在
-    # 或许可以当用户输入用户名时就检测是否存在
-    
-    # 判断用户是否已经存在
-    user = User.objects.filter(username=username).first()
-    if user:
-        return JsonResponse({'success': False, 'message': '用户名已存在'}, status=400)
+        # 现在是输入一大堆信息（包括查看邮箱，获取验证码），提交之后才能知道用户名是否已存在
+        # 或许可以当用户输入用户名时就检测是否存在
 
-    # 判断验证码是否正确
-    res = validate_verification_code(request, verification_code)
-    if not res:
-        return JsonResponse({'success': False, 'message': '验证码错误或已失效'}, status=400)
+        # 判断用户是否已经存在
+        user = User.objects.filter(username=username).first()
+        if user:
+            return JsonResponse({'success': False, 'message': '用户名已存在'}, status=200)
 
-    # 创建用户
-    with transaction.atomic():
-        user = User(username=username, email=email,
-                    password=password, avatar=avatar, bio=bio)
-        user.full_clean()
-        user.save()
+        # 判断验证码是否正确
+        res = validate_verification_code(request, verification_code)
+        if not res:
+            return JsonResponse({'success': False, 'message': '验证码错误或已失效'}, status=200)
 
-    return JsonResponse({'success': True, 'message': '注册成功'}, status=201)
+        # 创建用户
+        with transaction.atomic():
+            user = User(username=username, email=email,
+                        password=password, avatar=avatar, bio=bio)
+            user.full_clean()
+            user.save()
+
+        return JsonResponse({'success': True, 'message': '注册成功'}, status=201)
+    except ValidationError as e:
+        return JsonResponse({'success': False, 'message': e.message_dict}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def user_login(request):
-    # 获取用户提交的数据
-    username = request.POST.get('username')
-    password = request.POST.get('password')
-    # 判断用户是否存在
-    user = User.objects.filter(username=username, password=password).first()
-    if user:
-        data = user.to_dict(request)
-        # 生成token
-        expire_time = datetime.datetime.now() + datetime.timedelta(hours=3)
-        payload = {
-            'user_id': user.user_id,
-            'username': user.username,
-            'role': user.role,
-            'exp': expire_time
-        }
-        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-        return JsonResponse({'success': True, 'message': '登录成功', 'data': data, 'token': token}, status=200)
-    return JsonResponse({'success': False, 'message': '用户名或密码错误'}, status=400)
+    try:
+        # 获取用户提交的数据
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        # 判断用户是否存在
+        user = User.objects.filter(username=username, password=password).first()
+        if user:
+            data = user.to_dict(request)
+            # 生成token
+            expire_time = datetime.datetime.now() + datetime.timedelta(hours=3)
+            payload = {
+                'user_id': user.user_id,
+                'username': user.username,
+                'role': user.role,
+                'exp': expire_time
+            }
+            token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+            return JsonResponse({'success': True, 'message': '登录成功', 'data': data, 'token': token}, status=200)
+        return JsonResponse({'success': False, 'message': '用户名或密码错误'}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 # 获取用户信息

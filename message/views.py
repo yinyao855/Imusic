@@ -39,13 +39,15 @@ def send_message(request):
 @require_http_methods(["GET"])
 def get_received_messages(request):
     try:
-        receiver_id = request.username
-        receiver = User.objects.get(user_id=receiver_id)
-        messages = Message.objects.filter(recevier=receiver)
+        receiver_name = request.username
+        receiver = User.objects.get(username=receiver_name)
+        messages = Message.objects.filter(receiver=receiver)
         message_list = [message.to_dict() for message in messages]
         return JsonResponse({'success': True, 'message': '获取用户消息成功', 'data': message_list}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
 
 # 已读消息

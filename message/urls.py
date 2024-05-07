@@ -7,7 +7,7 @@ urlpatterns = [
     # 发送消息
     path('send', views.send_message),
     # 获取消息
-    path('get', views.get_received_messages),
+    path('', views.get_received_messages),
     # 已读消息
     path('read', views.read_message),
     # 删除消息
