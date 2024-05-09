@@ -23,7 +23,7 @@ def send_message(request):
         receiver = User.objects.get(username=receiver_name)
 
         with transaction.atomic():
-            message = Message(sender=sender, receiver=receiver, content=content, type=5)
+            message = Message(sender=sender, receiver=receiver, title=sender_name, content=content, type=5)
             message.full_clean()
             message.save()
 
@@ -87,5 +87,5 @@ def delete_message(request):
 @require_http_methods(["GET"])
 def test(request):
     user = User.objects.get(username=request.username)
-    res = generate_user_weekly_report(user, '2024-05-01', '2024-05-06', request)
+    res = generate_user_weekly_report(user, '2024-05-01', '2024-05-06')
     return JsonResponse({'success': True, 'message': '测试成功', 'data': res}, status=200)

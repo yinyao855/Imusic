@@ -10,6 +10,7 @@ class Message(models.Model):
     id = models.AutoField(primary_key=True)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='sender')
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
+    title = models.CharField(max_length=50, null=True, verbose_name="消息标题")
     content = models.TextField(verbose_name="消息内容")
     type = models.IntegerField(choices=NOTICE_TYPE_CHOICES, default=1, verbose_name="消息类型")
     send_date = models.DateTimeField(auto_now_add=True)
@@ -23,8 +24,9 @@ class Message(models.Model):
             'id': self.id,
             'sender': self.sender.username,
             'receiver': self.receiver.username,
+            'title': self.title,
             'content': self.content,
             'type': self.type,
-            'send_date': self.send_date,
+            'send_date': self.send_date.strftime('%Y-%m-%d %H:%M:%S'),
             'is_read': self.is_read
         }
