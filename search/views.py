@@ -16,19 +16,19 @@ from user.models import User
 def search_songs(request):
     try:
         keyword = request.GET.get('keyword', '')
-
-        if not keyword:
-            return JsonResponse({'success': False, 'message': '缺少搜索关键字'}, status=400)
-
-        # 使用jieba对关键词进行分词
-        keywords = list(set(jieba.cut_for_search(keyword)))
-        if ' ' in keywords:
-            keywords.remove(' ')
+        num = request.GET.get('num', '')
 
         # 动态构建查询条件
         query = Q()
-        for kw in keywords:
-            query |= (Q(title__icontains=kw) | Q(singer__icontains=kw))
+
+        if keyword:
+            # 使用jieba对关键词进行分词
+            keywords = list(set(jieba.cut_for_search(keyword)))
+            if ' ' in keywords:
+                keywords.remove(' ')
+
+            for kw in keywords:
+                query |= (Q(title__icontains=kw) | Q(singer__icontains=kw))
 
         fields = {
             'tag_theme': 'tag_theme',
@@ -47,8 +47,12 @@ def search_songs(request):
         # 查询歌曲
         songs = Song.objects.filter(query)
 
+        # 如果有num参数，返回指定数量的歌曲
+        if num:
+            songs = songs[:int(num)]
+
         # 将查询结果转换为字典格式
-        data = [song.to_dict(request) for song in songs]
+        data = [song.to_sim_dict(request) for song in songs]
 
         return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
     except Exception as e:
@@ -61,19 +65,19 @@ def search_songs(request):
 def search_songlists(request):
     try:
         keyword = request.GET.get('keyword', '')
-
-        if not keyword:
-            return JsonResponse({'success': False, 'message': '缺少搜索关键字'}, status=400)
-
-        # 使用jieba对关键词进行分词
-        keywords = list(set(jieba.cut_for_search(keyword)))
-        if ' ' in keywords:
-            keywords.remove(' ')
+        num = request.GET.get('num', '')
 
         # 动态构建查询条件
         query = Q()
-        for kw in keywords:
-            query |= Q(title__icontains=kw)
+
+        if keyword:
+            # 使用jieba对关键词进行分词
+            keywords = list(set(jieba.cut_for_search(keyword)))
+            if ' ' in keywords:
+                keywords.remove(' ')
+
+            for kw in keywords:
+                query |= Q(title__icontains=kw)
 
         fields = {
             'tag_theme': 'tag_theme',
@@ -92,6 +96,9 @@ def search_songlists(request):
         # 查询歌单
         songLists = SongList.objects.filter(query)
 
+        if num:
+            songLists = songLists[:int(num)]
+
         # 将查询结果转换为字典格式
         data = [songList.to_sim_dict(request) for songList in songLists]
 
@@ -106,22 +113,25 @@ def search_songlists(request):
 def search_users(request):
     try:
         keyword = request.GET.get('keyword', '')
-
-        if not keyword:
-            return JsonResponse({'success': False, 'message': '缺少搜索关键字'}, status=400)
-
-        # 使用jieba对关键词进行分词
-        keywords = list(set(jieba.cut_for_search(keyword)))
-        if ' ' in keywords:
-            keywords.remove(' ')
+        num = request.GET.get('num', '')
 
         # 动态构建查询条件
         query = Q()
-        for kw in keywords:
-            query |= Q(username__icontains=kw)
+
+        if keyword:
+            # 使用jieba对关键词进行分词
+            keywords = list(set(jieba.cut_for_search(keyword)))
+            if ' ' in keywords:
+                keywords.remove(' ')
+
+            for kw in keywords:
+                query |= Q(username__icontains=kw)
 
         # 查询用户
         users = User.objects.filter(query)
+
+        if num:
+            users = users[:int(num)]
 
         # 将查询结果转换为字典格式
         data = [user.to_pub_dict(request) for user in users]
