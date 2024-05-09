@@ -23,7 +23,7 @@ def add_comment(request):
         new_comment.save()
 
         # 创建消息通知给歌曲的上传者
-        message = Message(sender=user, receiver=song.uploader, title='新的评论',
+        message = Message(sender=user, receiver=song.uploader, title='新的评论', type=2,
                           content=f"{username}评论了你上传的歌曲《{song.title}》：{content}")
         message.save()
 
