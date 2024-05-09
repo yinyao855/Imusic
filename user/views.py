@@ -92,13 +92,17 @@ def user_login(request):
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_user_info(request, username):
-    if request.role != 'admin' and request.username != username:
-        return JsonResponse({'success': False, 'message': '没有权限访问'}, status=403)
-    user = User.objects.filter(username=username).first()
-    if user:
-        data = user.to_dict(request)
+    try:
+        flag = 1
+        if request.role != 'admin' and request.username != username:
+            flag = 0
+        user = User.objects.filter(username=username).first()
+        data = user.to_dict(request) if flag else user.to_pub_dict(request)
         return JsonResponse({'success': True, 'message': '获取用户信息成功', 'data': data}, status=200)
-    return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 # 修改用户信息

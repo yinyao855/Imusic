@@ -35,6 +35,8 @@ class User(models.Model):
             'email': self.email,
             'bio': self.bio if self.bio else None,
             'avatar': avatar_url,
+            'follower_count': self.follower_count,
+            'following_count': self.following_count,
             'role': self.role,
             'registration_date': self.registration_date.strftime('%Y-%m-%d %H:%M:%S')
         }
@@ -45,5 +47,8 @@ class User(models.Model):
         return {
             'username': self.username,
             'bio': self.bio if self.bio else None,
-            'avatar': avatar_url
+            'avatar': avatar_url,
+            'follower_count': self.follower_count,
+            'following_count': self.following_count,
+            'registration_date': self.registration_date.strftime('%Y-%m-%d %H:%M:%S')
         }
