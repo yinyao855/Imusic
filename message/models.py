@@ -22,7 +22,7 @@ class Message(models.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'sender': self.sender.username,
+            'sender': self.sender.username if self.sender else 'system',
             'receiver': self.receiver.username,
             'title': self.title,
             'content': self.content,

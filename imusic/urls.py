@@ -31,4 +31,5 @@ urlpatterns = [
                   path('follow/', include('follow.urls')),
                   path('comments/', include('comment.urls')),
                   path('messages/', include('message.urls')),
+                  path('timedtask/', include('timedtask.urls')),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

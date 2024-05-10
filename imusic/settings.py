@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'django_apscheduler',
     'user.apps.UserConfig',
     'song.apps.SongConfig',
     'songlist.apps.SonglistConfig',
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'complaint.apps.ComplaintConfig',
     'message.apps.MessageConfig',
     'search.apps.SearchConfig',
+    'timedtask.apps.TimedtaskConfig',
 ]
 
 MIDDLEWARE = [

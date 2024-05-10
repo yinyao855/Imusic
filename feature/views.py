@@ -56,9 +56,10 @@ def add_recent(request):
         if recent:
             recent.last_play = timezone.now()
             recent.play_count += 1
+            recent.w_play_count += 1
             recent.save()
         else:
-            Recent.objects.create(user=user, song=song, play_count=1)
+            Recent.objects.create(user=user, song=song, play_count=1, w_play_count=1)
 
         return JsonResponse({'success': True, 'message': '添加最近播放成功'}, status=200)
     except Exception as e:
