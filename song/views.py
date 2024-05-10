@@ -99,21 +99,14 @@ def song_upload(request):
             follower_list = json.loads(follow.views.get_followers(get_request).content) \
                 .get('data')
             for follower in follower_list:
-                # 构建post请求
                 receiver_name = follower['username']
                 sender_name = user.username
                 content = f'你关注的{sender_name}新上传了歌曲《{song.title}》'
                 # 消息类型为1，表示系统消息（用户上传歌曲后，由系统通知关注者，所以归类为系统消息可能比较合适）
-                message_type = 1
+                m_type = 1
                 title = "关注的人动态"
-                post_request = request_factory.post('messages/send', {'receiver': receiver_name,
-                                                                      'content': content,
-                                                                      'type': message_type,
-                                                                      'title': title})
-                # 因为模拟的请求不会经过中间件，但是又不能改视图函数，只能像中间件那样加上.username属性
-                post_request.username = sender_name
-                # 调用视图函数，发送消息
-                message.views.send_message(post_request)
+                # 发送消息
+                message.views.send_message(receiver_name, sender_name, title, content, m_type)
 
         return JsonResponse({'success': True, 'message': '歌曲上传成功'}, status=201)
 

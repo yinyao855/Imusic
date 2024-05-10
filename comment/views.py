@@ -5,7 +5,7 @@ from django.views.decorators.http import require_http_methods
 from .models import Comment
 from user.models import User
 from song.models import Song
-from message.models import Message
+import message.views
 
 
 @csrf_exempt
@@ -22,10 +22,11 @@ def add_comment(request):
         new_comment = Comment(user=user, song=song, content=content)
         new_comment.save()
 
-        # 创建消息通知给歌曲的上传者
-        message = Message(sender=user, receiver=song.uploader, title='新的评论', type=2,
-                          content=f"{username}评论了你上传的歌曲《{song.title}》：{content}")
-        message.save()
+        # 发送消息给歌曲的上传者
+        message.views.send_message(sender_name=username, receiver_name=song.uploader,
+                                   title='新的评论',
+                                   content=f"{username}评论了你上传的歌曲《{song.title}》：{content}",
+                                   m_type=2)
 
         return JsonResponse({'success': True,
                              'message': '评论成功'}, status=201)

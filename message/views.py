@@ -8,30 +8,36 @@ from user.models import User
 
 from timedtask.utils import generate_user_weekly_report
 
+"""
+发送消息函数，方便复用
+"""
 
-# Create your views here.
-# 发送消息
-@csrf_exempt
-@require_http_methods(["POST"])
-def send_message(request):
+
+def send_message(sender_name, receiver_name, title, content, m_type):
     try:
-        sender_name = request.username
-        receiver_name = request.POST.get('receiver')
-        content = request.POST.get('content')
-        """
-        真正的POST请求是在发私信时发出的，此时不会有type字段，message_type赋值为5
-        模拟的POST请求里会加上type字段，以复用该函数，发出其他类型的消息
-        """
-        message_type = request.POST.get('type', 5)
-        title = request.POST.get('title', sender_name)
-
         sender = User.objects.get(username=sender_name)
         receiver = User.objects.get(username=receiver_name)
 
         with transaction.atomic():
-            message = Message(sender=sender, receiver=receiver, title=title, content=content, type=message_type)
+            message = Message(sender=sender, receiver=receiver, title=title, content=content, type=m_type)
             message.full_clean()
             message.save()
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+# 发送消息(私信)
+@csrf_exempt
+@require_http_methods(["POST"])
+def send(request):
+    try:
+        sender_name = request.username
+        receiver_name = request.POST.get('receiver')
+        content = request.POST.get('content')
+        m_type = 5
+        title = '私信'
+        send_message(sender_name, receiver_name, title, content, m_type)
 
         return JsonResponse({'success': True, 'message': '消息发送成功'}, status=200)
     except User.DoesNotExist:
