@@ -67,16 +67,9 @@ def songlist_create(request):
             sender_name = owner.username
             content = f'你关注的{sender_name}新创建了歌单{new_songlist.title}'
             # 消息类型为1，详细解释见song/views 里的 song_upload部分
-            message_type = 1
+            m_type = 1
             title = "关注的人动态"
-            post_request = request_factory.post('messages/send', {'receiver': receiver_name,
-                                                                  'content': content,
-                                                                  'type': message_type,
-                                                                  'title': title})
-            # 因为模拟的请求不会经过中间件，但是又不能改视图函数，只能像中间件那样加上.username属性
-            post_request.username = sender_name
-            # 调用视图函数，发送消息
-            message.views.send_message(post_request)
+            message.views.send_message(receiver_name, sender_name, title, content, m_type)
 
         return JsonResponse({'success': True, 'message': '歌单创建成功'}, status=201)
 
@@ -135,14 +128,9 @@ def songlist_add(request):
             receiver_name = follower['username']
             sender_name = request.username
             content = f'你关注的{sender_name}在歌单{songlist.title}中新添加了歌曲《{song.title}》'
-            message_type = 1
+            m_type = 1
             title = "关注的人动态"
-            post_request = request_factory.post('messages/send', {'receiver': receiver_name,
-                                                                  'content': content,
-                                                                  'type': message_type,
-                                                                  'title': title})
-            post_request.username = sender_name
-            message.views.send_message(post_request)
+            message.views.send_message(receiver_name, sender_name, title, content, m_type)
 
         return JsonResponse({'success': True, 'message': '添加歌曲成功'}, status=200)
 

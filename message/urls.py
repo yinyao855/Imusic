@@ -5,7 +5,7 @@ urlpatterns = [
     # 测试接口
     path('test', views.test),
     # 发送消息
-    path('send', views.send_message),
+    path('send', views.send),
     # 获取消息
     path('', views.get_received_messages),
     # 已读消息
