@@ -28,7 +28,6 @@ urlpatterns = [
                   path('feature/', include('feature.urls')),
                   path('like/', include('like.urls')),
                   path('search/', include('search.urls')),
-                  path('follow/', include('follow.urls')),
                   path('comments/', include('comment.urls')),
                   path('messages/', include('message.urls')),
                   path('timedtask/', include('timedtask.urls')),
