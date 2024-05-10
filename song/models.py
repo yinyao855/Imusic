@@ -68,7 +68,6 @@ class Song(models.Model):
             'like': self.like,
             'upload_date': self.upload_date.strftime('%Y-%m-%d %H:%M:%S'),
             'user_like': False,
-            'user_favor': False,
         }
 
     def to_sim_dict(self, request=None):

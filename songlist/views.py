@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from like.models import LikedSongList
 from song.models import Song
 from user.models import User
 from .models import SongList
@@ -59,13 +60,24 @@ def songlist_create(request):
 def get_songlist_info(request, songlistID):
     try:
         songlist = SongList.objects.get(id=songlistID)
+        # 获取包含的歌曲信息
+        songlist_info = songlist.to_dict(request)
+
+        # 如果用户已登录，检查用户是否已经喜欢该歌单
+        username = request.GET.get('username', '')
+        if username:
+            user = User.objects.get(username=username)
+            songlist_info['user_favor'] = LikedSongList.objects.filter(user=user, songlist=songlist).exists()
+
+        return JsonResponse({'success': True, 'message': '获取歌单成功', 'data': songlist_info}, status=200)
+
     except SongList.DoesNotExist:
         # 如果歌单不存在，则返回404错误
         return JsonResponse({'success': False, 'message': '未找到对应歌单'}, status=404)
-    # 获取包含的歌曲信息
-    songlist_info = songlist.to_dict(request)
-
-    return JsonResponse({'success': True, 'message': '获取歌单成功', 'data': songlist_info}, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 # 向歌单添加歌曲

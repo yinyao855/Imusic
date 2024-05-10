@@ -50,7 +50,6 @@ class SongList(models.Model):
             'owner': self.owner.username,
             'create_date': self.created_date.strftime('%Y-%m-%d %H:%M:%S'),
             'like': self.like,
-            'user_like': False,
             'user_favor': False,
         }
 

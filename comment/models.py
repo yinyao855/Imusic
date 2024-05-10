@@ -6,6 +6,7 @@ from user.models import User
 
 # Create your models here.
 class Comment(models.Model):
+    objects = None
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)

@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from mutagen.mp3 import MP3
 
+from like.models import LikedSong
 from user.models import User
 from comment.models import Comment
 from .models import Song
@@ -135,12 +136,20 @@ def song_upload(request):
 def get_song_info(request, songID):
     try:
         song = Song.objects.get(id=songID)
-    except Song.DoesNotExist as e:
-        return JsonResponse({'success': False, 'message': str(e)}, status=404)
+        song_info = song.to_dict(request)
 
-    song_info = song.to_dict(request)
+        username = request.GET.get('username', '')
+        if username:
+            user = User.objects.get(username=username)
+            song_info['user_like'] = LikedSong.objects.filter(user=user, song=song).exists()
 
-    return JsonResponse({'success': True, 'message': '获取歌曲信息成功', 'data': song_info}, status=200)
+        return JsonResponse({'success': True, 'message': '获取歌曲信息成功', 'data': song_info}, status=200)
+    except Song.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '未找到对应歌曲'}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 # 条件查询
