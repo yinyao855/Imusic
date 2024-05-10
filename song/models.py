@@ -77,6 +77,7 @@ class Song(models.Model):
             'title': self.title,
             'singer': self.singer,
             'cover': cover_url,
+            'duration': self.duration if self.duration else None,
             'uploader': self.uploader.username,
             'like': self.like,
         }
