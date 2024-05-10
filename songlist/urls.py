@@ -9,5 +9,4 @@ urlpatterns = [
     path('alldata', views.get_all_songlists, name='all_info'),
     path('addsong', views.songlist_add, name='add_song'),
     path('delsong', views.songlist_remove, name='del_song'),
-    path('initdata', views.get_init_songlists, name='get_init_songlists'),
 ]
