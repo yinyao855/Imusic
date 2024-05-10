@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-u5lte1#t7ctyyyms-dqw%xj2d^3k2$$r#8a_#y4a0f*(l9&jr6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["182.92.100.66", '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -54,12 +54,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'imusic.middleware.JWTMiddleware',
 ]
 
@@ -67,6 +67,7 @@ ROOT_URLCONF = 'imusic.urls'
 
 CORS_ALLOW_CREDENTIALS = True  # 这个可以显示sessionId
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_HEADERS = '*'
 # 允许域名加入白名单
 # CORS_ORIGIN_WHITELIST = (
 #     'http://localhost:5173',

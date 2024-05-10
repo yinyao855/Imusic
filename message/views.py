@@ -18,12 +18,18 @@ def send_message(request):
         sender_name = request.username
         receiver_name = request.POST.get('receiver')
         content = request.POST.get('content')
+        """
+        真正的POST请求是在发私信时发出的，此时不会有type字段，message_type赋值为5
+        模拟的POST请求里会加上type字段，以复用该函数，发出其他类型的消息
+        """
+        message_type = request.POST.get('type', 5)
+        title = request.POST.get('title', sender_name)
 
         sender = User.objects.get(username=sender_name)
         receiver = User.objects.get(username=receiver_name)
 
         with transaction.atomic():
-            message = Message(sender=sender, receiver=receiver, title=sender_name, content=content, type=5)
+            message = Message(sender=sender, receiver=receiver, title=title, content=content, type=message_type)
             message.full_clean()
             message.save()
 

@@ -1,4 +1,5 @@
 # Description: 歌曲相关视图函数
+import json
 import os
 
 from django.conf import settings
@@ -9,7 +10,10 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from mutagen.mp3 import MP3
+from django.test import RequestFactory
 
+import follow.views
+import message.views
 from like.models import LikedSong
 from user.models import User
 from comment.models import Comment
@@ -22,6 +26,7 @@ from .utils import css_generate
 def song_upload(request):
     # 和注册用户的问题类似，最好不要等用户填完所有信息后才发现某项错误
     # 而是没完成一项就实时提示
+    user = User.objects.get(username=request.POST['uploader'])
     try:
         data = request.POST
 
@@ -82,6 +87,33 @@ def song_upload(request):
             img_path = os.path.join(settings.MEDIA_ROOT, str(song.cover))
             song.gradient = css_generate(img_path)
             song.save()
+
+            """
+            下面通过模拟请求，复用get或者post视图函数，实现通知用户
+            """
+            # 构造请求的工厂
+            request_factory = RequestFactory()
+            # 构造get请求
+            get_request = request_factory.get('users/followers', {'username': user.username})
+            # 获取关注者列表
+            follower_list = json.loads(follow.views.get_followers(get_request).content) \
+                .get('data')
+            for follower in follower_list:
+                # 构建post请求
+                receiver_name = follower['username']
+                sender_name = user.username
+                content = f'你关注的{sender_name}新上传了歌曲《{song.title}》'
+                # 消息类型为1，表示系统消息（用户上传歌曲后，由系统通知关注者，所以归类为系统消息可能比较合适）
+                message_type = 1
+                title = "关注的人动态"
+                post_request = request_factory.post('messages/send', {'receiver': receiver_name,
+                                                                      'content': content,
+                                                                      'type': message_type,
+                                                                      'title': title})
+                # 因为模拟的请求不会经过中间件，但是又不能改视图函数，只能像中间件那样加上.username属性
+                post_request.username = sender_name
+                # 调用视图函数，发送消息
+                message.views.send_message(post_request)
 
         return JsonResponse({'success': True, 'message': '歌曲上传成功'}, status=201)
 

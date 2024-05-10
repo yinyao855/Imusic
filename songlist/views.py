@@ -1,14 +1,18 @@
+import json
 import os.path
 
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.test import RequestFactory
 
 from like.models import LikedSongList
 from song.models import Song
 from user.models import User
 from .models import SongList
+import follow.views
+import message.views
 
 
 @csrf_exempt
@@ -46,6 +50,33 @@ def songlist_create(request):
             owner=owner
         )
         new_songlist.save()
+
+        """
+        下面通过模拟请求，复用get或者post视图函数，实现通知用户
+        """
+        # 构造请求的工厂
+        request_factory = RequestFactory()
+        # 构造get请求
+        get_request = request_factory.get('users/followers', {'username': owner.username})
+        # 获取关注者列表
+        follower_list = json.loads(follow.views.get_followers(get_request).content) \
+            .get('data')
+        for follower in follower_list:
+            # 构建post请求
+            receiver_name = follower['username']
+            sender_name = owner.username
+            content = f'你关注的{sender_name}新创建了歌单{new_songlist.title}'
+            # 消息类型为1，详细解释见song/views 里的 song_upload部分
+            message_type = 1
+            title = "关注的人动态"
+            post_request = request_factory.post('messages/send', {'receiver': receiver_name,
+                                                                  'content': content,
+                                                                  'type': message_type,
+                                                                  'title': title})
+            # 因为模拟的请求不会经过中间件，但是又不能改视图函数，只能像中间件那样加上.username属性
+            post_request.username = sender_name
+            # 调用视图函数，发送消息
+            message.views.send_message(post_request)
 
         return JsonResponse({'success': True, 'message': '歌单创建成功'}, status=201)
 
@@ -95,6 +126,23 @@ def songlist_add(request):
         song_id = data.get('song_id')
         song = Song.objects.get(id=song_id)
         songlist.add_song(song)
+
+        request_factory = RequestFactory()
+        get_request = request_factory.get('users/followers', {'username': request.username})
+        follower_list = json.loads(follow.views.get_followers(get_request).content) \
+            .get('data')
+        for follower in follower_list:
+            receiver_name = follower['username']
+            sender_name = request.username
+            content = f'你关注的{sender_name}在歌单{songlist.title}中新添加了歌曲《{song.title}》'
+            message_type = 1
+            title = "关注的人动态"
+            post_request = request_factory.post('messages/send', {'receiver': receiver_name,
+                                                                  'content': content,
+                                                                  'type': message_type,
+                                                                  'title': title})
+            post_request.username = sender_name
+            message.views.send_message(post_request)
 
         return JsonResponse({'success': True, 'message': '添加歌曲成功'}, status=200)
 
