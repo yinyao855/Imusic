@@ -14,7 +14,6 @@ exclude_path = [
     # '/users/info',
     # 歌单表
     '/songlists/alldata',
-    '/songlists/initdata',
     '/songlists/info',
     # 歌曲表
     '/songs/alldata',
@@ -25,6 +24,9 @@ exclude_path = [
     '/recommend/latest',
     # 搜索
     '/search',
+    # 特性表
+    '/feature/hotsongs',
+    '/feature/hotsonglists',
 ]
 
 

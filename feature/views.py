@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 
 from feature.models import Recent
 from song.models import Song
+from songlist.models import SongList
 from user.models import User
 
 
@@ -89,3 +90,30 @@ def delete_recent(request):
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
+
+# 热门歌单
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_hot_songlists(request):
+    num = request.GET.get('num', 10)
+    # 前num个like数最多的歌单
+    top_songlists = SongList.objects.order_by('-like')[:int(num)]
+    songlists_data = []
+    for songlist in top_songlists:
+        songlists_data.append(songlist.to_sim_dict(request))
+
+    return JsonResponse({'success': True, 'message': '获取成功', 'data': songlists_data}, status=200)
+
+
+# 热门歌曲
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_hot_songs(request):
+    num = request.GET.get('num', 10)
+    # 前num个like数最多的歌曲
+    top_songs = Song.objects.order_by('-like')[:int(num)]
+    songs_data = []
+    for song in top_songs:
+        songs_data.append(song.to_sim_dict(request))
+
+    return JsonResponse({'success': True, 'message': '获取成功', 'data': songs_data}, status=200)
