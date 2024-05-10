@@ -26,7 +26,6 @@ from .utils import css_generate
 def song_upload(request):
     # 和注册用户的问题类似，最好不要等用户填完所有信息后才发现某项错误
     # 而是没完成一项就实时提示
-    user = User.objects.get(username=request.POST['uploader'])
     try:
         data = request.POST
 

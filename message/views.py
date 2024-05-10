@@ -6,7 +6,7 @@ from django.views.decorators.http import require_http_methods
 from message.models import Message
 from user.models import User
 
-from timedtask.utils import generate_user_weekly_report
+from timedtask.utils import generate_user_weekly_report, generate_user_upload_weekly_report
 
 
 # Create your views here.
@@ -88,10 +88,11 @@ def delete_message(request):
         return JsonResponse({'success': False, 'message': '消息不存在'}, status=400)
 
 
-# 测试听歌周报
+# 测试周报
 @csrf_exempt
 @require_http_methods(["GET"])
 def test(request):
     user = User.objects.get(username=request.username)
-    res = generate_user_weekly_report(user, '2024-05-03', '2024-05-11')
-    return JsonResponse({'success': True, 'message': '测试成功', 'data': res}, status=200)
+    res1 = generate_user_weekly_report(user, '2024-05-03', '2024-05-11')
+    res2 = generate_user_upload_weekly_report(user, '2024-05-03', '2024-05-11')
+    return JsonResponse({'success': True, 'message': '测试成功', 'data1': res1, "data2": res2}, status=200)

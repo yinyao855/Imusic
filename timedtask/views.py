@@ -4,7 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from django_apscheduler.jobstores import DjangoJobStore
 
 from feature.models import Recent
-from timedtask.utils import generate_user_weekly_report
+from timedtask.utils import generate_user_weekly_report, generate_user_upload_weekly_report
 from user.models import User
 
 
@@ -21,10 +21,12 @@ def generate_weekly_reports():
     with open('weekly_report.txt', 'w', encoding='utf-8') as f:
         f.write(f"生成{start_date}至{end_date}的周报\n")
     for user in users:
-        res = generate_user_weekly_report(user, start_date, end_date)
+        res1 = generate_user_weekly_report(user, start_date, end_date)
+        res2 = generate_user_upload_weekly_report(user, start_date, end_date)
         # 将周报写入文件
         with open('weekly_report.txt', 'a', encoding='utf-8') as f:
-            f.write(str(res) + '\n')
+            f.write(str(res1) + '\n')
+            f.write(str(res2) + '\n')
 
     print("周报生成完毕")
 

@@ -4,6 +4,8 @@ from django.db.models import Count
 
 from feature.models import Recent
 from message.models import Message
+from song.models import Song
+from songlist.models import SongList
 
 
 # 生成用户听歌周报
@@ -76,4 +78,42 @@ def generate_user_weekly_report(user, start_date, end_date):
         'content': content
     }
 
-# 生成用户上传周报
+
+# 生成用户创作周报
+def generate_user_upload_weekly_report(user, start_date, end_date):
+    # 获取用户上传记录
+    song_records = Song.objects.filter(uploader=user, upload_date__gte=start_date, upload_date__lt=end_date)
+    songlists_records = SongList.objects.filter(owner=user, created_date__gte=start_date, created_date__lt=end_date)
+    # 如果没有上传记录，返回空
+    if not song_records and not songlists_records:
+        content = f"您在{start_date}至{end_date}这段时间内没有创作记录。"
+        return {
+            'username': user.username,
+            'title': f"{start_date}至{end_date}创作周报",
+            'content': content
+        }
+    # 统计数量
+    song_count = song_records.count()
+    songlist_count = songlists_records.count()
+    # 歌曲喜欢数和歌单收藏数
+    like_count = 0
+    for song in song_records:
+        like_count += song.like
+    collect_count = 0
+    for songlist in songlists_records:
+        collect_count += songlist.like
+    # 生成周报
+    content = f"您在{start_date}至{end_date}这段时间内，共上传歌曲{song_count}首，创建歌单{songlist_count}个。" \
+              f"您上传的歌曲有{', '.join(song.title for song in song_records)}。" \
+              f"您创建的歌单有{', '.join(songlist.title for songlist in songlists_records)}。" \
+              f"您上传的歌曲共获得{like_count}个喜欢，创建的歌单共获得{collect_count}个收藏。" \
+              f"祝您创作愉快！"
+    # 生成周报消息
+    message = Message(sender=None, receiver=user, title="创作周报", content=content, type=1)
+    message.save()
+    # 返回周报数据
+    return {
+        'username': user.username,
+        'title': f"{start_date}至{end_date}创作周报",
+        'content': content
+    }
