@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from follow.models import Follow
 from message.models import Message
 from user.models import User
 
@@ -10,21 +11,38 @@ from timedtask.utils import generate_user_weekly_report, generate_user_upload_we
 
 """
 发送消息函数，方便复用
+:param title: 消息标题
+:param content: 消息内容
+:param message_type: 消息类型
+:param sender: 发送者，如果为None，则表示系统发送
+:param receiver: 接收者，如果为None，则表示发送给所有关注者
 """
 
 
-def send_message(sender_name, receiver_name, title, content, m_type):
+def send_message(title, content, message_type, sender=None, receiver=None):
     try:
-        sender = User.objects.get(username=sender_name)
-        receiver = User.objects.get(username=receiver_name)
+        messages = []
+        if not receiver:
+            followers = Follow.objects.filter(followed=sender)
+            for follow in followers:
+                message = Message(sender=sender, receiver=follow.follower, title=title, content=content,
+                                  type=message_type)
+                messages.append(message)
+        else:
+            message = Message(sender=sender, receiver=receiver, title=title, content=content, type=message_type)
+            messages.append(message)
 
         with transaction.atomic():
-            message = Message(sender=sender, receiver=receiver, title=title, content=content, type=m_type)
-            message.full_clean()
-            message.save()
+            Message.objects.bulk_create(messages)
 
     except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+        # 记录异常信息
+        # logger.error(f"Error occurred while sending message: {str(e)}")
+        # 回滚事务
+        transaction.set_rollback(True)
+        # 返回错误响应
+        return JsonResponse({'success': False, 'message': 'Failed to send message'}, status=400)
+    return JsonResponse({'success': True, 'message': 'Message sent successfully'})
 
 
 # 发送消息(私信)
@@ -32,12 +50,15 @@ def send_message(sender_name, receiver_name, title, content, m_type):
 @require_http_methods(["POST"])
 def send(request):
     try:
-        sender_name = request.username
+        sender = User.objects.get(username=request.username)
         receiver_name = request.POST.get('receiver')
+        receiver = User.objects.get(username=receiver_name)
         content = request.POST.get('content')
+        if not content:
+            return JsonResponse({'success': False, 'message': '消息内容不能为空'}, status=200)
         m_type = 5
         title = '私信'
-        send_message(sender_name, receiver_name, title, content, m_type)
+        send_message(title, content, m_type, sender, receiver)
 
         return JsonResponse({'success': True, 'message': '消息发送成功'}, status=200)
     except User.DoesNotExist:

@@ -2,10 +2,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from message.models import Message
 from .models import Comment
 from user.models import User
 from song.models import Song
-import message.views
+from message.views import send_message
 
 
 @csrf_exempt
@@ -23,10 +24,11 @@ def add_comment(request):
         new_comment.save()
 
         # 发送消息给歌曲的上传者
-        message.views.send_message(sender_name=username, receiver_name=song.uploader,
-                                   title='新的评论',
-                                   content=f"{username}评论了你上传的歌曲《{song.title}》：{content}",
-                                   m_type=2)
+        send_message(sender=user,
+                     receiver=song.uploader,
+                     title='新的评论',
+                     content=f"{username}评论了你上传的歌曲《{song.title}》：{content}",
+                     message_type=2)
 
         return JsonResponse({'success': True,
                              'message': '评论成功'}, status=201)

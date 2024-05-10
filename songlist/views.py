@@ -12,7 +12,7 @@ from song.models import Song
 from user.models import User
 from .models import SongList
 import follow.views
-import message.views
+from message.views import send_message
 
 
 @csrf_exempt
@@ -52,24 +52,13 @@ def songlist_create(request):
         new_songlist.save()
 
         """
-        下面通过模拟请求，复用get或者post视图函数，实现通知用户
+        发送消息给关注者
         """
-        # 构造请求的工厂
-        request_factory = RequestFactory()
-        # 构造get请求
-        get_request = request_factory.get('users/followers', {'username': owner.username})
-        # 获取关注者列表
-        follower_list = json.loads(follow.views.get_followers(get_request).content) \
-            .get('data')
-        for follower in follower_list:
-            # 构建post请求
-            receiver_name = follower['username']
-            sender_name = owner.username
-            content = f'你关注的{sender_name}新创建了歌单{new_songlist.title}'
-            # 消息类型为1，详细解释见song/views 里的 song_upload部分
-            m_type = 1
-            title = "关注的人动态"
-            message.views.send_message(receiver_name, sender_name, title, content, m_type)
+        content = f'你关注的{owner.username}新创建了歌单{new_songlist.title}'
+        # 消息类型为1，详细解释见song/views 里的 song_upload部分
+        m_type = 1
+        title = "关注的人动态"
+        send_message(title, content, m_type, sender=owner)
 
         return JsonResponse({'success': True, 'message': '歌单创建成功'}, status=201)
 
@@ -120,17 +109,15 @@ def songlist_add(request):
         song = Song.objects.get(id=song_id)
         songlist.add_song(song)
 
-        request_factory = RequestFactory()
-        get_request = request_factory.get('users/followers', {'username': request.username})
-        follower_list = json.loads(follow.views.get_followers(get_request).content) \
-            .get('data')
-        for follower in follower_list:
-            receiver_name = follower['username']
-            sender_name = request.username
-            content = f'你关注的{sender_name}在歌单{songlist.title}中新添加了歌曲《{song.title}》'
-            m_type = 1
-            title = "关注的人动态"
-            message.views.send_message(receiver_name, sender_name, title, content, m_type)
+        """
+        发送消息给关注者
+        """
+        sender_name = request.username
+        sender = User.objects.get(username=sender_name)
+        content = f'你关注的{sender_name}在歌单{songlist.title}中新添加了歌曲《{song.title}》'
+        m_type = 1
+        title = "关注的人动态"
+        send_message(title, content, m_type, sender=sender)
 
         return JsonResponse({'success': True, 'message': '添加歌曲成功'}, status=200)
 
@@ -247,16 +234,16 @@ def get_all_songlists(request):
     return JsonResponse({'success': True, 'message': '获取成功', 'data': data}, status=200)
 
 
-@require_http_methods(["GET"])
-def get_init_songlists(request):
-    # 前10个like数最多的歌单
-    top_songlists = SongList.objects.order_by('-like')[:10]
-
-    songlists_data = []
-    for songlist in top_songlists:
-        songlists_data.append(songlist.to_sim_dict(request))
-
-    return JsonResponse({'success': True, 'message': '获取成功', 'data': songlists_data}, status=200)
+# @require_http_methods(["GET"])
+# def get_init_songlists(request):
+#     # 前10个like数最多的歌单
+#     top_songlists = SongList.objects.order_by('-like')[:10]
+#
+#     songlists_data = []
+#     for songlist in top_songlists:
+#         songlists_data.append(songlist.to_sim_dict(request))
+#
+#     return JsonResponse({'success': True, 'message': '获取成功', 'data': songlists_data}, status=200)
 
 
 @require_http_methods(["GET"])

@@ -1,5 +1,4 @@
 # Description: 歌曲相关视图函数
-import json
 import os
 
 from django.conf import settings
@@ -10,13 +9,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from mutagen.mp3 import MP3
-from django.test import RequestFactory
 
-import follow.views
-import message.views
+from message.views import send_message
+from comment.models import Comment
 from like.models import LikedSong
 from user.models import User
-from comment.models import Comment
 from .models import Song
 from .utils import css_generate
 
@@ -59,6 +56,7 @@ def song_upload(request):
         if cover_file.size > max_file_size_2:
             return JsonResponse({'success': False, 'message': '封面图片大小超过限制(10MB)'}, status=400)
 
+        s_title = data['title']
         # 发生了任何异常，整个数据库操作将会被回滚，保证了操作的原子性
         with transaction.atomic():
             user = User.objects.get(username=data['uploader'])
@@ -87,25 +85,15 @@ def song_upload(request):
             song.gradient = css_generate(img_path)
             song.save()
 
-            """
-            下面通过模拟请求，复用get或者post视图函数，实现通知用户
-            """
-            # 构造请求的工厂
-            request_factory = RequestFactory()
-            # 构造get请求
-            get_request = request_factory.get('users/followers', {'username': user.username})
-            # 获取关注者列表
-            follower_list = json.loads(follow.views.get_followers(get_request).content) \
-                .get('data')
-            for follower in follower_list:
-                receiver_name = follower['username']
-                sender_name = user.username
-                content = f'你关注的{sender_name}新上传了歌曲《{song.title}》'
-                # 消息类型为1，表示系统消息（用户上传歌曲后，由系统通知关注者，所以归类为系统消息可能比较合适）
-                m_type = 1
-                title = "关注的人动态"
-                # 发送消息
-                message.views.send_message(receiver_name, sender_name, title, content, m_type)
+        """
+        发送消息给关注者
+        """
+        content = f'你关注的{user.username}新上传了歌曲《{s_title}》'
+        # 消息类型为1，表示系统消息（用户上传歌曲后，由系统通知关注者，所以归类为系统消息可能比较合适）
+        m_type = 1
+        title = "关注的人动态"
+        # 发送消息
+        send_message(title, content, m_type, sender=user)
 
         return JsonResponse({'success': True, 'message': '歌曲上传成功'}, status=201)
 
@@ -347,5 +335,3 @@ def get_user_songs(request):
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
-
-
