@@ -60,7 +60,7 @@ def songlist_create(request):
         title = "关注的人动态"
         send_message(title, content, m_type, sender=owner)
 
-        return JsonResponse({'success': True, 'message': '歌单创建成功'}, status=201)
+        return JsonResponse({'success': True, 'message': '歌单创建成功', 'id': new_songlist.id}, status=201)
 
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '所有者不存在'}, status=404)
@@ -234,18 +234,7 @@ def get_all_songlists(request):
     return JsonResponse({'success': True, 'message': '获取成功', 'data': data}, status=200)
 
 
-# @require_http_methods(["GET"])
-# def get_init_songlists(request):
-#     # 前10个like数最多的歌单
-#     top_songlists = SongList.objects.order_by('-like')[:10]
-#
-#     songlists_data = []
-#     for songlist in top_songlists:
-#         songlists_data.append(songlist.to_sim_dict(request))
-#
-#     return JsonResponse({'success': True, 'message': '获取成功', 'data': songlists_data}, status=200)
-
-
+@csrf_exempt
 @require_http_methods(["GET"])
 def get_user_songlists(request):
     try:
