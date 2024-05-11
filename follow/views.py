@@ -61,6 +61,9 @@ def get_followings(request):
 
     try:
         user = User.objects.get(username=username)
+        if not user.permission_following and request.role != 'admin' and request.username != username:
+            return JsonResponse({'success': False,
+                                 'message': '获取失败，用户设置为隐私'}, status=403)
         followings = Follow.objects.filter(follower=user)
         following_list = [follow.followed.to_dict(request) for follow in followings]
         return JsonResponse({'success': True,
@@ -79,6 +82,9 @@ def get_followers(request):
 
     try:
         user = User.objects.get(username=username)
+        if not user.permission_follower and request.role != 'admin' and request.username != username:
+            return JsonResponse({'success': False,
+                                 'message': '获取失败，用户设置为隐私'}, status=403)
         followers = Follow.objects.filter(followed=user)
         follower_list = [follow.follower.to_dict(request) for follow in followers]
         return JsonResponse({'success': True,

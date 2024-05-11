@@ -120,7 +120,10 @@ def update_user_info(request, username):
         if request.role != 'admin' and request.username != username:
             return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
-        update_fields = ['email', 'bio']
+        update_fields = ['email', 'bio', 'permission_email',
+                         'permission_follower',
+                         'permission_following',
+                         'permission_registration_date']
         # bio和avatar在注册时都是可选的，那么更新信息时应该可以把它们置空
         # 缺陷，更新信息时无法删除原有的bio，即置bio为空
         # 一个解决方法是，在更新信息时，前端自动填充用户原有的信息
