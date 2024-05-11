@@ -26,6 +26,7 @@ class User(models.Model):
     permission_follower = models.BooleanField(default=True, verbose_name="是否公开关注者")
     permission_following = models.BooleanField(default=True, verbose_name="是否公开正在关注的人")
     permission_registration_date = models.BooleanField(default=True, verbose_name="是否公开注册时间")
+    permission_liked_songs = models.BooleanField(default=True, verbose_name="是否公开喜欢歌曲")
 
     def __str__(self):
         return self.username

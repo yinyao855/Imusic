@@ -18,6 +18,11 @@ def liked_songs_get(request):
                                  'data': None, 'token': None}, status=400)
 
         user = User.objects.get(username=username)
+
+        if not user.permission_liked_songs and request.role != 'admin' and request.username != username:
+            return JsonResponse({'success': False,
+                                 'message': '获取失败，用户设置为隐私'}, status=403)
+
         liked_songs = LikedSong.objects.filter(user=user)
         songs_data = [song.song.to_dict(request) for song in liked_songs]
         return JsonResponse({'success': True, 'message': '获取用户喜欢歌曲成功',
