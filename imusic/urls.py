@@ -19,6 +19,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
+from imusic.utils import check_token
+
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('users/', include('user.urls')),
@@ -31,4 +33,5 @@ urlpatterns = [
                   path('comments/', include('comment.urls')),
                   path('messages/', include('message.urls')),
                   path('timedtask/', include('timedtask.urls')),
+                  path('check-token/', check_token, name='check_token'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

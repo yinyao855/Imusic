@@ -27,6 +27,8 @@ exclude_path = [
     # 特性表
     '/feature/hotsongs',
     '/feature/hotsonglists',
+    # 校验token
+    '/check-token',
 ]
 
 
