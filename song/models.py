@@ -29,6 +29,8 @@ class Song(models.Model):
     like = models.IntegerField(default=0, verbose_name="喜欢人数")
     upload_date = models.DateTimeField(auto_now_add=True, verbose_name="上传时间")
     gradient = models.TextField(blank=True, null=True, verbose_name="背景渐变色")
+    # 审核相关
+    visible = models.BooleanField(default=True, verbose_name='是否可见')
 
     def __str__(self):
         return self.title
@@ -38,6 +40,8 @@ class Song(models.Model):
         verbose_name_plural = "歌曲"
 
     def to_dict(self, request=None):
+        if not self.visible and request.role != 'admin':
+            return None
         cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
         audio_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.audio.url)) if self.audio else None
         lyric_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.lyric.url)) if self.lyric else None
@@ -71,6 +75,8 @@ class Song(models.Model):
         }
 
     def to_sim_dict(self, request=None):
+        if not self.visible and request.role != 'admin':
+            return None
         cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
         return {
             'id': self.id,
