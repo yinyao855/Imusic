@@ -33,5 +33,6 @@ urlpatterns = [
                   path('comments/', include('comment.urls')),
                   path('messages/', include('message.urls')),
                   path('timedtask/', include('timedtask.urls')),
+                  path('complaints/', include('complaint.urls')),
                   path('check-token/', check_token, name='check_token'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

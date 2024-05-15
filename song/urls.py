@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from complaint import views as complaint_views
 
 urlpatterns = [
     path('upload', views.song_upload, name='upload'),
@@ -10,4 +11,6 @@ urlpatterns = [
     path('query', views.query_songs, name='query'),
     # 获取歌曲评论
     path('comments', views.get_comments, name='get_comments'),
+    # 投诉歌曲
+    path('complaint', complaint_views.complain, name='complaint')
 ]
