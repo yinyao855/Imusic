@@ -221,16 +221,32 @@ def change_user_role(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def change_password(request):
-    # 获取用户提交的数据
-    username = request.username
-    new_password = request.POST.get('new_password')
-    # 判断用户是否存在
-    user = User.objects.filter(username=username).first()
-    if user:
+    try:
+        required_fields = ['username', 'new_password', 'verification_code']
+        for field in required_fields:
+            if not request.POST.get(field):
+                return JsonResponse({'success': False, 'message': f'缺少字段：{field}'}, status=200)
+
+        # 获取用户提交的数据
+        username = request.POST.get('username')
+        new_password = request.POST.get('new_password')
+        verification_code = request.POST.get('verification_code')
+
+        # 判断验证码是否正确
+        res = validate_verification_code(request, verification_code)
+        if not res:
+            return JsonResponse({'success': False, 'message': '验证码错误或已失效'}, status=200)
+
+        # 获取用户
+        user = User.objects.filter(username=username).first()
+
         user.password = new_password
         user.save()
         return JsonResponse({'success': True, 'message': '密码修改成功'}, status=200)
-    return JsonResponse({'success': False, 'message': '用户名不存在'}, status=400)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 # 发送验证码
