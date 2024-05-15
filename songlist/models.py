@@ -25,6 +25,8 @@ class SongList(models.Model):
     owner = models.ForeignKey(User, related_name='songlist_owner', on_delete=models.CASCADE,
                               verbose_name="所有者")  # 外键关联到User模型
     created_date = models.DateTimeField(auto_now_add=True, verbose_name="创建日期")  # 自动设置创建时间
+    # 审核相关
+    visible = models.BooleanField(default=True, verbose_name='是否可见')
 
     def __str__(self):
         return self.title
@@ -34,6 +36,8 @@ class SongList(models.Model):
         verbose_name_plural = "歌单"
 
     def to_dict(self, request=None):
+        if not self.visible and request.role != 'admin':
+            return None
         cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
         songs_data = [song.to_dict(request) for song in self.songs.all()]
         songlist_info = {
@@ -56,6 +60,8 @@ class SongList(models.Model):
         return songlist_info
 
     def to_sim_dict(self, request=None):
+        if not self.visible and request.role != 'admin':
+            return None
         cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
         songlist_info = {
             'id': self.id,
