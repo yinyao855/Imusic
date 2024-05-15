@@ -11,6 +11,7 @@ exclude_path = [
     '/users/login',
     '/users/send-code',
     '/users/alldata',
+    '/users/change-pwd',
     # '/users/info',
     # 歌单表
     '/songlists/alldata',
