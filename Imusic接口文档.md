@@ -1,6 +1,6 @@
 # Imusic接口文档
 
-[toc]
+[TOC]
 
 ## Vue3项目创建流程
 
@@ -58,6 +58,7 @@
 - **请求类型：** POST
 - **URL：**`/users/send-code`
 - **请求参数：**
+
   - 电子邮箱 (email) 必填且有效
 - **返回结果：**
   - 是否成功 (success)：表示注册是否成功
@@ -166,6 +167,7 @@
 - **请求类型：** GET
 - **URL：** `/users/songlists`
 - **请求参数：**
+
   - 用户姓名 (username) 必填
 - 返回结果：
   - 是否成功 (success)：表示获取是否成功
@@ -250,6 +252,7 @@
 - **请求类型：** GET
 - **URL：** `/users/songs`
 - **请求参数：**
+
   - 用户姓名 (username) 必填
 - 返回结果：
   - 是否成功 (success)：表示获取是否成功
@@ -291,6 +294,7 @@
 - **请求类型：** GET
 - **URL：** `/users/followings`
 - **请求参数：**
+
   - 被查看关注列表的用户名（username）必填
 - 返回结果：
   - 是否成功(success)
@@ -330,6 +334,7 @@
 - **请求类型：** GET
 - **URL：** `/users/followers`
 - **请求参数：**
+
   - 被查看关注者列表的用户名（username）必填
 - 返回结果：
   - 是否成功(success)
@@ -505,6 +510,7 @@ http://182.92.100.66:5000/users/alldata
   - 歌曲ID (SongID) 必填
   - 用户名(username) 选填 如果有则会查询对应用户是否喜欢该歌曲
 - **返回结果：**
+
   - 数据库中的一项（即一个song object）, 数据类型是字典,可以通过key-value的方法进一步获取信息
 - 返回示例：
 
@@ -650,6 +656,7 @@ http://182.92.100.66:5000/users/alldata
 - **请求类型：** DELETE
 - **URL：** `/songs/delete/{songID}`
 - **请求参数：**
+
   - 歌曲ID (SongID)
 - **返回结果：**
   - 是否成功 (success)：表示删除是否成功
@@ -666,6 +673,7 @@ http://182.92.100.66:5000/users/alldata
 - **请求类型：** GET
 - **URL：** `/songs/comments`
 - **请求参数：**
+
   - 歌曲ID (songID)
 - **返回结果：**
   - 是否成功(success)
@@ -1271,6 +1279,7 @@ http://182.92.100.66:5000/recommend/latest
 - **请求类型：** GET
 - **URL：** `recommend`
 - **请求参数：**
+
   - 无（只要是已登录即可）
 - **返回结果：**
   - 是否成功 (success)：表示获取是否成功
@@ -1376,6 +1385,7 @@ http://182.92.100.66:5000/recommend/latest
 - **请求类型：** GET
 - **URL：** `/like/songs`
 - **请求参数：**
+
   - 用户名 (username) 必填
 - 返回参数：
   - success
@@ -1420,6 +1430,7 @@ http://182.92.100.66:5000/recommend/latest
 - **请求类型：** POST
 - **URL：** `/like/songs/add`
 - **请求参数：**
+
   - 歌曲id（song\_id）必填
 - **返回结果：**
   - success
@@ -1447,6 +1458,7 @@ http://182.92.100.66:5000/recommend/latest
 - **请求类型：** POST
 - **URL：** `/like/songs/delete`
 - **请求参数：**
+
   - 歌曲id（song\_id）必填
 - **返回结果：**
   - 是否成功 (success)
@@ -1470,6 +1482,7 @@ http://182.92.100.66:5000/recommend/latest
 - **请求类型：** GET
 - **URL：** `/like/songlists`
 - **请求参数：**
+
   - 用户名 (username) 必填
 - **返回结果：**
   - success
@@ -1526,6 +1539,7 @@ http://182.92.100.66:5000/recommend/latest
 - **请求类型：** POST
 - **URL：** `/like/songlists/add`
 - **请求参数：**
+
   - 歌单id（songlist\_id）必填
 - **返回结果：**
   - 是否成功 (success)
@@ -1549,6 +1563,7 @@ http://182.92.100.66:5000/recommend/latest
 - **请求类型：** POST
 - **URL：** `/like/songlists/delete`
 - **请求参数：**
+
   - 歌单id（songlist\_id）必填
 - **返回结果：**
   - 是否成功 (success)
@@ -1573,6 +1588,7 @@ http://182.92.100.66:5000/recommend/latest
 - **请求类型：** POST
 - **URL：** `/users/follow`
 - **请求参数：**
+
   - 被关注/取消关注用户姓名(username)
 - 返回结果：
   - 是否成功(success): 加关注/取消关注是否成功
@@ -1616,6 +1632,7 @@ http://182.92.100.66:5000/recommend/latest
 - **请求类型：** DELETE
 - **URL：** `/comments/delete`
 - **请求参数：**
+
   - 评论id(contentID)
 - **返回结果：**
   - 是否成功 (success)：表示删除是否成功
@@ -1648,6 +1665,7 @@ NOTICE_TYPE_CHOICES = [
 - **请求类型：** GET
 - **URL：** `/messages`
 - **请求参数：**
+
   - 无
 - **返回结果：**
   - 是否成功 (success)：表示获取消息是否成功
@@ -1727,6 +1745,7 @@ NOTICE_TYPE_CHOICES = [
 - **请求类型：** GET
 - **URL：** `/messages/read`
 - **请求参数：**
+
   - 消息ID (message\_id) 必填
 - **返回结果：**
   - 是否成功 (success)：表示读消息是否成功
@@ -1799,6 +1818,7 @@ NOTICE_TYPE_CHOICES = [
 - **请求类型：** DELETE
 - **URL：** `/messages/delete`
 - **请求参数：**
+
   - 消息ID (message\_id) 必填
 - **返回结果：**
   - 是否成功 (success)：表示删除消息是否成功
@@ -1812,7 +1832,159 @@ NOTICE_TYPE_CHOICES = [
   }
   ```
 
+## 投诉(Complaint)接口
+
+### （用户）投诉（歌曲或歌单）
+
+- **请求类型：** POST
+- **URL：** `/songs/complaint`或`/songlists/complaint`
+- **请求参数：**
+
+  - 投诉对象id (song_id或者songlist_id)
+  - 投诉具体内容(str: content)
+
+- **返回结果：**
+
+  - 是否成功 (success)
+  - 消息 (message)
+- 返回示例：
+```Json
+{
+    "success": true,
+    "message": "投诉成功"
+}
+```
+
+### （管理员）获取投诉内容
+
+- **请求类型：** GET
+- **URL：** `/complaints/review`
+- **请求参数：**
+
+  - 投诉ID (complaint_id)
+
+- **返回结果：**
+
+  - 是否成功 (success)
+  - 消息 (message)
+  - 数据 (data)
+- 返回示例：
+```Json
+{
+      "success": true,
+      "message": "获取投诉信息成功",
+      "data": {
+            "id": 6,
+            "complainer": "sivenlu",
+            "complained": "xht",
+            "content": "歌词不符合核心价值观",
+            "object_type": "song",
+            "object_id": 5,
+            "complaint_date": "2024-05-15T12:06:31.788"
+      }
+}
+```
+
+### （管理员）处理投诉
+
+- **请求类型：** POST
+- **URL：** `/complaints/handle`
+- **请求参数：**
+  - 投诉id (complaint_id)
+  - 是否下架 (boolean: is_remove)
+  - 处理理由 (str: reason)
+
+- **返回结果：**
+
+  - 是否成功 (success)
+  - 消息 (message)
+  - 数据 (data)
+- 返回示例：
+```Json
+{
+  "success": true,
+  "message": " 处理投诉成功"
+}
+```
+### （被投诉导致下架的内容的所有者）申诉
+
+- **请求类型：** POST
+- **URL：** `/complaints/appeal`
+- **请求参数：**
+  - 自己的内容被投诉的那个投诉id (complaint_id)
+  - 申诉理由 (str: reason)
+
+- **返回结果：**
+
+  - 是否成功 (success)
+  - 消息 (message)
+  - 数据 (data)
+- 返回示例：
+```Json
+{
+    "success": true,
+    "message": " 申诉发送成功"
+}
+```
+### （管理员）查看申诉
+
+- **请求类型：** GET
+- **URL：** `/complaints/appeals/review`
+- **请求参数：**
+  - 被投诉者发送给管理员的申诉的消息id (message_id)
+
+- **返回结果：**
+
+  - 是否成功 (success)
+  - 消息 (message)
+  - 数据 (data)：包括之前处理的投诉（方便管理员回顾事件）和被投诉者申诉的理由
+- 返回示例：
+```Json
+{
+
+      "success": true,
+      "message": "获取申诉信息成功",
+      "data": {
+            "complaint": {
+                  "id": 6,
+                  "complainer": "sivenlu",
+                  "complained": "xht",
+                  "content": "歌词不符合核心价值观",
+                  "object_type": "song",
+                  "object_id": 5,
+                  "complaint_date": "2024-05-15T12:06:31.788"
+            },
+            "reason": "#$@!%……哪里不符合核心价值观了！",
+            "date": "2024-05-15T12:30:42.166"
+      }
+}
+```
+
+### （管理员）处理申诉
+
+- **请求类型：** POST
+- **URL：** `/complaints/appeals/handle`
+- **请求参数：**
+  - 被投诉者发送给管理员的申诉的消息id (message_id)
+  - 是否恢复(is_recover)
+  - 理由(reason)
+
+- **返回结果：**
+
+  - 是否成功 (success)
+  - 消息 (message)
+- 返回示例：
+```Json
+{
+      "success": true,
+      "message": "处理申诉成功"
+}
+```
+
+
+
 ## 特性接口
+
 ### 用户播放列表
 #### 获取用户最近播放
 - **请求类型：** GET
@@ -1820,8 +1992,9 @@ NOTICE_TYPE_CHOICES = [
 - **URL：** `feature/recent`
 
 - **请求参数：**
+
   - 返回的歌曲数量(num) 可选 默认为10首，如果是-1则返回所有播放记录
-  
+
 - **返回结果：**
   - 是否成功 (success)：表示获取是否成功
   - 消息 (message)：结果消息
@@ -1872,8 +2045,9 @@ NOTICE_TYPE_CHOICES = [
 - **URL：** `feature/addrecent`
 
 - **请求参数：**
+
   - 歌曲id(song\_id）必填
-  
+
 - **返回结果：**
   - 是否成功 (success)：表示添加是否成功
   - 消息 (message)：添加过程的结果消息
@@ -1899,6 +2073,7 @@ NOTICE_TYPE_CHOICES = [
 - **请求类型：** GET
 - **URL：** `feature/hotsonglists`
 - **请求参数：**
+
   - 需要的数量(num) 可选，默认为10首
 - **返回结果：**
   - 是否成功 (success)：表示获取是否成功
@@ -1998,6 +2173,7 @@ NOTICE_TYPE_CHOICES = [
 - **请求类型：** GET
 - **URL：** `feature/hotsongs`
 - **请求参数：**
+
   - 需要的数量(num) 可选，默认为10首
 - **返回结果：**
   - 是否成功 (success)：表示获取是否成功
