@@ -40,7 +40,8 @@ class Song(models.Model):
         verbose_name_plural = "歌曲"
 
     def to_dict(self, request=None):
-        if not self.visible and request.role != 'admin':
+        if not self.visible and \
+                (not hasattr(request, 'role') or request.role != 'admin'):
             return None
         cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
         audio_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.audio.url)) if self.audio else None
@@ -75,7 +76,8 @@ class Song(models.Model):
         }
 
     def to_sim_dict(self, request=None):
-        if not self.visible and request.role != 'admin':
+        if not self.visible and \
+                (not hasattr(request, 'role') or request.role != 'admin'):
             return None
         cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
         return {
