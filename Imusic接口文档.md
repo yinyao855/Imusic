@@ -1724,7 +1724,7 @@ NOTICE_TYPE_CHOICES = [
   ```
 
 ### 已读消息
-- **请求类型：** GET
+- **请求类型：** POST
 - **URL：** `/messages/read`
 - **请求参数：**
   - 消息ID (message\_id) 必填
