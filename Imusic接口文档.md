@@ -1657,6 +1657,8 @@ NOTICE_TYPE_CHOICES = [
     (3, '喜欢通知'),
     (4, '关注通知'),
     (5, '私信通知'),
+    (6, '投诉通知'),
+    (7, '申诉通知'),
 ]
 ```
 
@@ -1670,6 +1672,7 @@ NOTICE_TYPE_CHOICES = [
 - **返回结果：**
   - 是否成功 (success)：表示获取消息是否成功
   - 消息 (message)：获取过程的结果消息
+- **注意这个接口返回的是除了私信以外的通知**
 - 返回示例
 
   ```json
@@ -1742,12 +1745,14 @@ NOTICE_TYPE_CHOICES = [
   ```
 
 ### 已读消息
+
 - **请求类型：** POST
 - **URL：** `/messages/read`
 - **请求参数：**
 
   - 消息ID (message\_id) 必填
 - **返回结果：**
+  
   - 是否成功 (success)：表示读消息是否成功
   - 消息 (message)：过程的结果消息
 - 返回示例
@@ -1829,6 +1834,124 @@ NOTICE_TYPE_CHOICES = [
   {
       "success": true,
       "message": "消息已删除"
+  }
+  ```
+
+### 查询聊天
+
+- **请求类型：** GET
+
+- **URL：** `/messages/chats`
+
+- **请求参数：**
+
+  - 无
+
+- **返回结果：**
+
+  - 是否成功 (success)：表示获取聊天是否成功
+  - 消息 (message)：获取过程的结果消息
+
+- **返回的是聊天列表，像微信聊天框的数据格式，有用户名，用户头像URL和最近的一条私信消息**
+
+- **目前聊天的逻辑是，你关注了用户，那么你能收到他的更新消息，上传消息，但是此时你们不能互相发消息，互相关注后可以聊天**
+
+- 返回示例
+
+  ```json
+  http://182.92.100.66:5000/messages/chats
+  ```
+
+  ```json
+  {
+      "success": true,
+      "message": "获取聊天信息成功",
+      "data": [
+          {
+              "friend": "xht",
+              "friend_avatar": "http://182.92.100.66:5000/media/avatars/c53c811f880411ebb6edd017c2d2eca2.jpg",
+              "last_message": {
+                  "id": 233,
+                  "sender": "yy",
+                  "receiver": "xht",
+                  "title": "私信",
+                  "content": "测试",
+                  "type": 5,
+                  "send_date": "2024-05-17 10:23:10",
+                  "is_read": false
+              }
+          },
+          {
+              "friend": "sivenlu",
+              "friend_avatar": "http://182.92.100.66:5000/media/avatars/IMG_20240114_1825591-01.jpeg",
+              "last_message": null
+          }
+      ]
+  }
+  ```
+
+### 查询聊天信息
+
+- **请求类型：** GET
+
+- **URL：** `/messages/privates`
+
+- **请求参数：**
+
+  - 朋友(friend) 必填，为用户名
+
+- **返回结果：**
+
+  - 是否成功 (success)：表示获取详细信息是否成功
+  - 消息 (message)：获取过程的结果消息
+
+- **返回的是聊天列表，像微信聊天界面的数据格式，按照时间排序的消息**
+
+- **目前聊天的逻辑是，你关注了用户，那么你能收到他的更新消息，上传消息，但是此时你们不能互相发消息，互相关注后可以聊天**
+
+- 返回示例
+
+  ```json
+  http://182.92.100.66:5000/messages/private?friend=xht
+  ```
+
+  ```json
+  {
+      "success": true,
+      "message": "获取私信消息成功",
+      "data": [
+          {
+              "id": 17,
+              "sender": "yy",
+              "receiver": "xht",
+              "title": "yy",
+              "content": "你好呀",
+              "type": 5,
+              "send_date": "2024-05-06 22:34:14",
+              "is_read": false
+          },
+          {
+              "id": 202,
+              "sender": "xht",
+              "receiver": "yy",
+              "title": "私信",
+              "content": "你好",
+              "type": 5,
+              "send_date": "2024-05-17 10:07:41",
+              "is_read": false
+          },
+          ...
+          {
+              "id": 233,
+              "sender": "yy",
+              "receiver": "xht",
+              "title": "私信",
+              "content": "测试",
+              "type": 5,
+              "send_date": "2024-05-17 10:23:10",
+              "is_read": false
+          }
+      ]
   }
   ```
 
