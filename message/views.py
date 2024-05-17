@@ -67,20 +67,62 @@ def send(request):
         return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
 
-# 获取发送的消息
+# 获取收到的消息，除了私信
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_received_messages(request):
     try:
         receiver_name = request.username
         receiver = User.objects.get(username=receiver_name)
-        messages = Message.objects.filter(receiver=receiver)
+        messages = Message.objects.filter(receiver=receiver).exclude(type=5)
         message_list = [message.to_dict() for message in messages]
         return JsonResponse({'success': True, 'message': '获取用户消息成功', 'data': message_list}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+# 获取发送的消息，指私信
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_sent_messages(request):
+    try:
+        sender_name = request.username
+        sender = User.objects.get(username=sender_name)
+        messages = Message.objects.filter(sender=sender, type=5)
+        message_list = [message.to_dict() for message in messages]
+        return JsonResponse({'success': True, 'message': '获取用户消息成功', 'data': message_list}, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+# 私信查询
+@csrf_exempt
+@require_http_methods(["GET"])
+def search_private_messages(request):
+    try:
+        friend_name = request.GET.get('friend')
+        friend = User.objects.get(username=friend_name)
+        user_name = request.username
+        user = User.objects.get(username=user_name)
+        _, message_list = handle_private_messages(user, friend)
+        return JsonResponse({'success': True, 'message': '获取私信消息成功', 'data': message_list}, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+def handle_private_messages(user, friend):
+    message1 = Message.objects.filter(receiver=user, sender=friend, type=5)
+    message2 = Message.objects.filter(receiver=friend, sender=user, type=5)
+    messages = message1.union(message2).order_by('send_date')
+    last_message = messages.last().to_dict() if messages else None
+    message_list = [message.to_dict() for message in messages]
+    return last_message, message_list
 
 
 # 已读消息
@@ -123,3 +165,30 @@ def test(request):
     res1 = generate_user_weekly_report(user, '2024-05-03', '2024-05-11')
     res2 = generate_user_upload_weekly_report(user, '2024-05-03', '2024-05-11')
     return JsonResponse({'success': True, 'message': '测试成功', 'data1': res1, "data2": res2}, status=200)
+
+
+# 查询聊天信息
+@csrf_exempt
+@require_http_methods(["GET"])
+def search_chats(request):
+    try:
+        user = User.objects.get(username=request.username)
+        # 获取用户所有关注的人
+        follows = Follow.objects.filter(follower=user)
+        # 对于每个关注的人，获取最新的一条私信
+        chat_list = []
+        for follow in follows:
+            friend = follow.followed
+            last_message, _ = handle_private_messages(user, friend)
+            chat = {
+                'friend': friend.username,
+                'friend_avatar': friend.user_avatar(request),
+                'last_message': last_message
+            }
+            chat_list.append(chat)
+        return JsonResponse({'success': True, 'message': '获取聊天信息成功', 'data': chat_list}, status=200)
+
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)

@@ -1,18 +1,15 @@
-import json
 import os.path
 
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.test import RequestFactory
 
 from like.models import LikedSongList
+from message.views import send_message
 from song.models import Song
 from user.models import User
 from .models import SongList
-import follow.views
-from message.views import send_message
 
 
 @csrf_exempt
@@ -54,10 +51,10 @@ def songlist_create(request):
         """
         发送消息给关注者
         """
-        content = f'你关注的{owner.username}新创建了歌单{new_songlist.title}'
-        # 消息类型为1，详细解释见song/views 里的 song_upload部分
-        m_type = 1
-        title = "关注的人动态"
+        content = f'我新创建了歌单{new_songlist.title}，快来看看吧!'
+        # 消息类型为5，详细解释见song/views 里的 song_upload部分
+        m_type = 5
+        title = "私信"
         send_message(title, content, m_type, sender=owner)
 
         return JsonResponse({'success': True, 'message': '歌单创建成功', 'id': new_songlist.id}, status=201)
@@ -114,9 +111,9 @@ def songlist_add(request):
         """
         sender_name = request.username
         sender = User.objects.get(username=sender_name)
-        content = f'你关注的{sender_name}在歌单{songlist.title}中新添加了歌曲《{song.title}》'
-        m_type = 1
-        title = "关注的人动态"
+        content = f'我在歌单{songlist.title}中新添加了歌曲《{song.title}》，快来看看吧!'
+        m_type = 5
+        title = "私信"
         send_message(title, content, m_type, sender=sender)
 
         return JsonResponse({'success': True, 'message': '添加歌曲成功'}, status=200)
@@ -190,6 +187,17 @@ def update_songlist_info(request, songlistID):
             songlist.cover = request.FILES['cover']
 
         songlist.save()
+
+        """
+        发送消息给关注者
+        """
+        sender_name = request.username
+        sender = User.objects.get(username=sender_name)
+        content = f'我更新了歌单{songlist.title}的信息，快来看看有什么变化吧!'
+        m_type = 5
+        title = "私信"
+        send_message(title, content, m_type, sender=sender)
+
         return JsonResponse({'success': True, 'message': '更新歌单成功'}, status=200)
 
     except Exception as e:

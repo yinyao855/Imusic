@@ -88,10 +88,9 @@ def song_upload(request):
         """
         发送消息给关注者
         """
-        content = f'你关注的{user.username}新上传了歌曲《{s_title}》'
-        # 消息类型为1，表示系统消息（用户上传歌曲后，由系统通知关注者，所以归类为系统消息可能比较合适）
-        m_type = 1
-        title = "关注的人动态"
+        content = f'我新上传了歌曲《{s_title}》，快来听听吧！'
+        m_type = 5
+        title = "私信"
         # 发送消息
         send_message(title, content, m_type, sender=user)
 
@@ -246,6 +245,15 @@ def update_song_info(request, songID):
                 song.gradient = css_generate(img_path)
 
             song.save()
+
+        """
+        发送消息给关注者
+        """
+        content = f'我更新了歌曲《{song.title}》的信息，快来听听吧！'
+        m_type = 5
+        title = "私信"
+        # 发送消息
+        send_message(title, content, m_type, sender=song.uploader)
 
         return JsonResponse({'success': True, 'message': '更新成功'}, status=200)
     except ValidationError as e:

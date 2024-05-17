@@ -58,3 +58,8 @@ class User(models.Model):
             'following_count': self.following_count,
             'registration_date': self.registration_date.strftime('%Y-%m-%d %H:%M:%S') if self.permission_registration_date else None
         }
+
+    def user_avatar(self, request=None):
+        avatar_url = request.build_absolute_uri(
+            os.path.join(settings.MEDIA_URL, self.avatar.url)) if self.avatar else None
+        return avatar_url
