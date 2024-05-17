@@ -149,7 +149,9 @@ def delete_message(request):
         message_id = request.GET.get('message_id')
         # print(message_id)
         message = Message.objects.get(id=message_id)
-        if message.sender.username != request.username:
+        if message.type == 5 and message.sender.username != request.username:
+            return JsonResponse({'success': False, 'message': '无删除权限'}, status=403)
+        if message.receiver.username != request.username:
             return JsonResponse({'success': False, 'message': '无删除权限'}, status=403)
         message.delete()
         return JsonResponse({'success': True, 'message': '消息已删除'}, status=200)
