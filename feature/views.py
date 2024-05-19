@@ -31,7 +31,8 @@ def get_recent(request):
 
         # song_list = [recent.to_dict(request) for recent in recent_plays]
         song_list = {
-            'songs': [recent.song.to_dict(request) for recent in recent_plays],
+            'songs': [recent.song.to_dict(request) for recent in recent_plays
+                      if recent.song.visible],
         }
 
         return JsonResponse({'success': True, 'message': '查询最近播放歌曲成功', 'data': song_list}, status=200)
@@ -97,7 +98,7 @@ def delete_recent(request):
 def get_hot_songlists(request):
     num = request.GET.get('num', 10)
     # 前num个like数最多的歌单
-    top_songlists = SongList.objects.order_by('-like')[:int(num)]
+    top_songlists = SongList.objects.filter(visible=True).order_by('-like')[:int(num)]
     songlists_data = []
     for songlist in top_songlists:
         songlists_data.append(songlist.to_sim_dict(request))
@@ -111,7 +112,7 @@ def get_hot_songlists(request):
 def get_hot_songs(request):
     num = request.GET.get('num', 10)
     # 前num个like数最多的歌曲
-    top_songs = Song.objects.order_by('-like')[:int(num)]
+    top_songs = Song.objects.filter(visible=True).order_by('-like')[:int(num)]
     songs_data = []
     for song in top_songs:
         songs_data.append(song.to_sim_dict(request))

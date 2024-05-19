@@ -36,11 +36,8 @@ class SongList(models.Model):
         verbose_name_plural = "歌单"
 
     def to_dict(self, request=None):
-        if not self.visible and \
-                (not hasattr(request, 'role') or request.role != 'admin'):
-            return None
         cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
-        songs_data = [song.to_dict(request) for song in self.songs.all()]
+        songs_data = [song.to_dict(request) for song in self.songs.all() if song.visible]
         songlist_info = {
             'id': self.id,
             'title': self.title,
@@ -61,9 +58,6 @@ class SongList(models.Model):
         return songlist_info
 
     def to_sim_dict(self, request=None):
-        if not self.visible and \
-                (not hasattr(request, 'role') or request.role != 'admin'):
-            return None
         cover_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, self.cover.url)) if self.cover else None
         songlist_info = {
             'id': self.id,

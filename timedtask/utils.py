@@ -82,8 +82,8 @@ def generate_user_weekly_report(user, start_date, end_date):
 # 生成用户创作周报
 def generate_user_upload_weekly_report(user, start_date, end_date):
     # 获取用户上传记录
-    song_records = Song.objects.filter(uploader=user, upload_date__gte=start_date, upload_date__lt=end_date)
-    songlists_records = SongList.objects.filter(owner=user, created_date__gte=start_date, created_date__lt=end_date)
+    song_records = Song.objects.filter(uploader=user, visible=True, upload_date__gte=start_date, upload_date__lt=end_date)
+    songlists_records = SongList.objects.filter(owner=user, visible=True, created_date__gte=start_date, created_date__lt=end_date)
     # 如果没有上传记录，返回空
     if not song_records and not songlists_records:
         content = f"您在{start_date}至{end_date}这段时间内没有创作记录。"

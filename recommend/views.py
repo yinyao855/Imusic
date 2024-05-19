@@ -17,7 +17,7 @@ from user.models import User
 @require_http_methods(['GET'])
 def get_recent_songs(request):
     num = request.GET.get('num', 15)
-    songs = Song.objects.all().order_by('-upload_date')
+    songs = Song.objects.filter(visible=True).order_by('-upload_date')
     # 默认返回最近上传的15首歌曲
     if num:
         songs = songs[:int(num)]
@@ -84,8 +84,9 @@ def update_profile_from_song(song, profile):
 
 
 def recommend_songs(user, profile, request):
-    # 排除用户上传的和已经喜欢的歌曲
-    excluded_songs = Song.objects.filter(Q(uploader=user) | Q(likedsong__user=user)).values_list('id', flat=True)
+    # 排除用户上传的、已经喜欢的歌曲和已下架的
+    excluded_songs = Song.objects.filter(Q(visible=False) | Q(uploader=user) | Q(likedsong__user=user))\
+        .values_list('id', flat=True)
     songs = Song.objects.exclude(id__in=excluded_songs)
     recommendations = []
     # 本地测试，打印profile

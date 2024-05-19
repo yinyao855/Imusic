@@ -52,7 +52,7 @@ def search_songs(request):
             songs = songs[:int(num)]
 
         # 将查询结果转换为字典格式
-        data = [song.to_sim_dict(request) for song in songs]
+        data = [song.to_sim_dict(request) for song in songs if song.visible]
 
         return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
     except Exception as e:
@@ -100,7 +100,7 @@ def search_songlists(request):
             songLists = songLists[:int(num)]
 
         # 将查询结果转换为字典格式
-        data = [songList.to_sim_dict(request) for songList in songLists]
+        data = [songList.to_sim_dict(request) for songList in songLists if songList.visible]
 
         return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
     except Exception as e:

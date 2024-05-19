@@ -27,7 +27,7 @@ def songlist_create(request):
             return JsonResponse({'success': False, 'message': '缺少封面图'}, status=400)
 
         # 检查该歌单是否已经存在，大小写不敏感
-        existing_songlist = SongList.objects.filter(title__iexact=data['title'],
+        existing_songlist = SongList.objects.filter(visible=True, title__iexact=data['title'],
                                                     owner__username__iexact=data['owner'])
         if existing_songlist.exists():
             return JsonResponse({'success': False, 'message': '歌单已存在'}, status=400)
@@ -234,7 +234,7 @@ def delete_songlist(request, songlistID):
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_all_songlists(request):
-    songlists = SongList.objects.all()
+    songlists = SongList.objects.filter(visible=True)
     data = []
     for songlist in songlists:
         data.append(songlist.to_sim_dict(request))
@@ -253,7 +253,7 @@ def get_user_songlists(request):
         user = User.objects.get(username=username)
         # 获取该用户的所有歌单
         user_songlists = SongList.objects.filter(owner=user)
-        songlists_data = [songlist.to_sim_dict(request) for songlist in user_songlists]
+        songlists_data = [songlist.to_sim_dict(request) for songlist in user_songlists if songlist.visible]
         return JsonResponse({'success': True, 'message': '获取用户歌单成功', 'data': songlists_data}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)

@@ -40,7 +40,7 @@ def song_upload(request):
                 return JsonResponse({'success': False, 'message': '缺少文件'}, status=400)
 
         # 检查用户是否已经上传了相同的歌曲
-        if Song.objects.filter(title=data['title'], singer=data['singer'],
+        if Song.objects.filter(visible=True, title=data['title'], singer=data['singer'],
                                uploader__username=data['uploader']).exists():
             return JsonResponse({'success': False, 'message': '您已经上传过这首歌曲了'}, status=400)
 
@@ -188,7 +188,7 @@ def query_songs(request):
         songs = Song.objects.filter(query)
 
         # 将查询结果转换为字典格式
-        data = [song.to_dict(request) for song in songs]
+        data = [song.to_dict(request) for song in songs if song.visible]
 
         return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
     except Exception as e:
@@ -304,7 +304,7 @@ def delete_song(request, songID):
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_all_songs(request):
-    songs = Song.objects.all()
+    songs = Song.objects.filter(visible=True)
     data = []
     for song in songs:
         song_data = song.to_dict(request)
@@ -337,7 +337,7 @@ def get_user_songs(request):
         user = User.objects.get(username=username)
         # 获取该用户的所有歌曲
         user_songs = Song.objects.filter(uploader=user)
-        songs_data = [song.to_dict(request) for song in user_songs]
+        songs_data = [song.to_dict(request) for song in user_songs if song.visible]
         return JsonResponse({'success': True, 'message': '获取用户歌曲成功', 'data': songs_data}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
