@@ -19,9 +19,10 @@ class Message(models.Model):
     def __str__(self):
         return self.content
 
-    def to_dict(self):
+    def to_dict(self, request=None):
         return {
             'id': self.id,
+            'message_cover': self.sender.user_avatar(request) if self.sender else None,
             'sender': self.sender.username if self.sender else 'system',
             'receiver': self.receiver.username,
             'title': self.title,
