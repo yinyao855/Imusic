@@ -75,7 +75,7 @@ def get_received_messages(request):
         receiver_name = request.username
         receiver = User.objects.get(username=receiver_name)
         messages = Message.objects.filter(receiver=receiver).exclude(type=5)
-        message_list = [message.to_dict(request) for message in messages]
+        message_list = [message.to_dict() for message in messages]
         return JsonResponse({'success': True, 'message': '获取用户消息成功', 'data': message_list}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
@@ -91,7 +91,7 @@ def get_sent_messages(request):
         sender_name = request.username
         sender = User.objects.get(username=sender_name)
         messages = Message.objects.filter(sender=sender, type=5)
-        message_list = [message.to_dict(request) for message in messages]
+        message_list = [message.to_dict() for message in messages]
         return JsonResponse({'success': True, 'message': '获取用户消息成功', 'data': message_list}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
@@ -108,7 +108,7 @@ def search_private_messages(request):
         friend = User.objects.get(username=friend_name)
         user_name = request.username
         user = User.objects.get(username=user_name)
-        _, message_list = handle_private_messages(user, friend, request)
+        _, message_list = handle_private_messages(user, friend)
         return JsonResponse({'success': True, 'message': '获取私信消息成功', 'data': message_list}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=400)
@@ -116,12 +116,12 @@ def search_private_messages(request):
         return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
 
-def handle_private_messages(user, friend, request=None):
+def handle_private_messages(user, friend):
     message1 = Message.objects.filter(receiver=user, sender=friend, type=5)
     message2 = Message.objects.filter(receiver=friend, sender=user, type=5)
     messages = message1.union(message2).order_by('send_date')
-    last_message = messages.last().to_dict(request) if messages else None
-    message_list = [message.to_dict(request) for message in messages]
+    last_message = messages.last().to_dict() if messages else None
+    message_list = [message.to_dict() for message in messages]
     return last_message, message_list
 
 
@@ -181,7 +181,7 @@ def search_chats(request):
         chat_list = []
         for follow in follows:
             friend = follow.followed
-            last_message, _ = handle_private_messages(user, friend, request)
+            last_message, _ = handle_private_messages(user, friend)
             chat = {
                 'friend': friend.username,
                 'friend_avatar': friend.user_avatar(request),
