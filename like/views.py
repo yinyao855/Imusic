@@ -23,8 +23,8 @@ def liked_songs_get(request):
             return JsonResponse({'success': False,
                                  'message': '获取失败，用户设置为隐私'}, status=403)
 
-        liked_songs = LikedSong.objects.filter(user=user)
-        songs_data = [song.song.to_dict(request) for song in liked_songs if song.visible]
+        filtered_objects = LikedSong.objects.filter(user=user)
+        songs_data = [obj.song.to_dict(request) for obj in filtered_objects if obj.song.visible]
         return JsonResponse({'success': True, 'message': '获取用户喜欢歌曲成功',
                              'data': songs_data, 'token': None}, status=200)
     except User.DoesNotExist:
@@ -150,8 +150,8 @@ def liked_songlists_get(request):
                                  'data': None, 'token': None}, status=400)
 
         user = User.objects.get(username=username)
-        liked_songlists = LikedSongList.objects.filter(user=user)
-        songlists_data = [songlist.songlist.to_sim_dict(request) for songlist in liked_songlists if songlist.visible]
+        filtered_objects = LikedSongList.objects.filter(user=user)
+        songlists_data = [obj.songlist.to_sim_dict(request) for obj in filtered_objects if obj.songlist.visible]
         return JsonResponse({'success': True, 'message': '获取用户喜欢歌单成功',
                              'data': songlists_data, 'token': None}, status=200)
     except User.DoesNotExist:
