@@ -42,8 +42,8 @@ def complain(request):
             )
             # 记录在投诉表里
             complaint.save()
-            # 通知管理员有投诉消息，消息内容就只记录个投诉表里的id吧
-            send_message(title='投诉消息', content=f'{complaint.id}', message_type=6,
+            # 通知管理员有投诉消息，消息内容记录投诉表里的id和通知信息，中间用空格隔开，前端用正则获取两个信息
+            send_message(title='投诉消息', content=f'{complaint.id} 有新的投诉消息待处理。', message_type=6,
                          sender=None,
                          receiver=User.objects.get(username='yy'))
             # 官方给所有者发送消息
