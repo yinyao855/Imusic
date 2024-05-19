@@ -75,6 +75,8 @@ def get_received_messages(request):
         receiver_name = request.username
         receiver = User.objects.get(username=receiver_name)
         messages = Message.objects.filter(receiver=receiver).exclude(type=5)
+        # 逆序排列消息
+        messages = messages.order_by('-send_date')
         message_list = [message.to_dict(request) for message in messages]
         return JsonResponse({'success': True, 'message': '获取用户消息成功', 'data': message_list}, status=200)
     except User.DoesNotExist:
@@ -91,6 +93,8 @@ def get_sent_messages(request):
         sender_name = request.username
         sender = User.objects.get(username=sender_name)
         messages = Message.objects.filter(sender=sender, type=5)
+        # 逆序排列消息
+        messages = messages.order_by('-send_date')
         message_list = [message.to_dict(request) for message in messages]
         return JsonResponse({'success': True, 'message': '获取用户消息成功', 'data': message_list}, status=200)
     except User.DoesNotExist:
