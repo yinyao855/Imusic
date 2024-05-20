@@ -125,7 +125,7 @@ def handle_private_messages(user, friend, request=None):
     message1 = Message.objects.filter(receiver=user, sender=friend, type=5)
     message2 = Message.objects.filter(receiver=friend, sender=user, type=5)
     messages = message1.union(message2).order_by('send_date')
-    last_message = messages.last().to_dict(request) if messages else None
+    # last_message = messages.last().to_dict(request) if messages else None
     # message_list = [message.to_dict(request) for message in messages]
     message_list = []
     for message in messages:
@@ -133,6 +133,7 @@ def handle_private_messages(user, friend, request=None):
             pass
         else:
             message_list.append(message.to_dict(request))
+    last_message = message_list[-1] if message_list else None
     return last_message, message_list
 
 
