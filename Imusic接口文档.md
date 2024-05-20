@@ -361,7 +361,71 @@
   }
   ```
 
+### 获取用户好友
+
+- **请求类型：** GET
+
+- **URL：** `/users/friends`
+
+- **请求参数：**
+
+  - 用户姓名 (username) 必填
+
+- 返回结果：
+
+  - 是否成功 (success)：表示获取是否成功
+  - 返回用户的所有好友
+
+- 返回示例
+
+  ```json
+  http://182.92.100.66:5000/users/friends?username=yy
+  ```
+
+  ```json
+  {
+      "success": true,
+      "message": "获取成功",
+      "data": [
+          {
+              "user_id": 16,
+              "username": "sivenlu",
+              "email": "test@buaa.edu.cn",
+              "bio": "test",
+              "avatar": "http://182.92.100.66:5000/media/avatars/IMG_20240114_1825591-01.jpeg",
+              "follower_count": 2,
+              "following_count": 1,
+              "role": "admin",
+              "registration_date": "2024-04-22 19:04:47"
+          },
+          {
+              "user_id": 18,
+              "username": "yees",
+              "email": "yeestiew@qq.com",
+              "bio": "hello",
+              "avatar": "http://182.92.100.66:5000/media/avatars/imgPlaylist.jpeg",
+              "follower_count": 3,
+              "following_count": 3,
+              "role": "admin",
+              "registration_date": "2024-04-22 21:54:34"
+          },
+          {
+              "user_id": 2,
+              "username": "xht",
+              "email": "13069167198@163.com",
+              "bio": "你好",
+              "avatar": "http://182.92.100.66:5000/media/avatars/c53c811f880411ebb6edd017c2d2eca2.jpg",
+              "follower_count": 3,
+              "following_count": 4,
+              "role": "admin",
+              "registration_date": "2024-04-20 14:30:30"
+          }
+      ]
+  }
+  ```
+
 ### 两个测试接口
+
 #### 查看所有用户信息
 ```json
 http://182.92.100.66:5000/users/alldata
@@ -2104,7 +2168,108 @@ NOTICE_TYPE_CHOICES = [
 }
 ```
 
+## 分享(Share)接口
 
+==**分享的时效为一天**==
+
+### 分享喜欢的歌曲
+
+- **请求类型：** POST
+
+- **URL：** `/share/likesongs`
+
+- **请求参数：**
+
+  - 分享类型(type) 为0和1，0代表以私信分享，1代表以分享码形式分享
+  - 朋友(friend) 当type为0时必填，为用户名
+
+- **返回结果：**
+
+  - 是否成功 (success)：表示分享是否成功
+  - 消息 (message)：分享过程的结果消息
+
+- 返回示例：
+
+  选择type为0
+
+  ```json
+  {
+      "success": true,
+      "message": "分享给好友成功"
+  }
+  ```
+
+  选择type为1
+
+  ```json
+  {
+      "success": true,
+      "message": "生成分享码成功",
+      "data": "o8NKfP2sy9"
+  }
+  ```
+
+### 分享歌单
+
+- **请求类型：** POST
+
+- **URL：** `/share/songlist`
+
+- **请求参数：**
+
+  - 分享类型(type) 为0和1，0代表以私信分享，1代表以分享码形式分享
+  - 朋友(friend) 当type为0时必填，为用户名
+
+- **返回结果：**
+
+  - 是否成功 (success)：表示分享是否成功
+  - 消息 (message)：分享过程的结果消息
+
+- 返回示例：
+
+  选择type为0
+
+  ```json
+  {
+      "success": true,
+      "message": "分享给好友成功"
+  }
+  ```
+
+  选择type为1
+
+  ```json
+  {
+      "success": true,
+      "message": "生成分享码成功",
+      "data": "o8NKfP2sy9"
+  }
+  ```
+
+### 接受分享
+
+- **请求类型：** POST
+
+- **URL：** `/share/handle`
+
+- **请求参数：**
+
+  - 消息(message_id) 如果以私信形式分享，传消息ID
+  - 分享码(code) 如果以分享码形式分享，传code
+
+- **返回结果：**
+
+  - 是否成功 (success)：表示是否成功
+  - 消息 (message)：过程的结果消息
+
+- 返回示例：
+
+  ```json
+  {
+      "success": true,
+      "message": "接受分享成功"
+  }
+  ```
 
 ## 特性接口
 
