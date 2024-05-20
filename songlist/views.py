@@ -52,7 +52,7 @@ def songlist_create(request):
         """
         发送消息给关注者
         """
-        content = f'我新创建了歌单{new_songlist.title}，快来看看吧!'
+        content = f'我新创建了歌单《{new_songlist.title}》，快来看看吧!'
         # 消息类型为5，详细解释见song/views 里的 song_upload部分
         m_type = 5
         title = "关注的人动态"
@@ -148,7 +148,7 @@ def songlist_add(request):
         """
         sender_name = request.username
         sender = User.objects.get(username=sender_name)
-        content = f'我在歌单{songlist.title}中新添加了歌曲《{song.title}》，快来看看吧!'
+        content = f'我在歌单《{songlist.title}》中新添加了歌曲《{song.title}》，快来看看吧!'
         m_type = 5
         title = "关注的人动态"
         send_message(title, content, m_type, sender=sender)
@@ -230,7 +230,7 @@ def update_songlist_info(request, songlistID):
         """
         sender_name = request.username
         sender = User.objects.get(username=sender_name)
-        content = f'我更新了歌单{songlist.title}的信息，快来看看有什么变化吧!'
+        content = f'我更新了歌单《{songlist.title}》的信息，快来看看有什么变化吧!'
         m_type = 5
         title = "关注的人动态"
         send_message(title, content, m_type, sender=sender)
