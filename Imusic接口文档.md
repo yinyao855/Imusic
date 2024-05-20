@@ -2088,7 +2088,7 @@ NOTICE_TYPE_CHOICES = [
 - **请求类型：** POST
 - **URL：** `/complaints/appeals/handle`
 - **请求参数：**
-  - 被投诉者发送给管理员的申诉的消息id (message_id)
+  - 已经处理过的那条投诉记录的id (complaint_id)
   - 是否恢复(is_recover)
   - 理由(reason)
 
