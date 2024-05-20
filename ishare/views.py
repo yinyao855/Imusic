@@ -37,7 +37,7 @@ def share_liked_songs(request):
         if r_type == 1:
             friend_name = request.POST.get('friend')
             friend = User.objects.get(username=friend_name)
-            title = '喜欢歌曲分享'
+            title = '分享动态'
             content = f"{user.username}分享了ta喜欢的歌曲给您，快来听听吧！"
             """
             发送消息给好友
@@ -77,7 +77,7 @@ def share_songlist(request):
         if r_type == 1:
             friend_name = request.POST.get('friend')
             friend = User.objects.get(username=friend_name)
-            title = '歌单分享'
+            title = '分享动态'
             content = f"{user.username}分享了歌单《{songlist.title}》给您，快来听听吧！"
             """
             发送消息给好友

@@ -126,7 +126,13 @@ def handle_private_messages(user, friend, request=None):
     message2 = Message.objects.filter(receiver=friend, sender=user, type=5)
     messages = message1.union(message2).order_by('send_date')
     last_message = messages.last().to_dict(request) if messages else None
-    message_list = [message.to_dict(request) for message in messages]
+    # message_list = [message.to_dict(request) for message in messages]
+    message_list = []
+    for message in messages:
+        if message.sender.username == user.username and message.title in ['关注的人动态', '分享动态']:
+            pass
+        else:
+            message_list.append(message.to_dict(request))
     return last_message, message_list
 
 
