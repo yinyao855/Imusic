@@ -90,7 +90,7 @@ def song_upload(request):
         """
         content = f'我新上传了歌曲《{s_title}》，快来听听吧！'
         m_type = 5
-        title = "私信"
+        title = "关注的人动态"
         # 发送消息
         send_message(title, content, m_type, sender=user)
 
@@ -251,7 +251,7 @@ def update_song_info(request, songID):
         """
         content = f'我更新了歌曲《{song.title}》的信息，快来听听吧！'
         m_type = 5
-        title = "私信"
+        title = "关注的人动态"
         # 发送消息
         send_message(title, content, m_type, sender=song.uploader)
 
