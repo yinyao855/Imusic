@@ -85,7 +85,7 @@ def handle_complaint(request):
         return JsonResponse({'success': False, 'message': '没有权限访问'}, status=403)
     try:
         complaint = Complaint.objects.get(id=request.POST.get('complaint_id'))
-        is_remove = bool(request.POST.get('is_remove'))
+        is_remove = request.POST.get('is_remove') == 'true'
         # reason里要说明是否下架以及理由
         reason = request.POST.get('reason')
         message_to_complained_content = reason
@@ -171,7 +171,7 @@ def handle_appeal(request):
         return JsonResponse({'success': False, 'message': '没有权限访问'}, status=403)
     try:
         complaint = Complaint.objects.get(id=request.POST.get('complaint_id'))
-        is_recover = bool(request.POST.get('is_recover'))
+        is_recover = request.POST.get('is_recover') == 'true'
         # 重新上架/维持下架状态的原因
         # 格式为"重新上架。原因是：..."
         reason = request.POST.get('reason')
