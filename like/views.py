@@ -197,6 +197,10 @@ def liked_songlists_delete(request):
                                  'data': None, 'token': None}, status=400)
 
         user = User.objects.get(username=username)
+
+        if songlist_id.startswith('sh'):
+            return delete_shared_songs(user, songlist_id)
+
         songlist = SongList.objects.get(id=songlist_id)
 
         liked_songlist = LikedSongList.objects.get(user=user, songlist=songlist)
@@ -219,3 +223,19 @@ def liked_songlists_delete(request):
     except LikedSongList.DoesNotExist:
         return JsonResponse({'success': False, 'message': '喜爱歌单列表不存在',
                              'data': None, 'token': None}, status=404)
+
+
+def delete_shared_songs(user, s_id):
+    try:
+        share_user_id = int(s_id[2:])
+        share_user = User.objects.get(user_id=share_user_id)
+        share = ShareSongs.objects.get(user=user, shared_user=share_user)
+        share.delete()
+        return JsonResponse({'success': True, 'message': '歌单已从喜爱列表中移除'}, status=200)
+
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+    except ShareSongs.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '分享记录不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)

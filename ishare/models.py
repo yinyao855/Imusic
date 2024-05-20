@@ -18,6 +18,7 @@ class Ishare(models.Model):
 
 
 class ShareSongs(models.Model):
+    DoesNotExist = None
     objects = None
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='用户')
