@@ -85,7 +85,7 @@ def handle_complaint(request):
         return JsonResponse({'success': False, 'message': '没有权限访问'}, status=403)
     try:
         complaint = Complaint.objects.get(id=request.POST.get('complaint_id'))
-        is_remove = request.POST.get('is_remove')
+        is_remove = bool(request.POST.get('is_remove'))
         # reason里要说明是否下架以及理由
         reason = request.POST.get('reason')
         message_to_complained_content = reason
@@ -116,6 +116,8 @@ def handle_complaint(request):
         return JsonResponse({'success': True, 'message': ' 处理投诉成功'}, status=200)
     except Complaint.DoesNotExist:
         return JsonResponse({'success': False, 'message': '投诉记录不存在'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 @csrf_exempt
@@ -169,7 +171,7 @@ def handle_appeal(request):
         return JsonResponse({'success': False, 'message': '没有权限访问'}, status=403)
     try:
         complaint = Complaint.objects.get(id=request.POST.get('complaint_id'))
-        is_recover = request.POST.get('is_recover')
+        is_recover = bool(request.POST.get('is_recover'))
         # 重新上架/维持下架状态的原因
         # 格式为"重新上架。原因是：..."
         reason = request.POST.get('reason')
@@ -193,3 +195,5 @@ def handle_appeal(request):
         return JsonResponse({'success': True, 'message': '处理申诉成功'}, status=200)
     except Complaint.DoesNotExist:
         return JsonResponse({'success': False, 'message': '投诉消息记录不存在'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
