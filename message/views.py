@@ -22,27 +22,28 @@ from timedtask.utils import generate_user_weekly_report, generate_user_upload_we
 def send_message(title, content, message_type, sender=None, receiver=None):
     try:
         messages = []
+        m_id = None
         if not receiver:
             followers = Follow.objects.filter(followed=sender)
             for follow in followers:
                 message = Message(sender=sender, receiver=follow.follower, title=title, content=content,
                                   type=message_type)
                 messages.append(message)
+            with transaction.atomic():
+                Message.objects.bulk_create(messages)
         else:
             message = Message(sender=sender, receiver=receiver, title=title, content=content, type=message_type)
-            messages.append(message)
+            message.save()
+            m_id = message.id
 
-        with transaction.atomic():
-            Message.objects.bulk_create(messages)
-
+        return True, m_id
     except Exception as e:
         # 记录异常信息
         # logger.error(f"Error occurred while sending message: {str(e)}")
         # 回滚事务
         transaction.set_rollback(True)
         # 返回错误响应
-        return JsonResponse({'success': False, 'message': 'Failed to send message'}, status=400)
-    return JsonResponse({'success': True, 'message': 'Message sent successfully'})
+        return False, None
 
 
 # 发送消息(私信)

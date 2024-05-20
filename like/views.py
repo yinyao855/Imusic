@@ -2,10 +2,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from .models import LikedSong, LikedSongList
+from ishare.models import ShareSongs
 from song.models import Song
 from songlist.models import SongList
 from user.models import User
+from .models import LikedSong, LikedSongList
 
 
 @csrf_exempt
@@ -152,11 +153,33 @@ def liked_songlists_get(request):
         user = User.objects.get(username=username)
         filtered_objects = LikedSongList.objects.filter(user=user)
         songlists_data = [obj.songlist.to_sim_dict(request) for obj in filtered_objects if obj.songlist.visible]
+
+        # 添加别人分享的歌单
+        songlists_data += add_shared_songlists(user, request)
+
         return JsonResponse({'success': True, 'message': '获取用户喜欢歌单成功',
                              'data': songlists_data, 'token': None}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '用户不存在',
                              'data': None, 'token': None}, status=404)
+
+
+def add_shared_songlists(user, request):
+    shares = ShareSongs.objects.filter(user=user)
+    songlists = []
+    for share in shares:
+        share_user = share.shared_user
+        # 构建分享者喜欢歌单的数据
+        songlist = {
+            'id': 'sh' + str(share_user.user_id),
+            'title': share_user.username + '喜欢的歌曲',
+            'cover': share_user.user_avatar(request),
+            'owner': share_user.username,
+            'create_date': share_user.registration_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'like': 1,
+        }
+        songlists.append(songlist)
+    return songlists
 
 
 @csrf_exempt

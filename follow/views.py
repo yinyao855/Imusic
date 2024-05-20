@@ -92,3 +92,28 @@ def get_followers(request):
                              'data': follower_list}, status=200)
     except User.DoesNotExist:
         return JsonResponse({'success': False, 'message': '对象用户不存在'}, status=400)
+
+
+# 获得用户的好友，互相关注为好友
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_friends(request):
+    try:
+        username = request.GET.get('username')
+        user = User.objects.get(username=username)
+        if request.role != 'admin' and request.username != username:
+            return JsonResponse({'success': False,
+                                 'message': '获取失败，用户设置为隐私'}, status=403)
+        followings = Follow.objects.filter(follower=user)
+        followers = Follow.objects.filter(followed=user)
+        following_list = [follow.followed for follow in followings]
+        follower_list = [follow.follower for follow in followers]
+        friend_list = list(set(following_list).intersection(set(follower_list)))
+        friend_list = [friend.to_dict(request) for friend in friend_list]
+        return JsonResponse({'success': True,
+                             'message': '获取成功',
+                             'data': friend_list}, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '对象用户不存在'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)

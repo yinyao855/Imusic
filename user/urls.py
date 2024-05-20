@@ -25,4 +25,6 @@ urlpatterns = [
     path('followings', follow_views.get_followings, name='get_followings'),
     # 获取关注者列表
     path('followers', follow_views.get_followers, name='get_followers'),
+    # 获取用户好友
+    path('friends', follow_views.get_friends, name='get_friends'),
 ]

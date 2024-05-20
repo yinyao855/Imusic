@@ -35,4 +35,5 @@ urlpatterns = [
                   path('timedtask/', include('timedtask.urls')),
                   path('complaints/', include('complaint.urls')),
                   path('check-token/', check_token, name='check_token'),
+                  path('share/', include('ishare.urls')),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

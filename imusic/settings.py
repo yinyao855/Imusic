@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'message.apps.MessageConfig',
     'search.apps.SearchConfig',
     'timedtask.apps.TimedtaskConfig',
+    'ishare.apps.IshareConfig',
 ]
 
 MIDDLEWARE = [

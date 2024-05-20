@@ -5,7 +5,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from like.models import LikedSongList
+from ishare.models import ShareSongs
+from like.models import LikedSongList, LikedSong
 from message.views import send_message
 from song.models import Song
 from user.models import User
@@ -65,10 +66,46 @@ def songlist_create(request):
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
+def add_shared_songs(request, songlistID):
+    try:
+        # 获取用户id
+        user_id = int(songlistID[2:])
+        friend = User.objects.get(user_id=user_id)
+        cur_user = User.objects.get(username=request.GET.get('username'))
+        # 判断分享是否存在
+        share = ShareSongs.objects.filter(user=cur_user, shared_user=friend).first()
+        if not share:
+            return JsonResponse({'success': False, 'message': '分享不存在'}, status=404)
+        # 查询分享者喜欢的歌曲
+        liked = LikedSong.objects.filter(user=friend)
+        info = {
+            'id': songlistID,
+            'title': friend.username + '喜欢的歌曲',
+            'cover': friend.user_avatar(request),
+            'introduction': '这是' + friend.username + '喜欢的歌曲',
+            'songs': [like.song.to_dict(request) for like in liked if like.song.visible],
+            "tag_theme": "null",
+            "tag_scene": "null",
+            "tag_mood": "null",
+            "tag_style": "null",
+            "tag_language": "null",
+            "owner": friend.username,
+            "create_date": friend.registration_date.strftime('%Y-%m-%d %H:%M:%S'),
+            "like": 1,
+            "user_favor": True
+        }
+        return JsonResponse({'success': True, 'message': '获取歌单成功', 'data': info}, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
+
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_songlist_info(request, songlistID):
     try:
+        if songlistID.startswith('sh'):
+            return add_shared_songs(request, songlistID)
+
         songlist = SongList.objects.get(id=songlistID)
         # 获取包含的歌曲信息
         songlist_info = songlist.to_dict(request)
