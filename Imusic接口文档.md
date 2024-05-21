@@ -2180,8 +2180,8 @@ NOTICE_TYPE_CHOICES = [
 
 - **请求参数：**
 
-  - 分享类型(type) 为0和1，0代表以私信分享，1代表以分享码形式分享
-  - 朋友(friend) 当type为0时必填，为用户名
+  - 分享类型(type) 为1和2，1代表以私信分享，2代表以分享码形式分享
+  - 朋友(friend) 当type为1时必填，为用户名
 
 - **返回结果：**
 
@@ -2190,7 +2190,7 @@ NOTICE_TYPE_CHOICES = [
 
 - 返回示例：
 
-  选择type为0
+  选择type为1
 
   ```json
   {
@@ -2199,7 +2199,7 @@ NOTICE_TYPE_CHOICES = [
   }
   ```
 
-  选择type为1
+  选择type为2
 
   ```json
   {
@@ -2217,8 +2217,9 @@ NOTICE_TYPE_CHOICES = [
 
 - **请求参数：**
 
-  - 分享类型(type) 为0和1，0代表以私信分享，1代表以分享码形式分享
-  - 朋友(friend) 当type为0时必填，为用户名
+  - 分享类型(type) 为1和2，1代表以私信分享，2代表以分享码形式分享
+  - 朋友(friend) 当type为1时必填，为用户名
+  - 歌单ID(songlist_id) 必填
 
 - **返回结果：**
 
@@ -2227,7 +2228,7 @@ NOTICE_TYPE_CHOICES = [
 
 - 返回示例：
 
-  选择type为0
+  选择type为1
 
   ```json
   {
@@ -2236,7 +2237,7 @@ NOTICE_TYPE_CHOICES = [
   }
   ```
 
-  选择type为1
+  选择type为2
 
   ```json
   {
