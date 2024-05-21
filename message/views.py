@@ -5,9 +5,8 @@ from django.views.decorators.http import require_http_methods
 
 from follow.models import Follow
 from message.models import Message
-from user.models import User
-
 from timedtask.utils import generate_user_weekly_report, generate_user_upload_weekly_report
+from user.models import User
 
 """
 发送消息函数，方便复用
@@ -129,7 +128,7 @@ def handle_private_messages(user, friend, request=None):
     # message_list = [message.to_dict(request) for message in messages]
     message_list = []
     for message in messages:
-        if message.sender.username == user.username and message.title in ['关注的人动态', '分享动态']:
+        if message.sender.username == user.username and message.title in ['关注的人动态', '分享动态', '新的关注']:
             pass
         else:
             message_list.append(message.to_dict(request))
@@ -188,18 +187,31 @@ def search_chats(request):
     try:
         user = User.objects.get(username=request.username)
         # 获取用户所有关注的人
-        follows = Follow.objects.filter(follower=user)
-        # 对于每个关注的人，获取最新的一条私信
+        follows = Follow.objects.filter(follower=user).values_list('followed', flat=True)
+        # 获取所有关注用户的人
+        follow_users = Follow.objects.filter(followed=user).values_list('follower', flat=True)
+        # 取并集
+        relate_users = follows.union(follow_users)
+        # 将QuerySet转换为list
+        follows = list(follows)
+        relate_users = list(relate_users)
+        # print(follows)
+        # print(relate_users)
+        # 构建聊天列表
         chat_list = []
-        for follow in follows:
-            friend = follow.followed
+        for relate in relate_users:
+            friend = User.objects.get(user_id=relate)
             last_message, _ = handle_private_messages(user, friend, request)
+            # 看follows中是否有这个人，如果有，则is_follow = True
+            is_follow = True if relate in follows else False
             chat = {
                 'friend': friend.username,
                 'friend_avatar': friend.user_avatar(request),
-                'last_message': last_message
+                'last_message': last_message,
+                'is_follow': is_follow,
             }
             chat_list.append(chat)
+
         return JsonResponse({'success': True, 'message': '获取聊天信息成功', 'data': chat_list}, status=200)
 
     except User.DoesNotExist:
