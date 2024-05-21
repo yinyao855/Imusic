@@ -40,7 +40,7 @@ def follow_unfollow(request):
                                    receiver=receiver,
                                    title='新的关注',
                                    content=f'{sender_username}关注了你',
-                                   type=4)  # 4代表关注通知
+                                   type=5)
             sender.following_count += 1
             sender.save()
             receiver.follower_count += 1
