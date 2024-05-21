@@ -17,22 +17,25 @@ from message.models import Message
 @require_http_methods(["POST"])
 def complain(request):
     try:
+        username = request.username
+        complainer = User.objects.get(username=username)
+        complaint_content = request.POST.get('content')
+        if request.path.startswith('/songs/'):
+            object_type = 'song'
+            object_id = request.POST.get('song_id')
+            song = Song.objects.get(id=object_id)
+            complained = song.uploader
+            message_content = f'您上传的歌曲《{song.title}》被投诉，请等待管理员处理。'
+        else:
+            object_type = 'songlist'
+            object_id = request.POST.get('songlist_id')
+            songlist = SongList.objects.get(id=object_id)
+            complained = songlist.owner
+            message_content = f'您创建的歌单"{songlist.title}"被投诉，请等待管理员处理。'
+        if username == complained.username:
+            return JsonResponse({'success': False, 'message': '不能投诉属于自己的内容'}, status=400)
+
         with transaction.atomic():
-            username = request.username
-            complainer = User.objects.get(username=username)
-            complaint_content = request.POST.get('content')
-            if request.path.startswith('/songs/'):
-                object_type = 'song'
-                object_id = request.POST.get('song_id')
-                song = Song.objects.get(id=object_id)
-                complained = song.uploader
-                message_content = f'您上传的歌曲《{song.title}》被投诉，请等待管理员处理。'
-            else:
-                object_type = 'songlist'
-                object_id = request.POST.get('songlist_id')
-                songlist = SongList.objects.get(id=object_id)
-                complained = songlist.owner
-                message_content = f'您创建的歌单"{songlist.title}"被投诉，请等待管理员处理。'
             complaint = Complaint(
                 complainer=complainer,
                 complained=complained,
