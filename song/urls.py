@@ -12,5 +12,6 @@ urlpatterns = [
     # 获取歌曲评论
     path('comments', views.get_comments, name='get_comments'),
     # 投诉歌曲
-    path('complaint', complaint_views.complain, name='complaint')
+    path('complaint', complaint_views.complain, name='complaint'),
+    path('init_data', views.get_init_singer, name='init_data')
 ]

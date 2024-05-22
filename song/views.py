@@ -1,5 +1,6 @@
 # Description: 歌曲相关视图函数
 import os
+from typing import re
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -369,3 +370,15 @@ def get_user_songs(request):
         return JsonResponse({'success': False, 'message': '用户不存在'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_init_singer(request):
+    Singer.objects.all().delete()
+    all_songs = Song.objects.all()
+    for song in all_songs:
+        singer_names = song.singer.split(',')
+        for singer_name in singer_names:
+            handle_singer_update(singer_name, song)
+    return JsonResponse({'success': True, 'message': '更新完成'}, status=200)

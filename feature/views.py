@@ -5,9 +5,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from feature.models import Recent
+from singer.models import Singer
 from song.models import Song
 from songlist.models import SongList
 from user.models import User
+
+
+
+
 
 
 # Create your views here.
@@ -118,3 +123,17 @@ def get_hot_songs(request):
         songs_data.append(song.to_sim_dict(request))
 
     return JsonResponse({'success': True, 'message': '获取成功', 'data': songs_data}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def hot_singers(request):
+    num = request.GET.get('num', 10)
+    try:
+        singers = Singer.objects.all()[:int(num)]
+        singers_data = []
+        for singer in singers:
+            singers_data.append(singer.to_sim_dict(request))
+        return JsonResponse({'success': True, 'data': singers_data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
