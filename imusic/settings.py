@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'search.apps.SearchConfig',
     'timedtask.apps.TimedtaskConfig',
     'ishare.apps.IshareConfig',
+    'singer.apps.SingerConfig'
 ]
 
 MIDDLEWARE = [

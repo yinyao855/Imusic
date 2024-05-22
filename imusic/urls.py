@@ -36,4 +36,5 @@ urlpatterns = [
                   path('complaints/', include('complaint.urls')),
                   path('check-token/', check_token, name='check_token'),
                   path('share/', include('ishare.urls')),
+                  path('singer/', include('singer.urls')),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

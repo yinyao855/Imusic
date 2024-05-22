@@ -13,6 +13,7 @@ from mutagen.mp3 import MP3
 from message.views import send_message
 from comment.models import Comment
 from like.models import LikedSong
+from singer.models import Singer
 from user.models import User
 from .models import Song
 from .utils import css_generate
@@ -79,6 +80,9 @@ def song_upload(request):
                 like=int(data.get('like', 0))
             )
             song.save()
+            singers = data['singer'].split(',')
+            for singer in singers:
+                handle_singer_update(singer, song)
 
             # 计算渐变色
             img_path = os.path.join(settings.MEDIA_ROOT, str(song.cover))
@@ -101,6 +105,18 @@ def song_upload(request):
 
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+# 如果没有歌手就添加歌手，如果有歌手就向里面添加歌曲
+def handle_singer_update(singer_name, song):
+    if not Singer.objects.filter(singerName=singer_name).exists():
+        singer = Singer(singerName=singer_name)
+        singer.save()
+        singer.add_song(song)
+
+    else:
+        singer = Singer.objects.get(singerName=singer_name)
+        singer.add_song(song)
 
 
 # url version
@@ -294,10 +310,20 @@ def delete_song(request, songID):
                 os.remove(lyric_path)
             except FileNotFoundError:
                 pass
+        handle_singer_delete(song.singer, song)
         song.delete()
         return JsonResponse({'success': True, 'message': '删除成功'}, status=200)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+def handle_singer_delete(singer_name, song):
+    if not Singer.objects.filter(singerName=singer_name).exists():
+        return
+
+    else:
+        singer = Singer.objects.get(singerName=singer_name)
+        singer.remove_song(song)
 
 
 # 获取所有歌曲信息, 用于测试
