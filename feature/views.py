@@ -11,10 +11,6 @@ from songlist.models import SongList
 from user.models import User
 
 
-
-
-
-
 # Create your views here.
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -128,12 +124,18 @@ def get_hot_songs(request):
 @csrf_exempt
 @require_http_methods(["GET"])
 def hot_singers(request):
-    num = request.GET.get('num', 10)
+    count = Singer.objects.all().count()
+    num = request.GET.get('num', int(count))
     try:
         singers = Singer.objects.all()[:int(num)]
         singers_data = []
+        i = 0
         for singer in singers:
-            singers_data.append(singer.to_sim_dict(request))
+            if singer.singerImage != '':
+                i = i + 1
+                singers_data.append(singer.to_sim_dict(request))
+                if i == 10:
+                    break
         return JsonResponse({'success': True, 'data': singers_data})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
