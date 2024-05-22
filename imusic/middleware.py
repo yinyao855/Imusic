@@ -30,6 +30,8 @@ exclude_path = [
     '/feature/hotsingers',
     # 校验token
     '/check-token',
+    # 歌手表
+    '/singer/getsongs',
 ]
 
 

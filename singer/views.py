@@ -21,20 +21,23 @@ def singer_update(request, singerid):
     update_fields = ['singerName']
     singer = Singer.objects.get(singerID=singerid)
     for field in update_fields:
-        setattr(singer, field, data.get(field, getattr(singer, field)))
+        field_value = data.get(field)
+        if field_value is not None and field_value != '':
+            setattr(singer, field, field_value)
 
-    # 更新文件字段
     file_fields = {'singerImage': 'singerImage'}
     for field_name, field_attr in file_fields.items():
-        if field_name in request.FILES:
+        uploaded_file = request.FILES.get(field_name)
+        if uploaded_file:  # 如果有文件被上传
             # 删除原有文件
-            if getattr(singer, field_attr):
-                file_path = os.path.join(settings.MEDIA_ROOT, str(getattr(singer, field_attr)))
+            original_file = getattr(singer, field_attr)
+            if original_file:
+                file_path = os.path.join(settings.MEDIA_ROOT, str(original_file))
                 try:
                     os.remove(file_path)
                 except FileNotFoundError:
-                    pass  # 文件不存在，继续执行后续代码
-            setattr(singer, field_attr, request.FILES[field_name])
+                    pass  # 文件不存在，无需处理
+            setattr(singer, field_attr, uploaded_file)
 
     singer.save()
 
