@@ -5,7 +5,7 @@ from song import views as song_views
 from songlist import views as songlist_views
 
 urlpatterns = [
-    path('register', views.user_register, name='register'),
+    path('register', views.user_register, name='user_register'),
     path('login', views.user_login, name='login'),
     path('info/<str:username>', views.get_user_info, name='info'),
     path('update/<str:username>', views.update_user_info, name='update'),

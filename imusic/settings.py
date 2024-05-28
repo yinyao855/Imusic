@@ -116,6 +116,9 @@ DATABASES = {
         'PASSWORD': '4cbxa4PDGFCh4Dhh',
         'HOST': '182.92.100.66',
         'PORT': '3306',
+        'TEST': {
+            'MIRROR': 'default'
+        },
     }
 }
 
