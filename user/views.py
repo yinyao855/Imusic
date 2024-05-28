@@ -96,7 +96,7 @@ def get_user_info(request, username):
         flag = 1
         if request.role != 'admin' and request.username != username:
             flag = 0
-        user = User.objects.filter(username=username).first()
+        user = User.objects.get(username=username)
         data = user.to_dict(request) if flag else user.to_pub_dict(request)
         return JsonResponse({'success': True, 'message': '获取用户信息成功', 'data': data}, status=200)
     except User.DoesNotExist:

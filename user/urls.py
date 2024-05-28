@@ -6,13 +6,13 @@ from songlist import views as songlist_views
 
 urlpatterns = [
     path('register', views.user_register, name='user_register'),
-    path('login', views.user_login, name='login'),
-    path('info/<str:username>', views.get_user_info, name='info'),
-    path('update/<str:username>', views.update_user_info, name='update'),
-    path('delete/<str:username>', views.delete_user, name='delete'),
-    path('alldata', views.get_all_users, name='all_info'),
-    path('change-role', views.change_user_role, name='change_role'),
-    path('change-pwd', views.change_password, name='change_pwd'),
+    path('login', views.user_login, name='user_login'),
+    path('info/<str:username>', views.get_user_info, name='get_user_info'),
+    path('update/<str:username>', views.update_user_info, name='update_user_info'),
+    path('delete/<str:username>', views.delete_user, name='delete_user'),
+    path('alldata', views.get_all_users, name='get_all_users'),
+    path('change-role', views.change_user_role, name='change_user_role'),
+    path('change-pwd', views.change_password, name='change_password'),
     # 下面是得到用户创建的所有歌单
     path('songlists', songlist_views.get_user_songlists, name='get_user_songlists'),
     # 得到用户上传的所有歌曲
