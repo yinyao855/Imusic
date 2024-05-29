@@ -120,45 +120,6 @@ def handle_singer_update(singer_name, song):
         singer.add_song(song)
 
 
-# url version
-
-# @require_http_methods(["POST"])
-# def song_upload(request):
-#     try:
-#         data = request.POST
-#         # 检查必要的字段是否存在
-#         required_fields = ['title', 'singer', 'cover_url', 'audio_url',
-#                            'minutes', 'seconds', 'uploader']
-#         for field in required_fields:
-#             if not data.get(field):
-#                 return JsonResponse({'success': False, 'message': f'Missing required field: {field}'},
-#                                     status=400)
-#
-#         # 创建歌曲实例
-#         song = Song(
-#             title=data['title'],
-#             singer=data['singer'],
-#             cover_url=data['cover_url'],
-#             introduction=data.get('introduction', ''),
-#             audio_url=data['audio_url'],
-#             lyric_url=data.get('lyric_url', ''),
-#             minutes=int(data['minutes']),
-#             seconds=int(data['seconds']),
-#             tag_theme=data.get('tag_theme', ''),
-#             tag_scene=data.get('tag_scene', ''),
-#             tag_mood=data.get('tag_mood', ''),
-#             tag_style=data.get('tag_style', ''),
-#             tag_language=data.get('tag_language', ''),
-#             uploader_id=int(data['uploader']),
-#             like=int(data.get('like', 0))
-#         )
-#         song.save()  # 保存到数据库
-#
-#         return JsonResponse({'success': True, 'message': '上传歌曲成功'})
-#
-#     except Exception as e:
-#         return JsonResponse({'success': False, 'message': str(e)}, status=500)
-
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_song_info(request, songID):
@@ -279,7 +240,6 @@ def update_song_info(request, songID):
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
-# 删除歌曲，目前是测试阶段
 @csrf_exempt
 @require_http_methods(["DELETE"])
 def delete_song(request, songID):
