@@ -37,7 +37,7 @@ def add_comment(request):
 
 
 @csrf_exempt
-@require_http_methods(["DELETE"])
+# @require_http_methods(["DELETE"])
 def delete_comment(request):
     try:
         comment_id = request.GET.get('commentID')
@@ -54,3 +54,4 @@ def delete_comment(request):
         return JsonResponse({'success': True, 'message': '评论删除成功'}, status=200)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
