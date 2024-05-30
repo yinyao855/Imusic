@@ -7,5 +7,5 @@ urlpatterns = [
     path('delrecent', views.delete_recent, name='delete'),
     path('hotsongs', views.get_hot_songs, name='hot-songs'),
     path('hotsonglists', views.get_hot_songlists, name='hot-song-lists'),
-    path('hotsingers', views.hot_singers, name='hotsingers')
+    path('hotsingers', views.hot_singers, name='hot-singers')
 ]
