@@ -49,6 +49,8 @@ def singer_update(request, singerid):
 @csrf_exempt
 @require_http_methods(["GET"])
 def singer_get_songs(request, singerid):
-    singer = Singer.objects.get(singerID=singerid)
+    singer = Singer.objects.filter(singerID=singerid).first()
+    if not singer:
+        return JsonResponse({'success': False, 'message': '歌手不存在'}, status=404)
     singer_info = singer.to_dict(request)
     return JsonResponse({'success': True, 'message': '获取歌手信息成功', 'data': singer_info}, status=200)
