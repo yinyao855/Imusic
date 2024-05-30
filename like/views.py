@@ -89,6 +89,8 @@ def liked_songs_delete(request):
         if liked_song:
             liked_song.delete()
             song.like -= 1
+            if song.like < 0:
+                song.like = 0
             song.save()
             return JsonResponse({'success': True, 'message': '歌曲已从喜爱列表中移除',
                                  'data': None, 'token': None}, status=200)
@@ -207,6 +209,8 @@ def liked_songlists_delete(request):
         if liked_songlist:
             liked_songlist.delete()
             songlist.like -= 1
+            if songlist.like < 0:
+                songlist.like = 0
             songlist.save()
             return JsonResponse({'success': True, 'message': '歌单已从喜爱列表中移除',
                                  'data': None, 'token': None}, status=200)
