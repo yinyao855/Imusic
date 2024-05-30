@@ -74,7 +74,7 @@ def user_login(request):
         if user:
             data = user.to_dict(request)
             # 生成token
-            expire_time = datetime.datetime.now() + datetime.timedelta(hours=3)
+            expire_time = datetime.datetime.now() + datetime.timedelta(days=3)
             payload = {
                 'user_id': user.user_id,
                 'username': user.username,
