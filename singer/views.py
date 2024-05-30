@@ -19,7 +19,9 @@ def singer_update(request, singerid):
         return JsonResponse({'success': False, 'message': '没有权限操作'}, status=403)
 
     update_fields = ['singerName']
-    singer = Singer.objects.get(singerID=singerid)
+    singer = Singer.objects.filter(singerID=singerid).first()
+    if not singer:
+        return JsonResponse({'success': False, 'message': '歌手不存在'}, status=404)
     for field in update_fields:
         field_value = data.get(field)
         if field_value is not None and field_value != '':
