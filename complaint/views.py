@@ -116,7 +116,7 @@ def handle_complaint(request):
                      message_type=6,
                      sender=User.objects.get(username='yy'),
                      receiver=complainer)
-        return JsonResponse({'success': True, 'message': ' 处理投诉成功'}, status=200)
+        return JsonResponse({'success': True, 'message': '处理投诉成功'}, status=200)
     except Complaint.DoesNotExist:
         return JsonResponse({'success': False, 'message': '投诉记录不存在'}, status=400)
     except Exception as e:
