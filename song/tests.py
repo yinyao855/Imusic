@@ -13,6 +13,27 @@ from complaint.models import Complaint
 from user.tests import generate_token
 
 
+def delete_files_except(directory, exception_file):
+    """
+    删除指定目录下所有不是 exception_file 的文件。
+    """
+    files = os.listdir(directory)
+
+    for file in files:
+        file_path = os.path.join(directory, file)
+        if os.path.isfile(file_path) and file != exception_file:
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print(f"Error deleting file {file_path}: {e}")
+
+
+cover_directory = os.path.join(settings.MEDIA_ROOT, 'covers/')
+audio_directory = os.path.join(settings.MEDIA_ROOT, 'audios/')
+exception_cover_file = 'test.jpg'
+exception_audio_file = 'test.mp3'
+
+
 class GetUserSongsTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -80,6 +101,8 @@ class GetUserSongsTests(TestCase):
         self.user.delete()
         self.song1.delete()
         self.song2.delete()
+        delete_files_except(cover_directory, exception_cover_file)
+        delete_files_except(audio_directory, exception_audio_file)
 
 
 class SongUploadTests(TestCase):
@@ -236,7 +259,8 @@ class SongUploadTests(TestCase):
 
     def tearDown(self):
         self.user.delete()
-        # Song.objects.all().delete()
+        delete_files_except(cover_directory, exception_cover_file)
+        delete_files_except(audio_directory, exception_audio_file)
 
 
 class GetSongInfoTests(TestCase):
@@ -297,6 +321,8 @@ class GetSongInfoTests(TestCase):
     def tearDown(self):
         self.user.delete()
         self.song.delete()
+        delete_files_except(cover_directory, exception_cover_file)
+        delete_files_except(audio_directory, exception_audio_file)
 
 
 class UpdateSongInfoTests(TestCase):
@@ -378,6 +404,8 @@ class UpdateSongInfoTests(TestCase):
         self.user.delete()
         self.admin.delete()
         self.song.delete()
+        delete_files_except(cover_directory, exception_cover_file)
+        delete_files_except(audio_directory, exception_audio_file)
 
 
 class DeleteSongTests(TestCase):
@@ -459,6 +487,8 @@ class DeleteSongTests(TestCase):
     def tearDown(self):
         self.user.delete()
         self.admin.delete()
+        delete_files_except(cover_directory, exception_cover_file)
+        delete_files_except(audio_directory, exception_audio_file)
 
 
 class GetAllSongsTests(TestCase):
@@ -532,6 +562,8 @@ class GetAllSongsTests(TestCase):
         self.song1.delete()
         self.song2.delete()
         self.song3.delete()
+        delete_files_except(cover_directory, exception_cover_file)
+        delete_files_except(audio_directory, exception_audio_file)
 
 
 class QuerySongsTests(TestCase):
@@ -593,6 +625,8 @@ class QuerySongsTests(TestCase):
         self.song1.delete()
         self.song2.delete()
         self.song3.delete()
+        delete_files_except(cover_directory, exception_cover_file)
+        delete_files_except(audio_directory, exception_audio_file)
 
 
 class GetCommentsTests(TestCase):
@@ -657,6 +691,8 @@ class GetCommentsTests(TestCase):
         self.song.delete()
         self.comment1.delete()
         self.comment2.delete()
+        delete_files_except(cover_directory, exception_cover_file)
+        delete_files_except(audio_directory, exception_audio_file)
 
 class ComplainTests(TestCase):
     def setUp(self):
@@ -754,6 +790,8 @@ class ComplainTests(TestCase):
         self.song.delete()
         self.songlist.delete()
         Complaint.objects.all().delete()
+        delete_files_except(cover_directory, exception_cover_file)
+        delete_files_except(audio_directory, exception_audio_file)
 
 
 class GetInitSingerTests(TestCase):
@@ -817,3 +855,5 @@ class GetInitSingerTests(TestCase):
         self.user.delete()
         Song.objects.all().delete()
         Singer.objects.all().delete()
+        delete_files_except(cover_directory, exception_cover_file)
+        delete_files_except(audio_directory, exception_audio_file)
