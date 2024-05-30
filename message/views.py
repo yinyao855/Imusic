@@ -154,7 +154,7 @@ def read_message(request):
 
 # 删除消息
 @csrf_exempt
-@require_http_methods(["DELETE"])
+# @require_http_methods(["DELETE"])
 def delete_message(request):
     try:
         message_id = request.GET.get('message_id')
