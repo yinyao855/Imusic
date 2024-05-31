@@ -72,8 +72,7 @@ def share_songlist(request):
         user = User.objects.get(username=username)
         r_type = int(request.POST.get('type', 2))
         songlist_id = int(request.POST.get('songlist_id'))
-        songlist = SongList.objects.filter(id=songlist_id, visible=True).first()
-
+        songlist = SongList.objects.get(id=songlist_id, visible=True)
         if r_type == 1:
             friend_name = request.POST.get('friend')
             friend = User.objects.get(username=friend_name)
@@ -119,9 +118,9 @@ def handle_share(request):
 
         ishare = None
         if message_id:
-            ishare = Ishare.objects.filter(content=message_id).first()
+            ishare = Ishare.objects.get(content=message_id)
         elif code:
-            ishare = Ishare.objects.filter(content=code).first()
+            ishare = Ishare.objects.get(content=code)
 
         if ishare.expire_date < datetime.datetime.now():
             return JsonResponse({'success': False, 'message': '分享码不存在或已失效'}, status=200)

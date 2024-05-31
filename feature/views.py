@@ -19,7 +19,7 @@ def get_recent(request):
         # username = request.GET.get('username')
         username = request.username
         if not username:
-            return JsonResponse({'success': False, 'message': '未接收到用户姓名'})
+            return JsonResponse({'success': False, 'message': '未接收到用户姓名'}, status=404)
 
         user = get_object_or_404(User, username=username)
         num = request.GET.get('num', 10)
@@ -49,7 +49,7 @@ def add_recent(request):
         username = request.username
         song_id = request.POST.get('song_id')
         if not username or not song_id:
-            return JsonResponse({'success': False, 'message': '未接收到用户姓名或歌曲id'})
+            return JsonResponse({'success': False, 'message': '未接收到用户姓名或歌曲id'},status=400)
 
         user = get_object_or_404(User, username=username)
         song = get_object_or_404(Song, id=song_id)
@@ -78,7 +78,7 @@ def delete_recent(request):
         username = request.username
         song_id = request.GET.get('song_id')
         if not username or not song_id:
-            return JsonResponse({'success': False, 'message': '未接收到用户姓名或歌曲id'})
+            return JsonResponse({'success': False, 'message': '未接收到用户姓名或歌曲id'}, status=400)
 
         user = get_object_or_404(User, username=username)
         song = get_object_or_404(Song, id=song_id)
@@ -126,6 +126,7 @@ def get_hot_songs(request):
 def hot_singers(request):
     count = Singer.objects.all().count()
     num = request.GET.get('num', int(count))
+
     try:
         singers = Singer.objects.all()[:int(num)]
         singers_data = []
@@ -136,6 +137,7 @@ def hot_singers(request):
                 singers_data.append(singer.to_sim_dict(request))
                 if i == 10:
                     break
+
         return JsonResponse({'success': True, 'data': singers_data})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
