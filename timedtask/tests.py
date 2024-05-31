@@ -60,7 +60,8 @@ class GenerateWeeklyReportsTests(TestCase):
         self.user2.delete()
         self.recent1.delete()
         self.recent2.delete()
-        os.remove('weekly_report.txt')
+        if os.path.exists('weekly_report.txt'):
+            os.remove('weekly_report.txt')
 
 
 class SchedulerTests(TestCase):
