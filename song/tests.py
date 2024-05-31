@@ -25,7 +25,8 @@ def delete_files_except(directory, exception_file):
             try:
                 os.remove(file_path)
             except Exception as e:
-                print(f"Error deleting file {file_path}: {e}")
+                # print(f"Error deleting file {file_path}: {e}")
+                pass
 
 
 cover_directory = os.path.join(settings.MEDIA_ROOT, 'covers/')
