@@ -15,8 +15,8 @@ from user.models import User
 @require_http_methods(["GET"])
 def search_songs(request):
     try:
-        # 假设停用词文件是 'stopwords.txt'
-        with open('../stopwords.txt', 'r', encoding='utf-8') as f:
+        # 停用词文件是 'stopwords.txt'
+        with open('stopwords.txt', 'r', encoding='utf-8') as f:
             stopwords = set([line.strip() for line in f.readlines()])
         keyword = request.GET.get('keyword', '')
         num = request.GET.get('num', '')
@@ -28,7 +28,7 @@ def search_songs(request):
             # 使用jieba对关键词进行分词
             keywords = list(set(jieba.cut_for_search(keyword)))
             filtered_words = [word for word in keywords if word not in stopwords]
-            print(filtered_words)
+            # print(filtered_words)
             if ' ' in keywords:
                 keywords.remove(' ')
 
