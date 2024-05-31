@@ -93,9 +93,11 @@ def user_login(request):
 @require_http_methods(["GET"])
 def get_user_info(request, username):
     try:
-        flag = 1
-        if request.role != 'admin' and request.username != username:
-            flag = 0
+        flag = 0
+        # 判断request中是否有username和role字段
+        if hasattr(request, 'username') and hasattr(request, 'role'):
+            if request.role == 'admin' or request.username == username:
+                flag = 1
         user = User.objects.get(username=username)
         data = user.to_dict(request) if flag else user.to_pub_dict(request)
         return JsonResponse({'success': True, 'message': '获取用户信息成功', 'data': data}, status=200)
