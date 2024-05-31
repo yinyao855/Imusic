@@ -10,6 +10,7 @@ exclude_path = [
     # 用户表
     '/users/login',
     '/users/send-code',
+    '/users/info',
     '/users/alldata',
     # '/users/info',
     # 歌单表
