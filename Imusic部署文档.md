@@ -105,3 +105,12 @@ cd /www/wwwroot/ && git clone https://gitee.com/lylinux/DjangoBlog.git
 <img src="Imusic部署文档.assets/image-20240609121913371.png" alt="image-20240609121913371" style="zoom:50%;" />
 
 这样我们的部署就完成了！😎
+
+## 权重分配
+
+| 姓名 | 尹耀 | 薛惠天  | 卢思文  | 张旖霜  | 牛梓涵  |
+| :--: | :--: |:----:|:----:|:----:|:----:|
+| 权重 |  1   |  1   |  1   |  1   |  1   |
+
+### 组员签字			
+<img src="Imusic部署文档.assets/nzh.jpg" style="zoom:50%;"  alt="nzh"/>
