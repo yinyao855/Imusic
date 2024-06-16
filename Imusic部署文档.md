@@ -1,6 +1,6 @@
 # 部署文档
 
-[toc]
+[TOC]
 
 ## 部署说明
 
@@ -117,3 +117,5 @@ cd /www/wwwroot/ && git clone https://gitee.com/lylinux/DjangoBlog.git
 <img src="Imusic部署文档.assets/zys.jpg" style="zoom:50%;"  alt="zys"/>
 
 ![5574443e22221aa558ac773bef03678](Imusic部署文档.assets/5574443e22221aa558ac773bef03678.jpg)
+
+<img src="Imusic部署文档.assets/lsw.jpg" style="zoom:50%;"  alt="lsw"/>
