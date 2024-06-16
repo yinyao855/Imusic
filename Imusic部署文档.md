@@ -119,3 +119,5 @@ cd /www/wwwroot/ && git clone https://gitee.com/lylinux/DjangoBlog.git
 ![5574443e22221aa558ac773bef03678](Imusic部署文档.assets/5574443e22221aa558ac773bef03678.jpg)
 
 <img src="Imusic部署文档.assets/lsw.jpg" style="zoom:50%;"  alt="lsw"/>
+
+![e896b0fbf083dd6100a1f4d348835c4](Imusic部署文档.assets/e896b0fbf083dd6100a1f4d348835c4-1718535379323-2.jpg)
