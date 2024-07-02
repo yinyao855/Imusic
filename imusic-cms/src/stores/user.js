@@ -29,6 +29,15 @@ export const useUserStore = defineStore('user', () => {
             isLogin.value = true
         }
 
+        function userLogout() {
+            token.value = ''
+            username.value = ''
+            avatar.value = ''
+            role.value = ''
+            isLogin.value = false
+            userInfo.value = {}
+        }
+
         function setUserInfo(value) {
             userInfo.value = value
         }
@@ -45,6 +54,7 @@ export const useUserStore = defineStore('user', () => {
             setAvatar,
             setRole,
             userLogin,
+            userLogout,
             setUserInfo
         }
     },
