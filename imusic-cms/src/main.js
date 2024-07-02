@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { createPersistPlugin } from '@pinia/persist'
+
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate' //引入持久化插件
 
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
@@ -13,7 +14,7 @@ import router from './router'
 const app = createApp(App)
 
 const pinia = createPinia()
-pinia.use(createPersistPlugin())
+pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus, {
