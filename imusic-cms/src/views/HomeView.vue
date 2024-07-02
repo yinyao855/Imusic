@@ -1,9 +1,15 @@
 <script setup>
-import TheWelcome from '../components/TheWelcome.vue'
+import {useUserStore} from "@/stores/user.js";
+const userStore = useUserStore()
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+<div>
+<h1>Home</h1>
+  <p>This is the home page</p>
+</div>
 </template>
+
+<style scoped>
+
+</style>
