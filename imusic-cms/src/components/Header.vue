@@ -1,10 +1,7 @@
 <script setup>
 import {useUserStore} from "@/stores/user.js";
 import {computed} from "vue"
-import {Expand, Fold} from "@element-plus/icons-vue";
 import router from "@/router/index.js";
-
-const isCollapse = defineModel('isCollapse');
 
 const userStore = useUserStore();
 
@@ -41,10 +38,6 @@ function logout() {
           </div>
         </template>
       </el-popover>
-    </div>
-    <div @click="isCollapse = !isCollapse" class="ml-20">
-      <el-icon v-if="isCollapse" size="32"><Expand /></el-icon>
-      <el-icon v-if="!isCollapse" size="32"><Fold /></el-icon>
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import {addTab} from "@/js/tabManager.js";
 import {
   Menu as IconMenu,
   Setting,
@@ -7,11 +7,10 @@ import {
 } from '@element-plus/icons-vue'
 
 const isCollapse = defineModel('isCollapse')
-const handleOpen = (key, keyPath) => {
-  console.log(key, keyPath)
-}
-const handleClose = (key, keyPath) => {
-  console.log(key, keyPath)
+
+const handleSelect = (key, keyPath) => {
+  console.log(key)
+  addTab(key)
 }
 </script>
 
@@ -20,8 +19,7 @@ const handleClose = (key, keyPath) => {
       default-active="1"
       class="el-menu-vertical-demo h-full"
       :collapse="isCollapse"
-      @open="handleOpen"
-      @close="handleClose"
+      @select="handleSelect"
   >
     <el-menu-item index="1">
       <el-icon><House /></el-icon>
@@ -36,15 +34,15 @@ const handleClose = (key, keyPath) => {
         <el-icon><Headset /></el-icon>
         歌曲管理
       </el-menu-item>
-      <el-menu-item index="2-1">
+      <el-menu-item index="2-2">
         <el-icon><Files /></el-icon>
         歌单管理
       </el-menu-item>
-      <el-menu-item index="2-2">
+      <el-menu-item index="2-3">
         <el-icon><Star /></el-icon>
         歌手管理
       </el-menu-item>
-      <el-menu-item index="2-3">
+      <el-menu-item index="2-4">
         <el-icon><User /></el-icon>
         用户管理
       </el-menu-item>
