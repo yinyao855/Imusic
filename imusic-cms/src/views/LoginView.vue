@@ -22,7 +22,7 @@ const login = () => {
   // 发送请求
   instance.post('/users/login', formData)
       .then(res => {
-        console.log(res)
+        // console.log(res)
         if (res.data.success === true) {
           if (res.data.data.role !== 'admin') {
             ElMessage.warning('您不是管理员')

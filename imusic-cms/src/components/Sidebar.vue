@@ -9,7 +9,7 @@ import {
 const isCollapse = defineModel('isCollapse')
 
 const handleSelect = (key, keyPath) => {
-  console.log(key)
+  // console.log(key)
   addTab(key)
 }
 </script>
