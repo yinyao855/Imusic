@@ -50,7 +50,7 @@ const login = () => {
 <template>
   <div class="h-screen w-full flex bg-with-image">
     <div class="m-auto rounded-2xl w-96 h-96 p-12 shadow-2xl bg-white">
-      <div class="font-bold text-3xl mb-10">Imusic 后台管理系统</div>
+      <div class="font-bold text-3xl mb-10">Imusic 内容管理系统</div>
       <el-form
           label-position="right"
           label-width="auto"

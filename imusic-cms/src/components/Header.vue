@@ -18,7 +18,7 @@ function logout() {
 <template>
   <div class="w-full h-full flex items-center">
     <el-image src="/logo.png" class="h-10 aspect-square ml-10"/>
-    <h1 class="text-2xl font-semibold ml-5">Imusic 后台管理系统</h1>
+    <h1 class="text-2xl font-semibold ml-5">Imusic 内容管理系统</h1>
     <div class="ml-96">
       <el-popover width="220px">
         <template #reference>
