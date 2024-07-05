@@ -3,7 +3,7 @@ import {onMounted, reactive, ref, watch} from "vue";
 import instance from "@/js/axiosConfig.js";
 import {Search} from "@element-plus/icons-vue";
 import EditUser from "@/components/EditUser.vue";
-import {getUserInfo} from "@/js/contentManager.js";
+import {getUserInfo, setEditMode} from "@/js/contentManager.js";
 
 const userList = ref([])
 let rowData = []
@@ -75,6 +75,7 @@ const search = () => {
 const editVisible = ref(false)
 function editUser(row) {
   getUserInfo(row.username, row.role)
+  setEditMode(1)
   editVisible.value = true
 }
 
@@ -121,7 +122,7 @@ watch(input, (val) => {
 <template>
   <div class="w-full h-full">
     <!-- 编辑用户 -->
-    <EditUser v-model:visible="editVisible"/>
+    <EditUser v-model:visible="editVisible" @upInfo="getUserList"/>
     <div class="w-full flex">
       <h1 class="m-auto text-2xl font-black">用户资源管理</h1>
     </div>

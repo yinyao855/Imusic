@@ -1,11 +1,10 @@
 <script setup>
 import {reactive, ref} from "vue";
-import {ElMessage} from "element-plus";
-import {curEditUer} from "@/js/contentManager.js";
-import {Plus} from "@element-plus/icons-vue";
+import {curEditUer, editMode, setUserInfo, changeUserRole} from "@/js/contentManager.js";
 
 const dialogFormVisible = defineModel("visible");
 const formLabelWidth = '140px'
+const emit = defineEmits(['upInfo'])
 
 const form = reactive({
   email: '',
@@ -13,58 +12,60 @@ const form = reactive({
   role: '',
 })
 
+const rules = {
+  email: [
+    {required: true, message: '请输入用户邮箱', trigger: 'blur'},
+    {type: 'email', message: '邮箱格式不正确', trigger: 'blur'}
+  ],
+  bio: [
+    {required: true, message: '请输入用户简介', trigger: 'blur'}
+  ]
+}
+
 const userAvatar = ref('')
 
-function tempSave() {
-  console.log('tempSave')
-  ElMessage.success('暂存成功')
-}
-
 function initForm() {
-  console.log('initForm')
-  // console.log(curEditUer.avatar)
-  form.email = curEditUer.email
-  form.bio = curEditUer.bio
-  form.role = curEditUer.role
-  userAvatar.value = curEditUer.avatar
+  if (editMode) {
+    form.email = curEditUer.email
+    form.bio = curEditUer.bio
+    form.role = curEditUer.role
+    userAvatar.value = curEditUer.avatar
+  }
+  fileList.value = []
 }
 
-function handleAvatarSuccess(res, file) {
-  console.log(res)
+const fileList = ref([])
+
+function handleAvatar(file) {
   userAvatar.value = URL.createObjectURL(file.raw)
 }
 
-function beforeAvatarUpload(file) {
-  const isJPG = file.type === 'image/jpeg'
-  const isPNG = file.type === 'image/png'
-  const isLt2M = file.size / 1024 / 1024 < 2
-
-  if (!isJPG && !isPNG) {
-    ElMessage.error('上传头像图片只能是 JPG 格式!')
+async function save() {
+  const formData = new FormData();
+  // console.log(fileList.value)
+  if (fileList.value.length > 0) {
+    formData.append('avatar', fileList.value[0].raw);
   }
-  if (!isLt2M) {
-    ElMessage.error('上传头像图片大小不能超过 2MB!')
+  formData.append('email', form.email);
+  formData.append('bio', form.bio);
+
+  try {
+    await setUserInfo(curEditUer.username, formData);
+    if (form.role !== curEditUer.role) {
+      await changeUserRole(curEditUer.username, form.role);
+    }
+    emit('upInfo');
+    dialogFormVisible.value = false;
+  } catch (error) {
+    console.error('Error saving user info:', error);
   }
-  return (isJPG || isPNG) && isLt2M
-}
-
-function handlePictureCardPreview(file) {
-  console.log(file)
-}
-
-function handleRemove(file) {
-  console.log(file)
-}
-
-function save() {
-  console.log('save')
 }
 
 </script>
 
 <template>
   <el-dialog v-model="dialogFormVisible" title="编辑用户信息" width="500" @opened="initForm">
-    <el-form :model="form">
+    <el-form :model="form" :rules="rules">
       <el-form-item label="用户邮箱" :label-width="formLabelWidth">
         <el-input v-model="form.email"/>
       </el-form-item>
@@ -74,18 +75,24 @@ function save() {
       <!-- 用户头像 -->
       <el-form-item label="用户头像" :label-width="formLabelWidth">
         <el-upload
-            class="avatar-uploader"
-            list-type="picture-card"
-            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload"
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
+            list-type="text"
+            action="none"
+            accept="image/jpeg,image/png"
+            :limit="1"
+            v-model:file-list="fileList"
+            :auto-upload="false"
+            :on-change="handleAvatar"
         >
-          <el-image v-if="userAvatar" :src="userAvatar" class="h-32 w-32" alt="用户头像"/>
-          <el-icon v-else><Plus /></el-icon>
+          <template #trigger>
+            <el-button type="primary" size="small">上传头像</el-button>
+          </template>
+          <template #tip>
+            <div class="el-upload__tip">
+              只能上传jpg/png文件，且不超过2MB
+            </div>
+          </template>
         </el-upload>
+        <el-image v-if="userAvatar" :src="userAvatar" class="h-32 w-32"/>
       </el-form-item>
       <el-form-item label="用户身份" :label-width="formLabelWidth">
         <el-select v-model="form.role" placeholder="选择身份">
@@ -97,10 +104,7 @@ function save() {
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button @click="tempSave">暂存</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">
-          确认
-        </el-button>
+        <el-button type="primary" @click="save">确认</el-button>
       </div>
     </template>
   </el-dialog>

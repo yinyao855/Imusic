@@ -130,6 +130,7 @@ watch(input, (val) => {
         <el-table-column label="操作" fixed="right" width="180">
           <template #default="scope">
             <el-button type="primary" link>编辑</el-button>
+            <el-button type="success" link>管理歌曲</el-button>
             <el-button type="danger" link>删除</el-button>
           </template>
         </el-table-column>

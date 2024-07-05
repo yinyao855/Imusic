@@ -2,6 +2,7 @@
 import {reactive} from 'vue'
 import {ElMessage} from "element-plus";
 import instance from "@/js/axiosConfig.js";
+import {setAuthToken} from "@/js/axiosConfig.js";
 import {useUserStore} from "@/stores/user.js";
 const userStore = useUserStore()
 
@@ -31,6 +32,7 @@ const login = () => {
           ElMessage.success('登录成功')
           let new_data = res.data.data
           userStore.setToken(res.data.token)
+          setAuthToken(res.data.token)
           userStore.setUsername(new_data.username)
           userStore.setAvatar(new_data.avatar)
           userStore.setRole(new_data.role)

@@ -1,16 +1,20 @@
 // 管理歌曲、歌单、歌手、用户页面信息
 import instance from "@/js/axiosConfig.js";
-import {ElMessage} from "element-plus";
+import {ElMessage, ElNotification} from "element-plus";
 
-const userList = {}
+// 编辑模式，0为新建，1为修改
+let editMode = 0
+
 let curEditUer = {}
+
+function setEditMode(mode) {
+    editMode = mode
+}
 
 function getUserInfo(username, role) {
     instance.get(`/users/info/${username}`)
         .then((response) => {
             if (response.data.success === true) {
-                // console.log(response.data)
-                userList[username] = response.data.data
                 curEditUer = response.data.data
                 curEditUer.role = role
             }
@@ -23,4 +27,62 @@ function getUserInfo(username, role) {
         })
 }
 
-export {userList, curEditUer, getUserInfo}
+function setUserInfo(username, formData) {
+    return new Promise((resolve, reject) => {
+        instance.post(`users/update/${username}`, formData)
+            .then(r => {
+                if (r.data.success === true) {
+                    ElNotification({
+                        title: 'Success',
+                        message: '用户信息修改成功',
+                        type: 'success'
+                    });
+                    resolve(r.data); // Resolve with data if successful
+                } else {
+                    ElNotification({
+                        title: 'Error',
+                        message: r.data.message,
+                        type: 'error'
+                    });
+                    reject(r.data.message); // Reject with error message
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                reject(error); // Reject with error object
+            });
+    });
+}
+
+function changeUserRole(username, role) {
+    return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        formData.append('role', role);
+        formData.append('dir_user', username);
+
+        instance.post('users/change-role', formData)
+            .then(r => {
+                if (r.data.success === true) {
+                    ElNotification({
+                        title: 'Success',
+                        message: '用户角色修改成功',
+                        type: 'success'
+                    });
+                    resolve(r.data); // Resolve with data if successful
+                } else {
+                    ElNotification({
+                        title: 'Error',
+                        message: r.data.message,
+                        type: 'error'
+                    });
+                    reject(r.data.message); // Reject with error message
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                reject(error); // Reject with error object
+            });
+    });
+}
+
+export {curEditUer, editMode, getUserInfo, setEditMode, setUserInfo, changeUserRole}
