@@ -2,6 +2,8 @@
 import {onMounted, reactive, ref, watch} from "vue";
 import instance from "@/js/axiosConfig.js";
 import {Search} from "@element-plus/icons-vue";
+import {getSongInfo, setEditMode} from "@/js/contentManager.js";
+import EditSong from "@/components/EditSong.vue";
 
 const musicList = ref([])
 let rowData = []
@@ -74,6 +76,19 @@ const search = () => {
   }
 }
 
+// 编辑歌曲
+const editVisible = ref(false)
+function editSong(row) {
+  getSongInfo(row.id)
+  setEditMode(1)
+  editVisible.value = true
+}
+
+function newSong() {
+  setEditMode(0)
+  editVisible.value = true
+}
+
 const tableData = () => {
   return musicList.value.filter(
       (item, index) =>
@@ -127,6 +142,8 @@ watch(input, (val) => {
 
 <template>
   <div class="w-full h-full">
+    <!-- 编辑歌曲 -->
+    <EditSong v-model:visible="editVisible" @upInfo="getMusic"/>
     <div class="w-full flex">
       <h1 class="m-auto text-2xl font-black">音乐资源管理</h1>
     </div>
@@ -138,7 +155,7 @@ watch(input, (val) => {
       <el-input v-model="input" style="width: 240px" class="mr-3" clearable
                 placeholder="Type something" :prefix-icon="Search" @keydown.enter="search"/>
       <el-button type="success" plain @click="search">搜索</el-button>
-      <el-button type="primary" plain>上传歌曲</el-button>
+      <el-button type="primary" plain @click="newSong">上传歌曲</el-button>
     </div>
     <div>
       <el-table :data="tableData()" border style="width: 100%" max-height="450">
@@ -152,7 +169,7 @@ watch(input, (val) => {
         <el-table-column prop="upload_date" label="上传日期" :formatter="dateFormater" sortable width="180"/>
         <el-table-column label="操作" fixed="right" width="180">
           <template #default="scope">
-            <el-button type="primary" link>编辑</el-button>
+            <el-button type="primary" link @click="editSong(scope.row)">编辑</el-button>
             <el-button type="danger" link>删除</el-button>
           </template>
         </el-table-column>

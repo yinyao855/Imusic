@@ -1,6 +1,7 @@
 <script setup>
 import {reactive, ref} from "vue";
 import {curEditUer, editMode, setUserInfo, changeUserRole} from "@/js/contentManager.js";
+import {ElMessageBox} from "element-plus";
 
 const dialogFormVisible = defineModel("visible");
 const formLabelWidth = '140px'
@@ -61,6 +62,20 @@ async function save() {
   }
 }
 
+const open = () => {
+  ElMessageBox.confirm(
+      '确认修改吗？',
+      '消息提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(() => {
+        save()
+      })
+}
 </script>
 
 <template>
@@ -104,7 +119,7 @@ async function save() {
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="save">确认</el-button>
+        <el-button type="primary" @click="open">确认</el-button>
       </div>
     </template>
   </el-dialog>

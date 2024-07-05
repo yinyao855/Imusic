@@ -6,6 +6,7 @@ import {ElMessage, ElNotification} from "element-plus";
 let editMode = 0
 
 let curEditUer = {}
+let curEditSong = {}
 
 function setEditMode(mode) {
     editMode = mode
@@ -17,6 +18,21 @@ function getUserInfo(username, role) {
             if (response.data.success === true) {
                 curEditUer = response.data.data
                 curEditUer.role = role
+            }
+            else {
+                ElMessage.error(response.data.message)
+            }
+        })
+        .catch((error) => {
+            console.log(error)
+        })
+}
+
+function getSongInfo(songId) {
+    instance.get(`/songs/info/${songId}`)
+        .then((response) => {
+            if (response.data.success === true) {
+                curEditSong = response.data.data
             }
             else {
                 ElMessage.error(response.data.message)
@@ -85,4 +101,41 @@ function changeUserRole(username, role) {
     });
 }
 
-export {curEditUer, editMode, getUserInfo, setEditMode, setUserInfo, changeUserRole}
+function setSongInfo(songId, formData) {
+    return new Promise((resolve, reject) => {
+        instance.post(`songs/update/${songId}`, formData)
+            .then(r => {
+                if (r.data.success === true) {
+                    ElNotification({
+                        title: 'Success',
+                        message: '歌曲信息修改成功',
+                        type: 'success'
+                    });
+                    resolve(r.data);
+                } else {
+                    ElNotification({
+                        title: 'Error',
+                        message: r.data.message,
+                        type: 'error'
+                    });
+                    reject(r.data.message);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+    });
+}
+
+export {
+    curEditUer,
+    curEditSong,
+    editMode,
+    getUserInfo,
+    getSongInfo,
+    setEditMode,
+    setUserInfo,
+    setSongInfo,
+    changeUserRole
+}
