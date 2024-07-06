@@ -80,6 +80,9 @@ function fetchLyric(url) {
 }
 
 function getLyricName(url) {
+  if (!url) {
+    return ''
+  }
   return url.split('/').pop()
 }
 

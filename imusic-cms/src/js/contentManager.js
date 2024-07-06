@@ -7,6 +7,7 @@ let editMode = 0
 
 let curEditUer = {}
 let curEditSong = {}
+let curEditSongList = {}
 
 function setEditMode(mode) {
     editMode = mode
@@ -41,6 +42,22 @@ function getSongInfo(songId) {
         .catch((error) => {
             console.log(error)
         })
+}
+
+function getSongListInfo(songListId) {
+    instance.get(`/songlists/info/${songListId}`)
+        .then((response) => {
+            if (response.data.success === true) {
+                curEditSongList = response.data.data
+            }
+            else {
+                ElMessage.error(response.data.message)
+            }
+        })
+        .catch((error) => {
+            console.log(error)
+        })
+
 }
 
 function setUserInfo(username, formData) {
@@ -128,6 +145,34 @@ function setSongInfo(songId, formData) {
     });
 }
 
+function setSongListInfo(songListId, formData) {
+    return new Promise((resolve, reject) => {
+        instance.post(`songlists/update/${songListId}`, formData)
+            .then(r => {
+                if (r.data.success === true) {
+                    ElNotification({
+                        title: 'Success',
+                        message: '歌单信息修改成功',
+                        type: 'success'
+                    });
+                    resolve(r.data);
+                } else {
+                    ElNotification({
+                        title: 'Error',
+                        message: r.data.message,
+                        type: 'error'
+                    });
+                    reject(r.data.message);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+    });
+
+}
+
 // 上传歌曲
 function createSong(formData) {
     return new Promise((resolve, reject) => {
@@ -156,15 +201,47 @@ function createSong(formData) {
     });
 }
 
+// 创建歌单
+function createSongList(formData) {
+    return new Promise((resolve, reject) => {
+        instance.post('songlists/create', formData)
+            .then(r => {
+                if (r.data.success === true) {
+                    ElNotification({
+                        title: 'Success',
+                        message: '歌单创建成功',
+                        type: 'success'
+                    });
+                    resolve(r.data);
+                } else {
+                    ElNotification({
+                        title: 'Error',
+                        message: r.data.message,
+                        type: 'error'
+                    });
+                    reject(r.data.message);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+    });
+}
+
 export {
     curEditUer,
     curEditSong,
+    curEditSongList,
     editMode,
     getUserInfo,
     getSongInfo,
+    getSongListInfo,
     setEditMode,
     setUserInfo,
     setSongInfo,
+    setSongListInfo,
     changeUserRole,
-    createSong
+    createSong,
+    createSongList
 }
