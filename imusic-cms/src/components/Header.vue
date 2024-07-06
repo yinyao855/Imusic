@@ -2,6 +2,7 @@
 import {useUserStore} from "@/stores/user.js";
 import {computed} from "vue"
 import router from "@/router/index.js";
+import {ElMessage} from "element-plus";
 
 const userStore = useUserStore();
 
@@ -12,6 +13,10 @@ const userInfo = computed(() => {
 function logout() {
   userStore.userLogout();
   router.push('/login');
+}
+
+function changeInfo() {
+  ElMessage.info('暂不支持修改用户信息');
 }
 </script>
 
@@ -32,7 +37,7 @@ function logout() {
             <p class="text-lg mb-4">当前用户: {{ userInfo.username }}</p>
             <p class="text-sm mb-4">{{ userInfo.email }}</p>
             <div class="flex">
-              <el-button type="success" plain>修改信息</el-button>
+              <el-button type="success" plain @click="changeInfo">修改信息</el-button>
               <el-button type="primary" plain @click="logout">退出登录</el-button>
             </div>
           </div>

@@ -4,6 +4,7 @@ import instance from "@/js/axiosConfig.js";
 import {Search} from "@element-plus/icons-vue";
 import EditUser from "@/components/EditUser.vue";
 import {getUserInfo, setEditMode} from "@/js/contentManager.js";
+import {ElMessage} from "element-plus";
 
 const userList = ref([])
 let rowData = []
@@ -77,6 +78,11 @@ function editUser(row) {
   getUserInfo(row.username, row.role)
   setEditMode(1)
   editVisible.value = true
+}
+
+// 删除用户
+function deleteUser() {
+  ElMessage.info("暂不支持删除用户")
 }
 
 const tableData = () => {
@@ -160,7 +166,7 @@ watch(input, (val) => {
         <el-table-column label="操作" fixed="right" width="180">
           <template #default="scope">
             <el-button type="primary" link @click="editUser(scope.row)">编辑</el-button>
-            <el-button type="danger" link>删除</el-button>
+            <el-button type="danger" link @click="deleteUser">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

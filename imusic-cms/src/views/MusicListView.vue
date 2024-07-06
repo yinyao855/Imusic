@@ -4,6 +4,7 @@ import instance from "@/js/axiosConfig.js";
 import {Search} from "@element-plus/icons-vue";
 import EditSongList from "@/components/EditSongList.vue";
 import {getSongListInfo, setEditMode} from "@/js/contentManager.js";
+import {ElMessage, ElMessageBox} from "element-plus";
 
 const musicList = ref([])
 let rowData = []
@@ -85,6 +86,37 @@ function newSongList() {
   editVisible.value = true
 }
 
+// 删除歌单
+const open = (row) => {
+  ElMessageBox.confirm(
+      '确认删除该歌单吗？',
+      '消息提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(() => {
+        deleteSongList(row)
+      })
+}
+
+function deleteSongList(row) {
+  instance.delete(`/songlists/delete/${row.id}`)
+      .then(res => {
+        if (res.data.success === true) {
+          ElMessage.success('歌单删除成功')
+        } else {
+          ElMessage.success('歌单删除失败')
+        }
+        getSongList()
+      })
+      .catch(err => {
+        console.log(err)
+      })
+}
+
 const tableData = () => {
   return musicList.value.filter(
       (item, index) =>
@@ -149,7 +181,7 @@ watch(input, (val) => {
           <template #default="scope">
             <el-button type="primary" link @click="editSongList(scope.row)">编辑</el-button>
             <el-button type="success" link>管理歌曲</el-button>
-            <el-button type="danger" link>删除</el-button>
+            <el-button type="danger" link @click="open(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
