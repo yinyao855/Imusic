@@ -3,6 +3,7 @@ import {reactive, ref} from "vue";
 import {curEditSong, editMode, setSongInfo} from "@/js/contentManager.js";
 import axios from "axios";
 import {ElMessageBox} from "element-plus";
+import {THEME_CHOICES, SCENE_CHOICES, MOOD_CHOICES, STYLE_CHOICES, LANGUAGE_CHOICES} from "@/js/constant.js";
 
 const dialogFormVisible = defineModel("visible");
 const formLabelWidth = '140px'
@@ -12,6 +13,11 @@ const form = reactive({
   title: '',
   singer: '',
   introduction: '',
+  tag_theme: '',
+  tag_scene: '',
+  tag_mood: '',
+  tag_style: '',
+  tag_language: '',
 })
 
 const songCover = ref('')
@@ -25,15 +31,24 @@ function initForm() {
     form.title = curEditSong.title
     form.singer = curEditSong.singer
     form.introduction = curEditSong.introduction
+    form.tag_theme = curEditSong.tag_theme
+    form.tag_scene = curEditSong.tag_scene
+    form.tag_mood = curEditSong.tag_mood
+    form.tag_style = curEditSong.tag_style
+    form.tag_language = curEditSong.tag_language
     songCover.value = curEditSong.cover
     songAudio.value = curEditSong.audio
     fetchLyric(curEditSong.lyric)
     lyricName = getLyricName(curEditSong.lyric)
-  }
-  else{
+  } else {
     form.title = ''
     form.singer = ''
     form.introduction = ''
+    form.tag_theme = ''
+    form.tag_scene = ''
+    form.tag_mood = ''
+    form.tag_style = ''
+    form.tag_language = ''
     songCover.value = ''
     songAudio.value = ''
     songLyric.value = ''
@@ -46,7 +61,11 @@ function initForm() {
 }
 
 function fetchLyric(url) {
-  axios.get(url)
+  axios.get(url, {
+    params: {
+      timestamp: Date.now() // 添加当前时间戳
+    }
+  })
       .then(res => {
         songLyric.value = res.data
         rawLyric = res.data
@@ -93,6 +112,11 @@ async function save() {
     formData.append('lyric', file, lyricName);
   }
 
+  formData.append('tag_theme', form.tag_theme);
+  formData.append('tag_scene', form.tag_scene);
+  formData.append('tag_mood', form.tag_mood);
+  formData.append('tag_style', form.tag_style);
+  formData.append('tag_language', form.tag_language);
   formData.append('title', form.title);
   formData.append('singer', form.singer);
   formData.append('introduction', form.introduction);
@@ -102,7 +126,7 @@ async function save() {
     emit('upInfo');
     dialogFormVisible.value = false;
   } catch (error) {
-    console.error('Error saving user info:', error);
+    console.error('Error saving song info:', error);
   }
 }
 
@@ -134,6 +158,32 @@ const open = () => {
       </el-form-item>
       <el-form-item label="歌曲简介" :label-width="formLabelWidth">
         <el-input v-model="form.introduction" type="textarea" autosize/>
+      </el-form-item>
+      <!-- 歌曲标签 -->
+      <el-form-item label="主题标签" :label-width="formLabelWidth">
+        <el-select v-model="form.tag_theme" placeholder="请选择标签">
+          <el-option v-for="item in THEME_CHOICES" :key="item" :value="item"/>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="场景标签" :label-width="formLabelWidth">
+        <el-select v-model="form.tag_scene" placeholder="请选择标签">
+          <el-option v-for="item in SCENE_CHOICES" :key="item" :value="item"/>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="情感标签" :label-width="formLabelWidth">
+        <el-select v-model="form.tag_mood" placeholder="请选择标签">
+          <el-option v-for="item in MOOD_CHOICES" :key="item" :value="item"/>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="风格标签" :label-width="formLabelWidth">
+        <el-select v-model="form.tag_style" placeholder="请选择标签">
+          <el-option v-for="item in STYLE_CHOICES" :key="item" :value="item"/>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="语言标签" :label-width="formLabelWidth">
+        <el-select v-model="form.tag_language" placeholder="请选择标签">
+          <el-option v-for="item in LANGUAGE_CHOICES" :key="item" :value="item"/>
+        </el-select>
       </el-form-item>
       <!-- 歌曲封面 -->
       <el-form-item label="歌曲封面" :label-width="formLabelWidth">

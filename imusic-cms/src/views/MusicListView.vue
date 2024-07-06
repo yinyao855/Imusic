@@ -118,7 +118,7 @@ watch(input, (val) => {
       <el-table :data="tableData()" border max-height="450">
         <el-table-column type="index" fixed :index="indexMethod"/>
         <el-table-column prop="title" fixed label="歌单名" width="180"/>
-        <el-table-column fixed label="封面图" width="150">
+        <el-table-column label="封面图" width="150">
           <template #default="scope">
             <el-image :src="scope.row.cover" :preview-src-list="[scope.row.cover]"
                       preview-teleported class="w-16 h-16 m-auto"/>

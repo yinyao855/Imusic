@@ -78,6 +78,7 @@ const search = () => {
 
 // 编辑歌曲
 const editVisible = ref(false)
+
 function editSong(row) {
   getSongInfo(row.id)
   setEditMode(1)
@@ -98,11 +99,11 @@ const tableData = () => {
 };
 
 const formatter = (row, column, cellValue) => {
-  if(cellValue && cellValue !== "null"){ //不包含值为 0 的情况 另做判断
+  if (cellValue && cellValue !== "null") { //不包含值为 0 的情况 另做判断
     return cellValue
-  }else if(cellValue === 0){ //cellValue会自动将0值过滤出来不展示 单独做判断
+  } else if (cellValue === 0) { //cellValue会自动将0值过滤出来不展示 单独做判断
     return 0
-  }else{
+  } else {
     return '--' //没有值时展示 --
   }
 }
@@ -162,6 +163,31 @@ watch(input, (val) => {
         <el-table-column type="index" fixed :index="indexMethod"/>
         <el-table-column prop="title" fixed label="歌曲名" width="180"/>
         <el-table-column prop="singer" label="歌手" width="180"/>
+        <el-table-column label="封面图" width="150">
+          <template #default="scope">
+            <el-image :src="scope.row.cover" :preview-src-list="[scope.row.cover]"
+                      preview-teleported class="w-16 h-16 m-auto"/>
+          </template>
+        </el-table-column>
+        <el-table-column label="标签" width="180">
+          <template #default="scope">
+            <el-tag v-if="scope.row.tag_theme" :key="scope.row.tag_theme" type="primary" class="mr-1 mb-1">
+              {{ scope.row.tag_theme }}
+            </el-tag>
+            <el-tag v-if="scope.row.tag_scene" :key="scope.row.tag_scene" type="success" class="mr-1 mb-1">
+              {{ scope.row.tag_scene }}
+            </el-tag>
+            <el-tag v-if="scope.row.tag_mood" :key="scope.row.tag_mood" type="info" class="mr-1 mb-1">
+              {{ scope.row.tag_mood }}
+            </el-tag>
+            <el-tag v-if="scope.row.tag_style" :key="scope.row.tag_style" type="warning" class="mr-1 mb-1">
+              {{ scope.row.tag_style }}
+            </el-tag>
+            <el-tag v-if="scope.row.tag_language" :key="scope.row.tag_language" type="danger" class="mr-1 mb-1">
+              {{ scope.row.tag_language }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="introduction" label="介绍" show-overflow-tooltip :formatter="formatter" width="180"/>
         <el-table-column prop="duration" label="时长" :formatter="durationFormater" width="180"/>
         <el-table-column prop="like" label="喜欢人数" sortable width="180"/>
@@ -170,6 +196,7 @@ watch(input, (val) => {
         <el-table-column label="操作" fixed="right" width="180">
           <template #default="scope">
             <el-button type="primary" link @click="editSong(scope.row)">编辑</el-button>
+            <el-button type="success" link>添到歌单</el-button>
             <el-button type="danger" link>删除</el-button>
           </template>
         </el-table-column>
