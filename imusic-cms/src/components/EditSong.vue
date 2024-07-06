@@ -1,9 +1,11 @@
 <script setup>
 import {reactive, ref} from "vue";
-import {curEditSong, editMode, setSongInfo} from "@/js/contentManager.js";
+import {createSong, curEditSong, editMode, setSongInfo} from "@/js/contentManager.js";
 import axios from "axios";
-import {ElMessageBox} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
 import {THEME_CHOICES, SCENE_CHOICES, MOOD_CHOICES, STYLE_CHOICES, LANGUAGE_CHOICES} from "@/js/constant.js";
+import {useUserStore} from "@/stores/user.js";
+const userStore = useUserStore();
 
 const dialogFormVisible = defineModel("visible");
 const formLabelWidth = '140px'
@@ -130,9 +132,53 @@ async function save() {
   }
 }
 
+async function create() {
+  const formData = new FormData();
+  if (form.title === '') {
+    ElMessage.error('请输入歌曲名')
+    return
+  }
+  if (form.singer === '') {
+    ElMessage.error('请输入歌手名')
+    return
+  }
+  if (coverList.value.length > 0) {
+    formData.append('cover', coverList.value[0].raw);
+  } else {
+    ElMessage.warning('请上传歌曲封面')
+  }
+  if (audioList.value.length > 0) {
+    formData.append('audio', audioList.value[0].raw);
+  } else {
+    ElMessage.warning('请上传歌曲音频')
+  }
+  if (lyricList.value.length > 0) {
+    const file = new Blob([songLyric.value], {type: 'text/plain'});
+    formData.append('lyric', file, lyricName);
+  }
+
+  formData.append('tag_theme', form.tag_theme);
+  formData.append('tag_scene', form.tag_scene);
+  formData.append('tag_mood', form.tag_mood);
+  formData.append('tag_style', form.tag_style);
+  formData.append('tag_language', form.tag_language);
+  formData.append('title', form.title);
+  formData.append('singer', form.singer);
+  formData.append('introduction', form.introduction);
+  formData.append('uploader', userStore.username);
+
+  try {
+    await createSong(formData);
+    emit('upInfo');
+    dialogFormVisible.value = false;
+  } catch (error) {
+    console.error('Error creating song:', error);
+  }
+}
+
 const open = () => {
   ElMessageBox.confirm(
-      '确认修改吗？',
+      editMode === 1 ? '确认修改吗？' : '确认上传吗?',
       '消息提示',
       {
         confirmButtonText: '确认',
@@ -141,13 +187,13 @@ const open = () => {
       }
   )
       .then(() => {
-        save()
+        (editMode === 1 ? save : create)();
       })
 }
 </script>
 
 <template>
-  <el-dialog v-model="dialogFormVisible" title="编辑歌曲信息" width="700" @opened="initForm"
+  <el-dialog v-model="dialogFormVisible" :title="editMode === 1 ? '编辑歌曲信息' : '上传歌曲'" width="700" @opened="initForm"
              style="max-height: 600px" class="overflow-y-auto">
     <el-form :model="form">
       <el-form-item label="歌曲名" :label-width="formLabelWidth">

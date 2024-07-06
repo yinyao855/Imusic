@@ -128,6 +128,34 @@ function setSongInfo(songId, formData) {
     });
 }
 
+// 上传歌曲
+function createSong(formData) {
+    return new Promise((resolve, reject) => {
+        instance.post('songs/upload', formData)
+            .then(r => {
+                if (r.data.success === true) {
+                    ElNotification({
+                        title: 'Success',
+                        message: '歌曲上传成功',
+                        type: 'success'
+                    });
+                    resolve(r.data);
+                } else {
+                    ElNotification({
+                        title: 'Error',
+                        message: r.data.message,
+                        type: 'error'
+                    });
+                    reject(r.data.message);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+    });
+}
+
 export {
     curEditUer,
     curEditSong,
@@ -137,5 +165,6 @@ export {
     setEditMode,
     setUserInfo,
     setSongInfo,
-    changeUserRole
+    changeUserRole,
+    createSong
 }
