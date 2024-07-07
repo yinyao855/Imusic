@@ -4,7 +4,7 @@
 
 <template>
 <div>
-  <h1>我的主页</h1>
+  <h1>还在开发中...</h1>
 </div>
 </template>
 
