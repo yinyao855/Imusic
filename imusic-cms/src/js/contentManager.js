@@ -229,6 +229,70 @@ function createSongList(formData) {
     });
 }
 
+// 歌单中添加歌曲
+function addSongToSongList(songListId, songId) {
+    return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        formData.append('songlist_id', songListId);
+        formData.append('song_id', songId);
+
+        instance.post('songlists/addsong', formData)
+            .then(r => {
+                if (r.data.success === true) {
+                    ElNotification({
+                        title: 'Success',
+                        message: '歌曲已添加到歌单',
+                        type: 'success'
+                    });
+                    resolve(r.data);
+                } else {
+                    ElNotification({
+                        title: 'Error',
+                        message: r.data.message,
+                        type: 'error'
+                    });
+                    reject(r.data.message);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+    });
+}
+
+// 歌单中删除歌曲
+function deleteSongFromSongList(songListId, songId) {
+    return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        formData.append('songlist_id', songListId);
+        formData.append('song_id', songId);
+
+        instance.post('songlists/delsong', formData)
+            .then(r => {
+                if (r.data.success === true) {
+                    ElNotification({
+                        title: 'Success',
+                        message: '歌曲已从歌单中删除',
+                        type: 'success'
+                    });
+                    resolve(r.data);
+                } else {
+                    ElNotification({
+                        title: 'Error',
+                        message: r.data.message,
+                        type: 'error'
+                    });
+                    reject(r.data.message);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+    });
+}
+
 export {
     curEditUer,
     curEditSong,
@@ -243,5 +307,7 @@ export {
     setSongListInfo,
     changeUserRole,
     createSong,
-    createSongList
+    createSongList,
+    addSongToSongList,
+    deleteSongFromSongList
 }

@@ -5,6 +5,7 @@ import {Search} from "@element-plus/icons-vue";
 import {getSongInfo, setEditMode} from "@/js/contentManager.js";
 import EditSong from "@/components/EditSong.vue";
 import {ElMessage, ElMessageBox} from "element-plus";
+import SongListAdd from "@/components/SongListAdd.vue";
 
 const musicList = ref([])
 let rowData = []
@@ -79,6 +80,7 @@ const search = () => {
 
 // 编辑歌曲
 const editVisible = ref(false)
+const songAddVisible = ref(false)
 
 function editSong(row) {
   getSongInfo(row.id)
@@ -120,6 +122,12 @@ function deleteSong(row) {
       .catch(err => {
         console.log(err)
       })
+}
+
+// 添加歌曲到歌单
+const addSong = (row) => {
+  getSongInfo(row.id)
+  songAddVisible.value = true
 }
 
 const tableData = () => {
@@ -177,6 +185,8 @@ watch(input, (val) => {
   <div class="w-full h-full">
     <!-- 编辑歌曲 -->
     <EditSong v-model:visible="editVisible" @upInfo="getMusic"/>
+    <!-- 添加歌曲到歌单 -->
+    <SongListAdd v-model:visible="songAddVisible"/>
     <div class="w-full flex">
       <h1 class="m-auto text-2xl font-black">音乐资源管理</h1>
     </div>
@@ -228,7 +238,7 @@ watch(input, (val) => {
         <el-table-column label="操作" fixed="right" width="180">
           <template #default="scope">
             <el-button type="primary" link @click="editSong(scope.row)">编辑</el-button>
-            <el-button type="success" link>添到歌单</el-button>
+            <el-button type="success" link @click="addSong(scope.row)">添到歌单</el-button>
             <el-button type="danger" link @click="open(scope.row)">删除</el-button>
           </template>
         </el-table-column>
