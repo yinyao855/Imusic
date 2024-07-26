@@ -4,7 +4,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from like.models import LikedSong
+from follow.models import Follow
+from like.models import LikedSong, LikedSongList
 from song.models import Song
 from songlist.models import SongList
 from user.models import User
@@ -64,7 +65,7 @@ def search_songs(request):
         if username:
             user = User.objects.get(username=username)
             for song in data:
-                song['user_like'] = LikedSong.objects.filter(user=user, song=song).exists()
+                song['user_like'] = LikedSong.objects.filter(user=user, song__id=song['id']).exists()
 
         return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
     except Exception as e:
@@ -78,6 +79,7 @@ def search_songlists(request):
     try:
         keyword = request.GET.get('keyword', '')
         num = request.GET.get('num', '')
+        username = request.GET.get('username')
 
         # 动态构建查询条件
         query = Q()
@@ -114,6 +116,11 @@ def search_songlists(request):
         # 将查询结果转换为字典格式
         data = [songList.to_sim_dict(request) for songList in songLists if songList.visible]
 
+        if username:
+            user = User.objects.get(username=username)
+            for songList in data:
+                songList['user_favor'] = LikedSongList.objects.filter(user=user, songlist__id=songList['id']).exists()
+
         return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
@@ -126,6 +133,7 @@ def search_users(request):
     try:
         keyword = request.GET.get('keyword', '')
         num = request.GET.get('num', '')
+        username = request.GET.get('username')
 
         # 动态构建查询条件
         query = Q()
@@ -147,6 +155,12 @@ def search_users(request):
 
         # 将查询结果转换为字典格式
         data = [user.to_pub_dict(request) for user in users]
+
+        if username:
+            for user in data:
+                user['is_following'] = (user['username'] != username and
+                                        Follow.objects.filter(follower__username=username,
+                                                              followed__username=user['username']).exists())
 
         return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
     except Exception as e:
