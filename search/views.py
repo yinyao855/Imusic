@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from like.models import LikedSong
 from song.models import Song
 from songlist.models import SongList
 from user.models import User
@@ -20,6 +21,7 @@ def search_songs(request):
             stopwords = set([line.strip() for line in f.readlines()])
         keyword = request.GET.get('keyword', '')
         num = request.GET.get('num', '')
+        username = request.GET.get('username')
 
         # 动态构建查询条件
         query = Q()
@@ -58,6 +60,11 @@ def search_songs(request):
 
         # 将查询结果转换为字典格式
         data = [song.to_sim_dict(request) for song in songs if song.visible]
+
+        if username:
+            user = User.objects.get(username=username)
+            for song in data:
+                song['user_like'] = LikedSong.objects.filter(user=user, song=song).exists()
 
         return JsonResponse({'success': True, 'message': '搜索成功', 'data': data}, status=200)
     except Exception as e:
