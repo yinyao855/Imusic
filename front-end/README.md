@@ -1,41 +1,34 @@
-# front-end
+# electron-app
 
-This template should help get you started developing with Vue 3 in Vite.
+An Electron application with Vue
 
 ## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
 
 ## Project Setup
 
-```sh
-npm install
+### Install
+
+```bash
+$ npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Development
 
-```sh
-npm run dev
+```bash
+$ npm run dev
 ```
 
-### Compile and Minify for Production
+### Build
 
-```sh
-npm run build
-```
+```bash
+# For windows
+$ npm run build:win
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+# For macOS
+$ npm run build:mac
 
-```sh
-npm run test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
+# For Linux
+$ npm run build:linux
 ```
