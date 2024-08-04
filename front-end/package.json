@@ -6,9 +6,9 @@
   "author": "imusic team",
   "homepage": "https://electron-vite.org",
   "scripts": {
-    "web dev": "vite",
-    "web build": "vite build",
-    "web preview": "vite preview",
+    "web:dev": "vite",
+    "web:build": "vite build",
+    "web:preview": "vite preview",
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "start": "electron-vite preview",
