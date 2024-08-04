@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: imusic
+productName: Imusic
 directories:
   buildResources: build
 files:
@@ -16,7 +16,12 @@ nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
-  createDesktopShortcut: always
+  createDesktopShortcut: true
+  oneClick: false # 指定是否启用一键安装模式
+  allowToChangeInstallationDirectory: true # 指定用户是否可以在安装过程中更改安装目录
+  perMachine: false # 指定安装程序是为所有用户安装true还是仅为当前用户安装false
+  installerIcon: 'build/icon.ico'
+  uninstallerIcon: 'build/icon.ico'
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
