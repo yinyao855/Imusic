@@ -2,6 +2,10 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import {checkForUpdates, hotUpdateApp} from "./HotUpdate";
+import axios from "axios";
+import * as path from "node:path";
+import * as fs from "node:fs";
 
 function createWindow() {
   // Create the browser window.
@@ -41,7 +45,7 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.imusic')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -50,8 +54,46 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  // IPC
+  ipcMain.handle('check-update', (event, args) => {
+    return checkForUpdates(args)
+  })
+  ipcMain.handle('hot-update', async () => {
+    await hotUpdateApp()
+    const win = BrowserWindow.getFocusedWindow();
+    await win.loadFile(join(__dirname, '../renderer/index.html'))
+  })
+
+  // 注册主进程的下载事件
+  ipcMain.handle('downloadZip', async (event, args) => {
+    const { DOWNLOAD_URL } = args; // 获取下载地址等参数
+    const win = BrowserWindow.getFocusedWindow(); // 获取当前焦点的窗口
+
+    try {
+      // 发起请求下载压缩文件
+      const response = await axios.get(DOWNLOAD_URL, {
+        responseType: 'arraybuffer',  // 设置响应类型为二进制数据流
+        onDownloadProgress: (progressEvent) => {
+          // 发送下载进度给渲染进程
+          win.webContents.send('downloadProgress', {
+            loaded: progressEvent.loaded,
+            total: progressEvent.total
+          });
+        }
+      });
+
+      // 将二进制数据保存为临时文件
+      let tempZipFilePath = path.join(__dirname, 'temp.zip');
+      if (!is.dev){
+        tempZipFilePath = path.join(__dirname, '../../../temp.zip');
+      }
+      fs.writeFileSync(tempZipFilePath, response.data);
+
+      console.log('Downloaded successfully.');
+    } catch (error) {
+      console.error('Error downloading files:', error);
+    }
+  });
 
   createWindow()
 

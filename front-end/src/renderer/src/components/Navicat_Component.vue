@@ -64,11 +64,18 @@
           </div>
         </template>
       </el-menu-item>
-      <el-menu-item index="7">
+      <el-menu-item index="7" class="border-b">
         <img src="./icons/AboutUs_Icon.svg" alt="关于我们" class="h-4 mr-3 ml-1" v-if="ActiveIndex!==7">
         <img src="./icons/AboutUs_Active_Icon.svg" alt="关于我们" class="h-4 mr-3 ml-1" v-else>
         <template #title><span
             style="font-family: 'TsangerYuYangT_W03_W03', sans-serif;font-size: 15px;line-height: 22px">关于我们</span>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="8">
+        <img src="./icons/AboutUs_Icon.svg" alt="设置" class="h-4 mr-3 ml-1" v-if="ActiveIndex!==8">
+        <img src="./icons/AboutUs_Active_Icon.svg" alt="设置" class="h-4 mr-3 ml-1" v-else>
+        <template #title><span
+          style="font-family: 'TsangerYuYangT_W03_W03', sans-serif;font-size: 15px;line-height: 22px">设置</span>
         </template>
       </el-menu-item>
     </el-menu>
@@ -155,6 +162,9 @@ watch(() => ActiveIndex.value, (newValue,oldValue) => {
       break;
     case 7:
       router.push('/home/aboutUs');
+      break;
+    case 8:
+      router.push('/home/settings');
       break;
   }
 })

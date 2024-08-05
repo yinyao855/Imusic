@@ -49,6 +49,11 @@ const router = createRouter({
                     name: 'aboutUs',
                     component: () => import('../frames/AboutUs_MainFrame.vue')
                 },
+                {
+                  path: 'settings',
+                  name: 'settings',
+                  component: () => import('../frames/Settings.vue')
+                },
             ]
         },
         {
