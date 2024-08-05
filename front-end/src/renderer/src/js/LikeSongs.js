@@ -18,7 +18,7 @@ export const GetLikeSongs=()=>{
         SongListDetail.value['title']='喜爱的歌曲';
         SongListDetail.value['create_date']=UserStore().Registration_date;
         SongListDetail.value['introduction']='无简介';
-        SongListDetail.value['cover']='/LikeSongs.png';
+        SongListDetail.value['cover']='./LikeSongs.png';
         SongListDetail.value['owner']=UserStore().Username;
         //标志为喜爱的歌曲模式
         SongListDetail.value['mode']=0;

@@ -2,7 +2,7 @@
 import { MySongLists } from '@/js/MySongList.js'
 import { MusicPlayerVisible } from '@/js/MusicPlayer.js'
 import { GetSongListDetail } from '@/js/SongList.js'
-import { UserStore } from '../stores/User.js'
+import { UserStore } from '@/stores/User'
 import { GetLikeSongs } from '@/js/LikeSongs.js'
 </script>
 
